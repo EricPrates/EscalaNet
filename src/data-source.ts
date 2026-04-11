@@ -1,62 +1,48 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import dotenv from "dotenv";
-import fs from "fs";
+import { User } from "./Models/User";
+import { Core } from "./Models/Core";
+
 dotenv.config();
 
 const isProduction = process.env.NODE_ENV === "production";
-const isDevelopment = process.env.NODE_ENV === "development";
 
-if (!isProduction && !isDevelopment) {
-  console.warn(" NODE_ENV não definido. Usando modo desenvolvimento.");
-}
-
-let dataSourceConfig: any;
-
+// Validação para produção
 if (isProduction) {
-  // PRODUÇÃO: MySQL remoto
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) {
-    throw new Error(" DATABASE_URL é obrigatório em produção");
+  const requiredVars = ["DB_HOST", "DB_NAME", "DB_USER", "DB_PASS"];
+  const missing = requiredVars.filter(varName => !process.env[varName]);
+  
+  if (missing.length > 0) {
+    throw new Error(`Variáveis de ambiente faltando: ${missing.join(", ")}`);
   }
-  
-  // SSL condicional
-  let sslConfig = undefined;
-  const sslPath = process.env.SSL_CA_PATH;
-  if (sslPath && fs.existsSync(sslPath)) {
-    sslConfig = {
-      rejectUnauthorized: true,
-      ca: fs.readFileSync(sslPath),
-    };
-  } else if (databaseUrl.includes("?ssl=true") || databaseUrl.includes("ssl-mode=require")) {
-    sslConfig = { rejectUnauthorized: false };
-  }
-  
-  dataSourceConfig = {
-    type: "mysql",
-    url: databaseUrl,
-    ssl: sslConfig,
-    synchronize: false,
-    logging: false,
-    entities: ["dist/models/**/*.js"],
-    migrations: ["dist/migrations/**/*.js"],
-    extra: { connectionLimit: 10 },
-  };
-  
-  console.log("Configuração de PRODUÇÃO (MySQL)");
-  
-} else {
-  // DESENVOLVIMENTO: SQLite
-  dataSourceConfig = {
-    type: "sqlite",
-    database: process.env.DB_PATH || "database.sqlite",
-    synchronize: true,
-    logging: true,
-    entities: ["src/models/**/*.ts"],
-    migrations: ["src/migrations/**/*.ts"],
-  };
-  
-  console.log("✅ Configuração de DESENVOLVIMENTO (SQLite)");
 }
 
-export const AppDataSource = new DataSource(dataSourceConfig);
+const AppDataSource = new DataSource(
+  isProduction
+    ? {
+        type: "mysql",
+        host: process.env.DB_HOST,
+        port: parseInt(process.env.DB_PORT || "3306"),
+        username: process.env.DB_USER,
+        password: process.env.DB_PASS,
+        database: process.env.DB_NAME,
+        synchronize: false,
+        logging: false,
+        entities: [User, Core],
+        migrations: ["src/migrations/**/*.ts"],
+        extra: {
+          connectionLimit: 10,
+          waitForConnections: true,
+        },
+      }
+    : {
+        type: "sqlite",
+        database: process.env.SQLITE_DB || "database.sqlite",
+        synchronize: true,
+        logging: true,
+        entities: [User, Core],
+      }
+);
+
+export { AppDataSource };
