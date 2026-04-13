@@ -1,8 +1,10 @@
-import { AnyZodObject } from "zod/v3";
+
 import { NextFunction, Request, Response } from 'express';
 import {converterZodError} from "../util/tratarZodError";
+import { z } from "zod";
 
-export const validateBody = (schema: AnyZodObject) => async (req: Request, _res: Response, next: NextFunction) => {
+
+export const validateBody = (schema: z.ZodType) => async (req: Request, _res: Response, next: NextFunction) => {
     try {
         req.body = await schema.parseAsync(req.body);
         next();
@@ -11,17 +13,19 @@ export const validateBody = (schema: AnyZodObject) => async (req: Request, _res:
     }
 
 };
-export const validateQuery = (schema: AnyZodObject) => async (req: Request, _res: Response, next: NextFunction) => {
+export const validateQuery = (schema: z.ZodType) => async (req: Request, _res: Response, next: NextFunction) => {
     try {
-        req.query = await schema.parseAsync(req.query);
+        const validado = await schema.parseAsync(req.query);
+        req.query = validado as any;
         next();
     } catch (err) {
         next(converterZodError(err));
     }
 };
-export const validateParams = (schema: AnyZodObject) => async (req: Request, _res: Response, next: NextFunction) => {
+export const validateParams = (schema: z.ZodType) => async (req: Request, _res: Response, next: NextFunction) => {
     try {
-        req.params = await schema.parseAsync(req.params);
+        const validado = await schema.parseAsync(req.params);
+        req.params = validado as any;
         next();
     } catch (err) {
         next(converterZodError(err));

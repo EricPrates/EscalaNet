@@ -12,7 +12,7 @@ export const montarRespostaErro = (status: number, message?: string, detalhes?: 
     }
     return response; 
 };
-export const montarRespostaSucesso = (message?: string, data?: any): MontarResposta => {
+export const montarRespostaSucesso = (message: string, data?: any): MontarResposta => {
     const response = {
         message,
     } as MontarResposta;
