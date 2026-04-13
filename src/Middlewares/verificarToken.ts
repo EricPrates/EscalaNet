@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import jsonwebtoken from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { AppError } from '../Models/AppError';
-import { AuthContext } from "../types/util.types";
+import { AuthContext } from "../Interfaces/util.types";
 import { authStorage } from "../util/authStorage";
 dotenv.config();
 

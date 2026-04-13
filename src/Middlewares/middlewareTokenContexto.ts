@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { verificarToken } from "./verificarToken";
 import { authStorage } from "../util/authStorage";
-import { AuthContext } from "../types/util.types";
+import { AuthContext } from "../Interfaces/util.types";
 import { AppError } from "../Models/AppError";
 
 

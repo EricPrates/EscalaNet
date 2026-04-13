@@ -1,6 +1,6 @@
 import jsonwebtoken from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import { AuthContext} from '../types/util.types';
+import { AuthContext} from '../Interfaces/util.types';
 dotenv.config();
 
 

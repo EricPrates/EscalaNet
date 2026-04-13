@@ -1,6 +1,6 @@
-import { HTTP_STATUS } from '../util/sendMessages';
+import { HTTP_STATUS } from '../util/mensagensErros';
 
-export interface BuildResponse {
+export interface MontarResposta {
     status: number;
     message: string;
     data?: any;
