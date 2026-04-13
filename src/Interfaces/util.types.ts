@@ -1,4 +1,3 @@
-import { HTTP_STATUS } from '../util/mensagensErros';
 
 export interface MontarResposta {
     status: number;
@@ -9,13 +8,13 @@ export interface MontarResposta {
 
 export interface AuthContext {
     id: number;
-    name: string;
+    nome: string;
     email: string;
-    role: 'coordenador' | 'admin';
+    permissao: 'coordenador' | 'admin';
 }
 
-export interface HTTP_STATUS {
-     200: 'OK',
+export const HTTP_STATUS_ERRORS: { [key: number]: string } = {
+    200: 'OK',
     201: 'Criado',
     202: 'Requisição aceita',
     204: 'Deletado com sucesso',
@@ -29,4 +28,5 @@ export interface HTTP_STATUS {
     502: 'Gateway ruim',
     503: 'Serviço indisponível',
     504: 'Gateway timeout',
-}
+
+} ;

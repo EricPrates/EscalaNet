@@ -1,10 +1,11 @@
 import { IUsuarioRepository } from "../Interfaces/user.interfaces";
+import { AppError } from "../Models/AppError";
 import { Usuario } from "../Models/Usuario";
 import { CriarUsuarioDTO } from '../Schemas/user.schemas';
 import { AppDataSource } from "../data-source";
 
 const repo = AppDataSource.getRepository(Usuario);
-export const UsuarioRepository : IUsuarioRepository = {
+export const UsuarioRepo : IUsuarioRepository = {
 
     async listarUsuarios(): Promise<Usuario[]> {
         return await repo.find();
@@ -24,7 +25,11 @@ export const UsuarioRepository : IUsuarioRepository = {
         return await repo.save(usuario);
     },
     async criarUsuarioSemRetorno(data: CriarUsuarioDTO): Promise<void> {
-       await repo.insert(data);
+       const user = await repo.insert(data);
+       if(!user) {
+        throw new AppError(500, 'Erro ao criar usuário');
+       }
+    
     },
 
     async atualizarUsuario(id: number, data: Partial<CriarUsuarioDTO>): Promise<Usuario | null> {

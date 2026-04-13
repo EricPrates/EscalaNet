@@ -1,10 +1,10 @@
 import jsonwebtoken from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import { AuthContext} from '../Interfaces/util.types';
+import { AuthContext } from '../Interfaces/util.types';
 dotenv.config();
 
 
-export const geradorDeToken = (payload: AuthContext)  => {
+export default function generateToken(payload: AuthContext): string {
     return jsonwebtoken.sign(payload, process.env.JWT_SECRET || 'default_secret',
         {
             expiresIn: '1h',
@@ -13,4 +13,3 @@ export const geradorDeToken = (payload: AuthContext)  => {
     );
     
 }
-

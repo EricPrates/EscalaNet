@@ -17,14 +17,14 @@ export const verificarToken  = (token: string): AuthContext => {
 
 export async function processarTokenAdmin(_req: Request, _res: Response, next: NextFunction): Promise<void> {
     const context = authStorage.getStore();
-    if (!context || context.role !== 'admin') {
+    if (!context || context.permissao !== 'admin') {
         throw new AppError(403, 'Acesso negado: privilégios de administrador necessários');
     }
     next();
 }
 export async function processarTokenCoordenador(_req: Request, _res: Response, next: NextFunction): Promise<void> {
     const context = authStorage.getStore();
-    if (!context || context.role !== 'coordenador') {
+    if (!context || context.permissao !== 'coordenador') {
         throw new AppError(403,'Acesso negado: privilégios de coordenador necessários');
     }
     next();

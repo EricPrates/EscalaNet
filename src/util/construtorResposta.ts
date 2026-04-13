@@ -1,4 +1,4 @@
-import { MontarResposta } from '../Interfaces/util.types';
+import { MontarResposta } from "../Interfaces/util.types";
 
 
 export const montarRespostaErro = (status: number, message?: string, detalhes?: string ): MontarResposta =>  {
@@ -21,6 +21,7 @@ export const montarRespostaSucesso = (message?: string, data?: any): MontarRespo
     }
     return response;
 }
+
 
 
 

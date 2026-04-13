@@ -29,7 +29,7 @@ export class Usuario {
     @Column({
         type: "varchar", length: 50, nullable: false, default: "coordenador"
     })
-    role!: "admin" | "coordenador";
+    permissao!: "admin" | "coordenador";
 
     @OneToMany(() => Nucleo, (nucleo) => nucleo.admin , {lazy: true})
     nucleosAdministrados!: Promise<Nucleo[]>;

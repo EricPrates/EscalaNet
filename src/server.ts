@@ -3,30 +3,31 @@ import express from "express";
 import { AppDataSource } from "./data-source";
 import dotenv from "dotenv";
 import cors from "cors";
-import { middlewareTokenContexto } from "./Middleware/middlewareTokenContexto";
-import { errorHandler } from "./Middleware/erroHandler";
+import { middlewareTokenContexto } from "./Middlewares/middlewareTokenContexto";
+import { errorHandler } from "./Middlewares/erroHandler";
+import { usuarioController } from "./Containers/user.container";
 dotenv.config();
 
 const app: express.Application = express();
 const corsOptions = {
   origin: '*', 
-  
+  exposedHeaders: ['Authorization'] 
 };
 
 
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(middlewareTokenContexto); 
-//app.use('/login') //criar rota de login;
-//app.use('/register') //criar rota de registro;
-
-// app.use('/admin', processarTokenAdmin); // Middleware para proteger rotas de admin
-// app.use(errorHandler); // Middleware para tratamento de erros
 
 
+const apiRouter = express.Router();
+
+apiRouter.post('/registrar', usuarioController.criarUsuario);
+apiRouter.post('/login', usuarioController.login);
+apiRouter.use(middlewareTokenContexto);
 
 
+app.use('/EscalaNet', apiRouter);
 app.use(errorHandler);
 const PORT: number = process.env.PORT? parseInt(process.env.PORT) : 3000;
 
@@ -34,7 +35,7 @@ const PORT: number = process.env.PORT? parseInt(process.env.PORT) : 3000;
   try {
     await AppDataSource.initialize();
     app.listen(PORT, () => {
-      console.log(`API rodando na porta ${PORT}`);
+      console.log(`EscalaNet rodando na porta ${PORT}`);
     });
   } catch (error) {
     console.error("Erro ao iniciar o servidor:", error);
