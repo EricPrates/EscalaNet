@@ -1,44 +1,48 @@
+import { DataSource } from "typeorm";
 import { IUsuarioRepository } from "../Interfaces/user.interfaces";
 import { AppError } from "../Models/AppError";
 import { Usuario } from "../Models/Usuario";
 import { CriarUsuarioDTO } from '../Schemas/user.schemas';
-import { AppDataSource } from "../data-source";
 
-const repo = AppDataSource.getRepository(Usuario);
-export const UsuarioRepo : IUsuarioRepository = {
 
-    async listarUsuarios(): Promise<Usuario[]> {
-        return await repo.find();
-    },
-    async obterUsuarioPorId(id: number): Promise<Usuario | null> {
-        const usuario = await repo.findOne({ where: { id } });
-        return usuario || null;
-    },
+export function fazerUsuarioRepo(dataSource: DataSource): IUsuarioRepository {
+    const repo = dataSource.getRepository(Usuario);
 
-    async obterUsuarioPorEmail(email: string): Promise<Usuario | null> {
-        const usuario = await repo.findOne({ where: { email } });
-        return usuario || null;
-    },
+    return {
+        async listarUsuarios() {
+            return repo.find();
+        },
 
-    async criarUsuario(data: CriarUsuarioDTO): Promise<Usuario> {
-        const usuario = repo.create(data);
-        return await repo.save(usuario);
-    },
-    async criarUsuarioSemRetorno(data: CriarUsuarioDTO): Promise<void> {
-       const user = await repo.insert(data);
-       if(!user) {
-        throw new AppError(500, 'Erro ao criar usuário');
-       }
-    
-    },
+        async obterUsuarioPorId(id: number) {
+            const usuario = await repo.findOne({ where: { id } });
+            return usuario || null;
+        },
 
-    async atualizarUsuario(id: number, data: Partial<CriarUsuarioDTO>): Promise<Usuario | null> {
-        const result = await repo.update({ id }, data);
-        return result ? await this.obterUsuarioPorId(id) : null;
-    },
+        async obterUsuarioPorEmail(email: string) {
+            const usuario = await repo.findOne({ where: { email } });
+            return usuario || null;
+        },
 
-   async deletarUsuario(id: number): Promise<boolean> {
-        const result = await repo.delete({ id });
-        return (result.affected ?? 0) > 0;
-    }
+        async criarUsuario(data: CriarUsuarioDTO) {
+            const usuario = repo.create(data);
+            return repo.save(usuario);
+        },
+
+        async criarUsuarioSemRetorno(data: CriarUsuarioDTO) {
+            const user = await repo.insert(data);
+            if (!user) {
+                throw new AppError(500, 'Erro ao criar usuário');
+            }
+        },
+
+        async atualizarUsuario(id: number, data: Partial<CriarUsuarioDTO>) {
+            await repo.update({ id }, data);
+            return this.obterUsuarioPorId(id);
+        },
+
+        async deletarUsuario(id: number) {
+            const result = await repo.delete({ id });
+            return (result.affected ?? 0) > 0;
+        }
+    };
 }

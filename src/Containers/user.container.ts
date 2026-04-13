@@ -1,9 +1,10 @@
 import { fazerUsuarioController } from "../Controllers/usuario.controller";
-import { UsuarioRepo } from "../Repos/usuario.repo";
+import { AppDataSource } from "../data-source";
+import { fazerUsuarioRepo } from "../Repos/usuario.repo";
 import { fazerUsuarioService } from "../Services/user.service";
 
 
-const usuarioRepo = UsuarioRepo;
+const usuarioRepo = fazerUsuarioRepo(AppDataSource);
 const usuarioService = fazerUsuarioService(usuarioRepo);
 export const usuarioController = fazerUsuarioController(usuarioService);
 
