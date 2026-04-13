@@ -4,13 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development ts-node-dev src/server.ts",
     "build": "tsc",
     "start": "cross-env NODE_ENV=production node dist/server.js",
     "typeorm": "typeorm-ts-node-commonjs",
     "migrate:generate": "npm run typeorm -- migration:generate -d src/data-source.ts",
     "migrate:run": "npm run typeorm -- migration:run -d src/data-source.ts",
-    "migrate:revert": "npm run typeorm -- migration:revert -d src/data-source.ts"
+    "migrate:revert": "npm run typeorm -- migration:revert -d src/data-source.ts",
+    "dev": "ts-node src/server.ts",
+    "test-db": "ts-node -e \"require('./src/data-source').AppDataSource.initialize().then(() => console.log('Conectado!')).catch(console.error)\""
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,7 @@
   },
   "homepage": "https://github.com/EricPrates/EscalaNet#readme",
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.6.0",
     "@types/uuid": "^10.0.0",
     "cross-env": "^10.1.0",
@@ -38,6 +40,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.1",
     "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.22.0",
     "reflect-metadata": "^0.2.2",
     "sqlite3": "^5.1.7",
