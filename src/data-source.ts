@@ -5,6 +5,7 @@ import { Usuario } from "./Models/Usuario";
 import { Aluno} from "./Models/Aluno";
 import { Categoria } from "./Models/Categoria";
 import { Nucleo } from "./Models/Nucleo";
+import { Jogo } from "./Models/Jogo";
 
 dotenv.config();
 
@@ -17,7 +18,7 @@ const AppDataSource = new DataSource({
     database: process.env.DB_NAME,
     synchronize: true, // Só em desenvolvimento! Cria/atualiza tabelas automaticamente
     logging: ["query", "error", "schema"],
-    entities: [Usuario, Nucleo, Aluno, Categoria],
+    entities: [Usuario, Nucleo, Aluno, Categoria, Jogo],
     migrations: ["src/migrations/**/*.ts"],
 });
 

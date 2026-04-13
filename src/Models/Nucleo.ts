@@ -20,7 +20,7 @@ export class Nucleo {
     @UpdateDateColumn({ name: "updated_at" })
     updatedAt!: Date;
 
-    @Index()
+   
     @ManyToOne(() => Usuario, (usuario) => usuario.nucleosAdministrados, {lazy: true})
     @JoinColumn({ name: "admin_id" })
     admin!: Promise<Usuario | null>;

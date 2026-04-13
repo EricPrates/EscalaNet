@@ -3,7 +3,7 @@ import express from "express";
 import { AppDataSource } from "./data-source";
 import dotenv from "dotenv";
 import cors from "cors";
-import { contextMiddleware } from "./Middleware/context.middleware";
+import { middlewareTokenContexto } from "./Middleware/middlewareTokenContexto";
 import { errorHandler } from "./Middleware/erroHandler";
 dotenv.config();
 
@@ -17,10 +17,11 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/login') //criar rota de login;
-app.use('/register') //criar rota de registro;
-app.use(contextMiddleware); 
-// app.use('/admin', adminProcessToken); // Middleware para proteger rotas de admin
+app.use(middlewareTokenContexto); 
+//app.use('/login') //criar rota de login;
+//app.use('/register') //criar rota de registro;
+
+// app.use('/admin', processarTokenAdmin); // Middleware para proteger rotas de admin
 // app.use(errorHandler); // Middleware para tratamento de erros
 
 

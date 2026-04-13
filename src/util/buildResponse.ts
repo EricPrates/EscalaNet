@@ -1,7 +1,7 @@
 import { BuildResponse } from '../types/util.types';
 
 
-export const buildResponse = (status: number, message: string, data?:any ): BuildResponse =>  {
+export const contrutorDeResposta = (status: number, message?: string, data?:any, detalhes?: string ): BuildResponse =>  {
     const response = {
         status,
         message,
@@ -9,6 +9,9 @@ export const buildResponse = (status: number, message: string, data?:any ): Buil
 
     if (data !== undefined) {
         response.data = data;
+    }
+    if (detalhes !== undefined) {
+        response.detalhes = detalhes;
     }
     return response; 
 };

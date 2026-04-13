@@ -34,7 +34,7 @@ export class Usuario {
     @OneToMany(() => Nucleo, (nucleo) => nucleo.admin , {lazy: true})
     nucleosAdministrados!: Promise<Nucleo[]>;
 
-    @Index()
+  
     @OneToOne(() => Nucleo, (nucleo) => nucleo.coordenador, {lazy: true})
     nucleoCoordenado!: Promise<Nucleo | null>;
 }

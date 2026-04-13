@@ -31,7 +31,7 @@ export class Categoria {
     @UpdateDateColumn({ name: "updated_at" })
     updatedAt!: Date;
     
-    @Index()
+   
     @ManyToMany(() => Nucleo, (nucleos) => nucleos.categorias, {lazy: true})
     nucleos!: Promise<Nucleo[]>;
 }
