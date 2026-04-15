@@ -6,6 +6,9 @@ export interface MontarResposta {
     detalhes?: string;
 }
 
+export type Propiedades = "body" | "query" | "params" | "headers" | "cookies";
+
+
 export interface AuthContext {
     id: number;
     nome: string;

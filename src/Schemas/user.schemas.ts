@@ -23,6 +23,7 @@ export const SchemaBuscarUsuario = z.object({
 });
 
 
+
 export type CriarUsuarioDTO = z.infer<typeof SchemaCriarUsuario>;
 export type LoginUsuarioDTO = z.infer<typeof SchemaLoginUsuario>;
 export type RespostaUsuarioDTO = z.infer<typeof SchemaRespostausuario>;

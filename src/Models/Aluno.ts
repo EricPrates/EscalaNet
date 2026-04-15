@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, Index } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, Index, ManyToMany } from "typeorm";
 import { Nucleo } from "./Nucleo";
+import { Treino } from "./Treino";
 
 @Index(["nucleo", "dataNascimento"])
 @Entity({ name: "alunos" })
@@ -26,5 +27,8 @@ export class Aluno {
     @ManyToOne(() => Nucleo, (nucleo) => nucleo.alunos, {lazy: true})
     @JoinColumn({ name: "nucleo_id" })
     nucleo!: Promise<Nucleo>;
+
+    @ManyToMany(() => Treino, (treino) => treino.alunos, {lazy: true})
+    treinos!: Promise<Treino[]>;
 
 }

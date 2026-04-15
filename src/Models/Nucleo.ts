@@ -3,6 +3,7 @@ import { Usuario } from "./Usuario";
 import { Aluno } from './Aluno';
 import { Categoria } from './Categoria';
 import { Jogo } from './Jogo';
+import { Treino } from './Treino';
 
 
 @Entity({ name: "nucleos" })
@@ -13,6 +14,9 @@ export class Nucleo {
     @Index()
     @Column({ type: "varchar", length: 255, nullable: false })
     nome!: string;
+
+    @Column({ type: "varchar", length: 1000, nullable: true })
+    endereco!: string;
 
     @CreateDateColumn({ name: "created_at" })
     createdAt!: Date;
@@ -30,7 +34,13 @@ export class Nucleo {
     @JoinColumn({ name: "coordenador_id" })
     coordenador!: Promise<Usuario | null>;
 
-  
+    @Index()
+    @OneToMany(() => Usuario, (usuario) => usuario.nucleoOndeProfessor , {lazy: true})
+    professores!: Promise<Usuario[]>;
+
+    @OneToMany(() => Treino, (treino) => treino.nucleo , {lazy: true})
+    treinos!: Promise<Treino[]>;
+
     @OneToMany(() => Aluno, (aluno) => aluno.nucleo , {lazy: true})
     alunos!: Promise<Aluno[]>;
 
@@ -43,12 +53,11 @@ export class Nucleo {
     })
     categorias!: Promise<Categoria[]>;
 
-    @ManyToMany(() => Jogo, (jogo) => jogo.nucleos , {lazy: true})
-    @JoinTable({
-        name: "nucleos_jogos",
-        joinColumn: { name: "nucleo_id", referencedColumnName: "id" },
-        inverseJoinColumn: { name: "jogo_id", referencedColumnName: "id" }
-    })
-    jogos!: Promise<Jogo[]>;
+    @OneToMany(() => Jogo, (jogo) => jogo.timeA , {lazy: true})
+    jogosTimeA!: Promise<Jogo[]>;
+
+    @OneToMany(() => Jogo, (jogo) => jogo.timeB , {lazy: true})
+    jogosTimeB!: Promise<Jogo[]>;
+
 
 }

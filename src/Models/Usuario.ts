@@ -1,5 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, OneToOne, Index } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, OneToOne, Index, ManyToMany, ManyToOne, JoinColumn } from "typeorm";
 import { Nucleo } from "./Nucleo";
+import { Treino } from "./Treino";
+
 
 
 @Entity({ name: "usuarios" })
@@ -29,13 +31,20 @@ export class Usuario {
     @Column({
         type: "varchar", length: 50, nullable: false, default: "coordenador"
     })
-    permissao!: "admin" | "coordenador";
+    permissao!: "admin" | "coordenador"| "professor" | "arbitro" | "auxiliar";
 
     @OneToMany(() => Nucleo, (nucleo) => nucleo.admin , {lazy: true})
     nucleosAdministrados!: Promise<Nucleo[]>;
 
-  
+    @ManyToMany(()=> Treino, (treino) => treino.usuarios)
+    treinos!: Promise<Treino[]>;
+
     @OneToOne(() => Nucleo, (nucleo) => nucleo.coordenador, {lazy: true})
-    nucleoCoordenado!: Promise<Nucleo | null>;
+    nucleoCoordenado!: Promise<Nucleo>;
+
+    @ManyToOne(() => Nucleo, (nucleo) => nucleo.professores, {lazy: true})
+    @JoinColumn({ name: "nucleo_id" })
+    nucleoOndeProfessor!: Promise<Nucleo>;
+
 }
 
