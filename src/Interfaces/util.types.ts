@@ -4,6 +4,7 @@ export interface MontarResposta {
     message: string;
     data?: any;
     detalhes?: string;
+    token?: string;
 }
 
 export type PropiedadesDeValidacao = ['body'] | ['query'] | ['params'] | ['headers'] | ['cookies'];

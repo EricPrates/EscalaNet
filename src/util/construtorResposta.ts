@@ -12,12 +12,15 @@ export const montarRespostaErro = (status: number, message?: string, detalhes?: 
     }
     return response; 
 };
-export const montarRespostaSucesso = (message: string, data?: any): MontarResposta => {
+export const montarRespostaSucesso = (message: string, data?: any, token?: string): MontarResposta => {
     const response = {
         message,
     } as MontarResposta;
     if (data !== undefined) {
         response.data = data;
+    }
+    if (token !== undefined) {
+        response.token = token ;
     }
     return response;
 }

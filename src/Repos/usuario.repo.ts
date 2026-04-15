@@ -10,7 +10,7 @@ export function fazerUsuarioRepo(dataSource: DataSource): IUsuarioRepository {
 
     return {
         async listarUsuarios() {
-            return repo.find();
+            return repo.find({ order: { id: 'ASC' } });
         },
 
         async obterUsuarioPorId(id: number) {

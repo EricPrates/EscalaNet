@@ -14,7 +14,7 @@ dotenv.config();
 const app: express.Application = express();
 const corsOptions = {
   origin: '*', 
-  exposedHeaders: ['Authorization'] 
+  exposedHeaders: ['Authorization', 'authorization']
 };
 
 
@@ -25,12 +25,20 @@ app.use(express.urlencoded({ extended: true }));
 
 const apiRouter = express.Router();
 
-apiRouter.post('/registrar', validate(SchemaCriarUsuario, 'body'), usuarioController.criarUsuario);
-apiRouter.post('/login', validate(SchemaLoginUsuario, 'body'), usuarioController.login);
-apiRouter.use(middlewareTokenContexto);
+
+
+
 
 
 app.use('/EscalaNet', apiRouter);
+
+apiRouter.get('/', (_req, res) => {
+  res.json({ mensagem: "API EscalaNet Online - Use /login para entrar" });
+});
+apiRouter.post('/login', validate(SchemaLoginUsuario, 'body'), usuarioController.login);
+apiRouter.post('/usuario', validate(SchemaCriarUsuario, 'body'), usuarioController.criarUsuario);
+apiRouter.use(middlewareTokenContexto);
+
 app.use(errorHandler);
 const PORT: number = process.env.PORT? parseInt(process.env.PORT) : 3000;
 

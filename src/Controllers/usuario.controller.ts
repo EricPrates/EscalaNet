@@ -20,7 +20,6 @@ export function fazerUsuarioController(service: IUsuarioService) {
 
         async criarUsuario(req: Request, res: Response) {
             const { email, senha, permissao, nome } = req.body as CriarUsuarioDTO;
-
             const usuario = await service.criarUsuario({ email, senha, permissao, nome });
             return res.status(201).json(montarRespostaSucesso('Usuário criado com sucesso', usuario));
         },
@@ -39,7 +38,7 @@ export function fazerUsuarioController(service: IUsuarioService) {
             const payload = { id: usuarioLogado.id, nome: usuarioLogado.nome, email: usuarioLogado.email, permissao: usuarioLogado.permissao };
             const token = gerarToken(payload);
             res.setHeader('Authorization', `Bearer ${token}`);
-            return res.status(200).json(montarRespostaSucesso('Login realizado com sucesso', usuarioLogado));
+            return res.status(200).json(montarRespostaSucesso('Login realizado com sucesso', usuarioLogado, token));
         }
     }
 }
