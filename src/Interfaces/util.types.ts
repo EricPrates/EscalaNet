@@ -6,14 +6,14 @@ export interface MontarResposta {
     detalhes?: string;
 }
 
-export type Propiedades = "body" | "query" | "params" | "headers" | "cookies";
+export type PropiedadesDeValidacao = ['body'] | ['query'] | ['params'] | ['headers'] | ['cookies'];
 
 
 export interface AuthContext {
     id: number;
     nome: string;
     email: string;
-    permissao: 'coordenador' | 'admin';
+    permissao: 'coordenador' | 'admin' | 'professor' | 'arbitro' | 'auxiliar';
 }
 
 export const HTTP_STATUS_ERRORS: { [key: number]: string } = {

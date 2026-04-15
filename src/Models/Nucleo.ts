@@ -34,7 +34,7 @@ export class Nucleo {
     @JoinColumn({ name: "coordenador_id" })
     coordenador!: Promise<Usuario | null>;
 
-    @Index()
+   
     @OneToMany(() => Usuario, (usuario) => usuario.nucleoOndeProfessor , {lazy: true})
     professores!: Promise<Usuario[]>;
 

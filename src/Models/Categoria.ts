@@ -1,5 +1,6 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn,   UpdateDateColumn,  ManyToMany, Index } from 'typeorm';
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn,   UpdateDateColumn,  ManyToMany, Index, OneToMany } from 'typeorm';
 import { Nucleo } from './Nucleo';
+import { Aluno } from './Aluno';
 
 
 @Entity({ name: "categorias" })
@@ -34,4 +35,7 @@ export class Categoria {
    
     @ManyToMany(() => Nucleo, (nucleos) => nucleos.categorias, {lazy: true})
     nucleos!: Promise<Nucleo[]>;
+
+    @OneToMany(() => Aluno, (aluno) => aluno.categoria, {lazy: true})
+    alunos!: Promise<Aluno[]>;
 }

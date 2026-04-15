@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { verificarToken } from "./verificarToken";
+import { verificarToken } from "../util/verificarToken";
 import { authStorage } from "../util/authStorage";
 import { AuthContext } from "../Interfaces/util.types";
 import { AppError } from "../Models/AppError";
@@ -18,7 +18,10 @@ export async function middlewareTokenContexto(req: Request, _res: Response, next
                 if (!decoded) {
                     throw new AppError(401);
                 }
+                authStorage.run(decoded as AuthContext, () => next());
             }
+
+        } else {
+            throw new AppError(401);
         }
-        authStorage.run(decoded as AuthContext, () => next());
 };

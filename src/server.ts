@@ -6,6 +6,9 @@ import cors from "cors";
 import { middlewareTokenContexto } from "./Middlewares/middlewareTokenContexto";
 import { errorHandler } from "./Middlewares/erroHandler";
 import { usuarioController } from "./Containers/user.container";
+import { validate } from "./Middlewares/validadorSchema";
+import { SchemaCriarUsuario, SchemaLoginUsuario } from "./Schemas/user.schemas";
+
 dotenv.config();
 
 const app: express.Application = express();
@@ -22,8 +25,8 @@ app.use(express.urlencoded({ extended: true }));
 
 const apiRouter = express.Router();
 
-apiRouter.post('/registrar', usuarioController.criarUsuario);
-apiRouter.post('/login', usuarioController.login);
+apiRouter.post('/registrar', validate(SchemaCriarUsuario, 'body'), usuarioController.criarUsuario);
+apiRouter.post('/login', validate(SchemaLoginUsuario, 'body'), usuarioController.login);
 apiRouter.use(middlewareTokenContexto);
 
 

@@ -4,7 +4,8 @@ export const SchemaCriarUsuario = z.object({
     nome: z.string().min(1, "O nome é obrigatório"),
     email: z.email("Email inválido"),
     senha: z.string().min(6, "A senha deve conter no mínimo 6 caracteres"),
-    permissao : z.enum(['admin', 'coordenador'], "Permissao deve ser 'admin' ou 'coordenador'").default('coordenador'),
+    permissao : z.enum(['admin', 'coordenador', 'professor', 'arbitro', 'auxiliar'],
+        "Permissao Deve ser de admin, coordenador, professor, arbitro ou auxiliar"),
 });
 export const SchemaLoginUsuario = z.object({
     email: z.email("Email inválido"),
@@ -15,7 +16,7 @@ export const SchemaRespostausuario = z.object({
     id: z.number(),
     nome: z.string(),
     email: z.string(),
-    permissao: z.enum(['admin', 'coordenador']),
+    permissao: z.enum(['admin', 'coordenador', 'professor', 'arbitro', 'auxiliar']),
 });
 export const SchemaBuscarUsuario = z.object({
     id: z.number().optional().transform(Number),

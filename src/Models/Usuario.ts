@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, OneToOne, Index, ManyToMany, ManyToOne, JoinColumn } from "typeorm";
 import { Nucleo } from "./Nucleo";
 import { Treino } from "./Treino";
+import { Jogo } from "./Jogo";
 
 
 
@@ -36,7 +37,7 @@ export class Usuario {
     @OneToMany(() => Nucleo, (nucleo) => nucleo.admin , {lazy: true})
     nucleosAdministrados!: Promise<Nucleo[]>;
 
-    @ManyToMany(()=> Treino, (treino) => treino.usuarios)
+    @ManyToMany(()=> Treino, (treino) => treino.usuarios , {lazy: true})
     treinos!: Promise<Treino[]>;
 
     @OneToOne(() => Nucleo, (nucleo) => nucleo.coordenador, {lazy: true})
@@ -46,5 +47,7 @@ export class Usuario {
     @JoinColumn({ name: "nucleo_id" })
     nucleoOndeProfessor!: Promise<Nucleo>;
 
+    @OneToMany(() => Jogo, (jogo) => jogo.arbitro, { lazy: true })
+    jogos!: Promise<Jogo[]>;
 }
 
