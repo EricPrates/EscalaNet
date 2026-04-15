@@ -1,14 +1,7 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import dotenv from "dotenv";
-import { Usuario } from "./Models/Usuario";
-import { Aluno} from "./Models/Aluno";
-import { Categoria } from "./Models/Categoria";
-import { Nucleo } from "./Models/Nucleo";
-import { Jogo } from "./Models/Jogo";
-import { Treino } from "./Models/Treino";
-import { EventosJogo } from "./Models/EventosJogo";
-import { Frequencia } from "./Models/Frequencia";
+
 
 dotenv.config();
 
@@ -21,7 +14,7 @@ const AppDataSource = new DataSource({
     database: process.env.DB_NAME,
     synchronize: true, // Só em desenvolvimento! Cria/atualiza tabelas automaticamente
     logging: ["query", "error", "schema"],
-    entities: [Usuario, Nucleo, Aluno, Categoria, Jogo, Treino, EventosJogo, Frequencia],
+    entities: [__dirname + "/modules/**/*.model.{js,ts}"],
     migrations: ["src/migrations/**/*.ts"],
 });
 

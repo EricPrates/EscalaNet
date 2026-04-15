@@ -3,11 +3,11 @@ import express from "express";
 import { AppDataSource } from "./data-source";
 import dotenv from "dotenv";
 import cors from "cors";
-import { middlewareTokenContexto } from "./Middlewares/middlewareTokenContexto";
-import { errorHandler } from "./Middlewares/erroHandler";
-import { usuarioController } from "./Containers/user.container";
-import { validate } from "./Middlewares/validadorSchema";
-import { SchemaCriarUsuario, SchemaLoginUsuario } from "./Schemas/user.schemas";
+import { middlewareTokenContexto } from "./shared/Middlewares/middlewareTokenContexto";
+import { errorHandler } from "./shared/Middlewares/erroHandler";
+import { usuarioController } from "./modules/usuario/user.container";
+import { validate } from "./shared/Middlewares/validadorSchema";
+import { SchemaCriarUsuario, SchemaLoginUsuario } from "./modules/usuario/usuario.schemas";
 
 dotenv.config();
 

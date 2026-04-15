@@ -1,6 +1,0 @@
-import { AuthContext } from "../Interfaces/util.types"
-import {AsyncLocalStorage} from 'node:async_hooks';
-
-export const authStorage = new AsyncLocalStorage<AuthContext>();
-
-export const getContext = () => authStorage.getStore();
