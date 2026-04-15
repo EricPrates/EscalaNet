@@ -33,9 +33,9 @@ export class Categoria {
     updatedAt!: Date;
     
    
-    @ManyToMany(() => Nucleo, (nucleos) => nucleos.categorias, {lazy: true})
-    nucleos!: Promise<Nucleo[]>;
+    @ManyToMany(() => Nucleo, (nucleos) => nucleos.categorias)
+    nucleos!: Nucleo[];
 
-    @OneToMany(() => Aluno, (aluno) => aluno.categoria, {lazy: true})
-    alunos!: Promise<Aluno[]>;
+    @OneToMany(() => Aluno, (aluno) => aluno.categoria)
+    alunos!: Aluno[];
 }

@@ -1,23 +1,27 @@
-import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { Aluno } from './Aluno';
 import { Treino } from './Treino';
 
 @Entity({ name: "frequencia" })
 export class Frequencia {
     @PrimaryGeneratedColumn()
-        id!: number;
+    id!: number;
 
-    @Column({type:'date'})
+    @Index()
+    @Column({ type: 'date' })
     data!: Date;
 
-    @Column({type:'boolean'})
+    @Index()
+    @Column({ type: 'boolean' })
     presente!: boolean;
 
-    @ManyToOne(() => Aluno, (aluno) => aluno.frequencias, {lazy: true})
+    @Index()
+    @ManyToOne(() => Aluno, (aluno) => aluno.frequencias)
     @JoinColumn({ name: "aluno_id" })
-    aluno!: Promise<Aluno>;
+    aluno!: Aluno;
 
-    @ManyToOne(() => Treino, (treino) => treino.frequencias, {lazy: true})
+    @Index()
+    @ManyToOne(() => Treino, (treino) => treino.frequencias)
     @JoinColumn({ name: "treino_id" })
-    treino!: Promise<Treino>;
+    treino!: Treino;
 }

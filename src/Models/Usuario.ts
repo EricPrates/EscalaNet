@@ -28,26 +28,27 @@ export class Usuario {
     @UpdateDateColumn({ name: "updated_at" })
     updatedAt!: Date;
 
-   
+    
     @Column({
         type: "varchar", length: 50, nullable: false, default: "coordenador"
     })
-    permissao!: "admin" | "coordenador"| "professor" | "arbitro" | "auxiliar";
+    permissao!: "admin" | "coordenador" | "professor" | "arbitro" | "auxiliar";
 
-    @OneToMany(() => Nucleo, (nucleo) => nucleo.admin , {lazy: true})
-    nucleosAdministrados!: Promise<Nucleo[]>;
+    @OneToMany(() => Nucleo, (nucleo) => nucleo.admin)
+    nucleosAdministrados!: Nucleo[];
 
-    @ManyToMany(()=> Treino, (treino) => treino.usuarios , {lazy: true})
-    treinos!: Promise<Treino[]>;
+    @ManyToMany(() => Treino, (treino) => treino.usuarios)
+    treinos!: Treino[];
 
-    @OneToOne(() => Nucleo, (nucleo) => nucleo.coordenador, {lazy: true})
-    nucleoCoordenado!: Promise<Nucleo>;
+    @OneToOne(() => Nucleo, (nucleo) => nucleo.coordenador)
+    nucleoCoordenado?: Nucleo | null;
 
-    @ManyToOne(() => Nucleo, (nucleo) => nucleo.professores, {lazy: true})
+    @Index()
+    @ManyToOne(() => Nucleo, (nucleo) => nucleo.professores)
     @JoinColumn({ name: "nucleo_id" })
-    nucleoOndeProfessor!: Promise<Nucleo>;
+    nucleoOndeProfessor?: Nucleo | null;
 
-    @OneToMany(() => Jogo, (jogo) => jogo.arbitro, { lazy: true })
-    jogos!: Promise<Jogo[]>;
+    @OneToMany(() => Jogo, (jogo) => jogo.arbitro)
+    jogos!: Jogo[];
 }
 

@@ -9,19 +9,21 @@ import { AppError } from "../Models/AppError";
 export async function middlewareTokenContexto(req: Request, _res: Response, next: NextFunction): Promise<void> {
     const authHeader = req.headers.authorization;
     let decoded: AuthContext | null = null;
-   
-        if (authHeader) {
-            const partsAuthHeader = authHeader.split(' ');
-            if (partsAuthHeader[0] === 'Bearer' && partsAuthHeader.length === 2 && partsAuthHeader[1]) {
-                const token = partsAuthHeader[1];
-                decoded = verificarToken(token);
-                if (!decoded) {
-                    throw new AppError(401);
-                }
-                authStorage.run(decoded as AuthContext, () => next());
-            }
+    if (!authHeader) {
+        throw new AppError(401);
+    }
+    const partAuthHeader = authHeader.split(' ');
 
-        } else {
-            throw new AppError(401);
-        }
+    if (partAuthHeader[0] !== 'Bearer' || partAuthHeader.length !== 2 || !partAuthHeader[1]) {
+        throw new AppError(401);
+    }
+
+
+    const token = partAuthHeader[1];
+    decoded = verificarToken(token);
+    if (!decoded) {
+        throw new AppError(401);
+    }
+    return authStorage.run(decoded as AuthContext, () => next());
+
 };

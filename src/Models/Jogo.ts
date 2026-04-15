@@ -17,22 +17,21 @@ export class Jogo {
     data!: Date;
 
     @Index()
-    @Column({ type: "varchar", length: 1000, nullable: true })
-    sumula!: string;
-
-    @ManyToOne(() => Nucleo, (nucleo) => nucleo.jogosTimeA, { lazy: true })
+    @ManyToOne(() => Nucleo, (nucleo) => nucleo.jogosTimeA, )
     @JoinColumn({ name: "time_a_id" })
-    timeA!: Promise<Nucleo | null>;
+    timeA!: Nucleo;
 
-    @ManyToOne(() => Nucleo, (nucleo) => nucleo.jogosTimeB, { lazy: true })
+    @Index()
+    @ManyToOne(() => Nucleo, (nucleo) => nucleo.jogosTimeB)
     @JoinColumn({ name: "time_b_id" })
-    timeB!: Promise<Nucleo | null>;
+    timeB!: Nucleo;
 
-    @ManyToOne(() => Usuario, (usuario) => usuario.jogos, { lazy: true })
+    @Index()
+    @ManyToOne(() => Usuario, (usuario) => usuario.jogos)
     @JoinColumn({ name: "arbitro_id" })
-    arbitro!: Promise<Usuario | null>;
+    arbitro?: Usuario | null;
 
-    @OneToMany(() => EventosJogo, (eventosJogo) => eventosJogo.jogo, { lazy: true })
-    eventos!: Promise<EventosJogo[]>;
+    @OneToMany(() => EventosJogo, (eventosJogo) => eventosJogo.jogo)
+    eventos!: EventosJogo[];
     
 }

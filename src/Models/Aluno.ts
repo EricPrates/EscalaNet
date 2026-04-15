@@ -26,22 +26,22 @@ export class Aluno {
     updatedAt!: Date;
 
     @Index()
-    @ManyToOne(() => Nucleo, (nucleo) => nucleo.alunos, {lazy: true})
+    @ManyToOne(() => Nucleo, (nucleo) => nucleo.alunos)
     @JoinColumn({ name: "nucleo_id" })
-    nucleo!: Promise<Nucleo>;
+    nucleo!: Nucleo;
 
-    @ManyToMany(() => Treino, (treino) => treino.alunos, {lazy: true})
-    treinos!: Promise<Treino[]>;
+    @ManyToMany(() => Treino, (treino) => treino.alunos)
+    treinos!: Treino[];
 
-    @OneToMany(() => Frequencia, (frequencia) => frequencia.aluno, {lazy: true})
-    frequencias!: Promise<Frequencia[]>;
+    @OneToMany(() => Frequencia, (frequencia) => frequencia.aluno)
+    frequencias!: Frequencia[];
 
     @Column({ type: "boolean", default: true })
     ativo!: boolean;
 
     @Index()
-    @ManyToOne(() => Categoria, (categoria) => categoria.alunos, {lazy: true})
+    @ManyToOne(() => Categoria, (categoria) => categoria.alunos)
     @JoinColumn({ name: "categoria_id" })
-    categoria!: Promise<Categoria | null>;
+    categoria?: Categoria;
 
 } 

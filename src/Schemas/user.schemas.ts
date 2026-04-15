@@ -13,7 +13,7 @@ export const SchemaLoginUsuario = z.object({
 });
 
 export const SchemaRespostausuario = z.object({
-    id: z.number(),
+    id: z.coerce.number().int().positive(),
     nome: z.string(),
     email: z.string(),
     permissao: z.enum(['admin', 'coordenador', 'professor', 'arbitro', 'auxiliar']),

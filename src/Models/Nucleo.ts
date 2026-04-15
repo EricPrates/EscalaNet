@@ -25,39 +25,39 @@ export class Nucleo {
     updatedAt!: Date;
 
    
-    @ManyToOne(() => Usuario, (usuario) => usuario.nucleosAdministrados, {lazy: true})
+    @ManyToOne(() => Usuario, (usuario) => usuario.nucleosAdministrados)
     @JoinColumn({ name: "admin_id" })
-    admin!: Promise<Usuario | null>;
+    admin!: Usuario;
 
     @Index()
-    @OneToOne(() => Usuario, (usuario) => usuario.nucleoCoordenado , {lazy: true})
+    @OneToOne(() => Usuario, (usuario) => usuario.nucleoCoordenado )
     @JoinColumn({ name: "coordenador_id" })
-    coordenador!: Promise<Usuario | null>;
+    coordenador?: Usuario | null;
 
    
-    @OneToMany(() => Usuario, (usuario) => usuario.nucleoOndeProfessor , {lazy: true})
-    professores!: Promise<Usuario[]>;
+    @OneToMany(() => Usuario, (usuario) => usuario.nucleoOndeProfessor )
+    professores!: Usuario[];
 
-    @OneToMany(() => Treino, (treino) => treino.nucleo , {lazy: true})
-    treinos!: Promise<Treino[]>;
+    @OneToMany(() => Treino, (treino) => treino.nucleo )
+    treinos!: Treino[];
 
-    @OneToMany(() => Aluno, (aluno) => aluno.nucleo , {lazy: true})
-    alunos!: Promise<Aluno[]>;
+    @OneToMany(() => Aluno, (aluno) => aluno.nucleo )
+    alunos!: Aluno[];
 
   
-    @ManyToMany(() => Categoria, (categoria) => categoria.nucleos , {lazy: true})
+    @ManyToMany(() => Categoria, (categoria) => categoria.nucleos )
     @JoinTable({
         name: "nucleos_categorias",
         joinColumn: { name: "nucleo_id", referencedColumnName: "id" },
         inverseJoinColumn: { name: "categoria_id", referencedColumnName: "id" }
     })
-    categorias!: Promise<Categoria[]>;
+    categorias!: Categoria[];
 
-    @OneToMany(() => Jogo, (jogo) => jogo.timeA , {lazy: true})
-    jogosTimeA!: Promise<Jogo[]>;
+    @OneToMany(() => Jogo, (jogo) => jogo.timeA )
+    jogosTimeA!: Jogo[];
 
-    @OneToMany(() => Jogo, (jogo) => jogo.timeB , {lazy: true})
-    jogosTimeB!: Promise<Jogo[]>;
+    @OneToMany(() => Jogo, (jogo) => jogo.timeB )
+    jogosTimeB!: Jogo[];
 
 
 }
