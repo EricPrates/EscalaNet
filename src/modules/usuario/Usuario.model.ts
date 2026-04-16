@@ -35,10 +35,10 @@ export class Usuario {
     permissao!: "admin" | "coordenador" | "professor" | "arbitro" | "auxiliar";
 
     @OneToMany(() => Nucleo, (nucleo) => nucleo.admin)
-    nucleosAdministrados!: Nucleo[];
+    nucleosAdministrados?: Nucleo[];
 
     @ManyToMany(() => Treino, (treino) => treino.usuarios)
-    treinos!: Treino[];
+    treinos?: Treino[];
 
     @OneToOne(() => Nucleo, (nucleo) => nucleo.coordenador)
     nucleoCoordenado?: Nucleo | null;
@@ -49,6 +49,8 @@ export class Usuario {
     nucleoOndeProfessor?: Nucleo | null;
 
     @OneToMany(() => Jogo, (jogo) => jogo.arbitro)
-    jogos!: Jogo[];
+    jogos?: Jogo[];
+
+    
 }
 

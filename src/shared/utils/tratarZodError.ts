@@ -10,8 +10,6 @@ export const converterZodError = (error: unknown): AppError => {
     if (error instanceof AppError) {
         return error;
     }
-    if (error instanceof Error) {
-        return new AppError(500, 'Erro interno do servidor', error.message);
-    }
+  
     return new AppError(500, 'Erro interno do servidor');
 }

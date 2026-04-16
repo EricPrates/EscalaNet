@@ -37,13 +37,13 @@ export class Nucleo {
 
    
     @OneToMany(() => Usuario, (usuario) => usuario.nucleoOndeProfessor )
-    professores!: Usuario[];
+    professores?: Usuario[];
 
     @OneToMany(() => Treino, (treino) => treino.nucleo )
-    treinos!: Treino[];
+    treinos?: Treino[];
 
     @OneToMany(() => Aluno, (aluno) => aluno.nucleo )
-    alunos!: Aluno[];
+    alunos?: Aluno[];
 
   
     @ManyToMany(() => Categoria, (categoria) => categoria.nucleos )
@@ -52,13 +52,13 @@ export class Nucleo {
         joinColumn: { name: "nucleo_id", referencedColumnName: "id" },
         inverseJoinColumn: { name: "categoria_id", referencedColumnName: "id" }
     })
-    categorias!: Categoria[];
+    categorias?: Categoria[];
 
     @OneToMany(() => Jogo, (jogo) => jogo.timeA )
-    jogosTimeA!: Jogo[];
+    jogosTimeA?: Jogo[];
 
     @OneToMany(() => Jogo, (jogo) => jogo.timeB )
-    jogosTimeB!: Jogo[];
+    jogosTimeB?: Jogo[];
 
 
 }

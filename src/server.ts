@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import { middlewareTokenContexto } from "./shared/Middlewares/middlewareTokenContexto";
 import { errorHandler } from "./shared/Middlewares/erroHandler";
-import { usuarioController } from "./modules/usuario/user.container";
+import { usuarioController } from "./shared/factory/container";
 import { validate } from "./shared/Middlewares/validadorSchema";
 import { SchemaCriarUsuario, SchemaLoginUsuario } from "./modules/usuario/usuario.schemas";
 

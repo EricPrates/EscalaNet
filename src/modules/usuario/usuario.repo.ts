@@ -9,21 +9,21 @@ export function fazerUsuarioRepo(dataSource: DataSource): IUsuarioRepository {
     const repo = dataSource.getRepository(Usuario);
 
     return {
-        async listarUsuarios() {
+        async listar() {
             return repo.find({ order: { id: 'ASC' } });
         },
 
-        async obterUsuarioPorId(id: number) {
+        async obterPorId(id: number) {
             const usuario = await repo.findOne({ where: { id } });
             return usuario || null;
         },
 
-        async obterUsuarioPorEmail(email: string) {
+        async obterPorEmail(email: string) {
             const usuario = await repo.findOne({ where: { email } });
             return usuario || null;
         },
 
-        async criarUsuario(data: CriarUsuarioDTO) {
+        async criar(data: CriarUsuarioDTO) {
             const usuario = repo.create(data);
             return repo.save(usuario);
         },
@@ -35,12 +35,12 @@ export function fazerUsuarioRepo(dataSource: DataSource): IUsuarioRepository {
             }
         },
 
-        async atualizarUsuario(id: number, data: Partial<CriarUsuarioDTO>) {
+        async atualizar(id: number, data: Partial<CriarUsuarioDTO>) {
             await repo.update({ id }, data);
-            return this.obterUsuarioPorId(id);
+            return this.obterPorId(id);
         },
 
-        async deletarUsuario(id: number) {
+        async deletar(id: number) {
             const result = await repo.delete({ id });
             return (result.affected ?? 0) > 0;
         }

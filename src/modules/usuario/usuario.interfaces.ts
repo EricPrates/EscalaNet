@@ -1,24 +1,19 @@
+import { IBaseRepository, IBaseService } from "../../shared/factory/BaseInterfaces";
 import { Usuario } from "./Usuario.model";
 import { CriarUsuarioDTO, RespostaUsuarioDTO } from "./usuario.schemas";
 
 
-export interface IUsuarioRepository {
-    listarUsuarios(): Promise<Usuario[]>;
-    obterUsuarioPorId(id: number): Promise<Usuario | null>;
-    obterUsuarioPorEmail(email: string): Promise<Usuario | null>;
-    criarUsuario(data: CriarUsuarioDTO): Promise<Usuario>;
+export interface IUsuarioRepository extends IBaseRepository<Usuario, CriarUsuarioDTO> {
+    obterPorEmail(email: string): Promise<Usuario | null>;
     criarUsuarioSemRetorno(data: CriarUsuarioDTO): Promise<void>;
-    atualizarUsuario(id: number, data: CriarUsuarioDTO): Promise<Usuario | null>;
-    deletarUsuario(id: number): Promise<boolean>;
+    
 }
 
-export interface IUsuarioService {
-    listarUsuarios(): Promise<RespostaUsuarioDTO[]>;
-    obterUsuarioPorId(id: number): Promise<RespostaUsuarioDTO>;
-    obterUsuarioPorEmail(email: string): Promise<RespostaUsuarioDTO>;
-    criarUsuario(data: CriarUsuarioDTO): Promise<RespostaUsuarioDTO>;
+export interface IUsuarioService extends IBaseService<RespostaUsuarioDTO, CriarUsuarioDTO> {
+    
+    obterPorEmail(email: string): Promise<RespostaUsuarioDTO>;
     criarUsuarioSemRetorno(data: CriarUsuarioDTO): Promise<void>;
-    atualizarUsuario(id: number, data: CriarUsuarioDTO): Promise<RespostaUsuarioDTO>;
-    deletarUsuario(id: number): Promise<boolean>;
     obterUsuarioParaLogin(email: string, senha: string): Promise<RespostaUsuarioDTO>;
+    
 }
+

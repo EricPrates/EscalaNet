@@ -1,7 +1,7 @@
-import { fazerUsuarioController } from "./usuario.controller";
+import { fazerUsuarioController } from "../../modules/usuario/usuario.controller";
 import { AppDataSource } from "../../data-source";
-import { fazerUsuarioRepo } from "./usuario.repo";
-import { fazerUsuarioService } from "./usuario.service";
+import { fazerUsuarioRepo } from "../../modules/usuario/usuario.repo";
+import { fazerUsuarioService } from "../../modules/usuario/usuario.service";
 
 
 const usuarioRepo = fazerUsuarioRepo(AppDataSource);

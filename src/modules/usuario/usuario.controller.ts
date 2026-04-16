@@ -8,19 +8,19 @@ import gerarToken from "../../shared/utils/gerarToken";
 export function fazerUsuarioController(service: IUsuarioService) {
     return {
         async listarUsuarios(_req: Request, res: Response) {
-            const usuarios = await service.listarUsuarios();
+            const usuarios = await service.listar();
             return res.status(200).json(montarRespostaSucesso('Usuários listados com sucesso', usuarios));
         },
 
         async obterUsuarioPorId(req: Request, res: Response) {
-            const usuario = await service.obterUsuarioPorId(Number(req.params.id));
+            const usuario = await service.obterPorId(Number(req.params.id));
             return res.status(200).json(montarRespostaSucesso('Usuário obtido com sucesso', usuario));
         },
     
 
         async criarUsuario(req: Request, res: Response) {
             const { email, senha, permissao, nome } = req.body as CriarUsuarioDTO;
-            const usuario = await service.criarUsuario({ email, senha, permissao, nome });
+            const usuario = await service.criar({ email, senha, permissao, nome });
             return res.status(201).json(montarRespostaSucesso('Usuário criado com sucesso', usuario));
         },
 
