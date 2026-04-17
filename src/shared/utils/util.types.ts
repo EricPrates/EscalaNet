@@ -6,10 +6,20 @@ export interface MontarResposta {
     detalhes?: string;
     token?: string;
 }
+export interface MontarRespostaPaginada<T> {
+    message: string;
+    data: T[];
+    meta: {
+        total: number;
+        totalPaginas: number;
+        pagina: number;
+        limite: number;
+    };
+}
 
 export type PropiedadesDeValidacao = ['body'] | ['query'] | ['params'] | ['headers'] | ['cookies'];
 
-
+export type Entidades = 'Usuario' | 'Nucleo' | 'Treino' | 'Frequencia' | 'Jogo' | 'EventosJogo' | 'Aluno';
 export interface AuthContext {
     id: number;
     nome: string;

@@ -7,7 +7,7 @@ import { middlewareTokenContexto } from "./shared/Middlewares/middlewareTokenCon
 import { errorHandler } from "./shared/Middlewares/erroHandler";
 import { usuarioController } from "./shared/factory/container";
 import { validate } from "./shared/Middlewares/validadorSchema";
-import { SchemaCriarUsuario, SchemaLoginUsuario } from "./modules/usuario/usuario.schemas";
+import { SchemaBaseUsuario,SchemaLoginUsuario } from "./modules/usuario/usuario.schemas";
 
 dotenv.config();
 
@@ -36,7 +36,7 @@ apiRouter.get('/', (_req, res) => {
   res.json({ mensagem: "API EscalaNet Online - Use /login para entrar" });
 });
 apiRouter.post('/login', validate(SchemaLoginUsuario, 'body'), usuarioController.login);
-apiRouter.post('/usuario', validate(SchemaCriarUsuario, 'body'), usuarioController.criarUsuario);
+apiRouter.post('/usuario', validate(SchemaBaseUsuario, 'body'), usuarioController.criarUsuario);
 apiRouter.use(middlewareTokenContexto);
 
 app.use(errorHandler);

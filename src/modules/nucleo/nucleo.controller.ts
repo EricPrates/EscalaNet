@@ -1,13 +1,15 @@
 import { Request, Response } from "express";
-import { INucleoService } from "./nucleo.interfaces";
-import { montarRespostaSucesso } from "../../shared/utils/construtorResposta";
-import { CriarNucleoDTO } from "./nucleo.schemas";
+import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
+import { CriarNucleoDTO, RespostaNucleoDTO } from "./nucleo.schemas";
+import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
+import { IBaseService } from "../../shared/factory/BaseInterfaces";
 
-export function fazerNucleoController(service: INucleoService) {
+export function fazerNucleoController(service: IBaseService<RespostaNucleoDTO, CriarNucleoDTO>) {
     return {
-        async listarNucleos(_req: Request, res: Response) {
-            const nucleos = await service.listar();
-            return res.status(200).json(montarRespostaSucesso('Núcleos listados com sucesso', nucleos));
+        async listarNucleos(req: Request, res: Response) {
+            const {limite, pagina} = SchemaPaginacaoQuery.parse(req.query);
+            const { data, meta } = await service.listar(pagina, limite);
+            return res.status(200).json(montarRespostaPaginada('Núcleos listados com sucesso', data, meta));
         },
 
         async obterNucleoPorId(req: Request, res: Response) {
@@ -28,17 +30,13 @@ export function fazerNucleoController(service: INucleoService) {
             const nucleo = await service.atualizar(Number(id), data);
             return res.status(200).json(montarRespostaSucesso('Núcleo atualizado com sucesso', nucleo));
         },
-        
+
         async deletarNucleo(req: Request, res: Response) {
             const { id } = req.params;
             await service.deletar(Number(id));
             return res.status(200).json(montarRespostaSucesso('Núcleo deletado com sucesso'));
         },
 
-        async obterDashboard(req: Request, res: Response) {
-            const { id } = req.params;
-            const dashboard = await service.obterDadosDashboard(Number(id));
-            return res.status(200).json(montarRespostaSucesso('Dashboard carregado com sucesso', dashboard));
-        }
+       
     };
 }

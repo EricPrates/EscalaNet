@@ -5,12 +5,19 @@ import { Usuario } from "./Usuario.model";
 import { CriarUsuarioDTO } from './usuario.schemas';
 
 
+
 export function fazerUsuarioRepo(dataSource: DataSource): IUsuarioRepository {
     const repo = dataSource.getRepository(Usuario);
 
     return {
-        async listar() {
-            return repo.find({ order: { id: 'ASC' } });
+        async listar(pagina: number = 1, limite: number = 10) {
+            const skip = (pagina - 1) * limite;
+
+            const [data, total] = await repo.findAndCount({
+                skip,
+                take: limite,
+            });
+            return {data, total};          
         },
 
         async obterPorId(id: number) {

@@ -1,15 +1,18 @@
 import { IUsuarioService } from "./usuario.interfaces";
 import { Request, Response } from "express";
-import { montarRespostaSucesso } from "../../shared/utils/construtorResposta";
+import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import {  CriarUsuarioDTO, LoginUsuarioDTO } from "./usuario.schemas";
 import gerarToken from "../../shared/utils/gerarToken";
+import { SchemaPaginacaoQuery } from '../../shared/utils/listas.schema';
+
 
 
 export function fazerUsuarioController(service: IUsuarioService) {
     return {
-        async listarUsuarios(_req: Request, res: Response) {
-            const usuarios = await service.listar();
-            return res.status(200).json(montarRespostaSucesso('Usuários listados com sucesso', usuarios));
+        async listarUsuarios(req: Request, res: Response) {
+            const {limite, pagina} = SchemaPaginacaoQuery.parse(req.query);
+            const { data, meta } = await service.listar(pagina, limite);
+            return res.status(200).json(montarRespostaPaginada('Usuários listados com sucesso', data, meta));
         },
 
         async obterUsuarioPorId(req: Request, res: Response) {
