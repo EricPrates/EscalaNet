@@ -9,6 +9,7 @@ export const SchemaBaseUsuario = z.object({
         message: "Permissão deve ser: admin, coordenador, professor, arbitro ou auxiliar"
     }),
     senha: z.string().min(6, "A senha deve conter no mínimo 6 caracteres"),
+    nucleovinculadoId: z.number().int().positive().nullable().optional(),
 });
 export const SchemaLoginUsuario = z.object({
     email: z.email("Email inválido"),
@@ -20,8 +21,9 @@ export const SchemaUsuarioResposta = SchemaBaseUsuario.omit({ senha: true }).ext
 });
 
 export const SchemaUsuarioRelacionamento = SchemaBaseUsuario.omit({ senha: true });
+export const SchemaAtualizarUsuario = SchemaBaseUsuario.partial();
 
-
+export type AtualizarUsuarioDTO = z.infer<typeof SchemaAtualizarUsuario>;
 export type CriarUsuarioDTO = z.infer<typeof SchemaBaseUsuario>;
 export type LoginUsuarioDTO = z.infer<typeof SchemaLoginUsuario>;
 export type RespostaUsuarioDTO = z.infer<typeof SchemaUsuarioResposta>;

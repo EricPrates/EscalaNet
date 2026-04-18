@@ -2,6 +2,8 @@ import { Column, Entity,  PrimaryGeneratedColumn, ManyToOne, JoinColumn,  Index,
 import { Nucleo } from "../nucleo/Nucleo.model";
 import { Usuario } from '../usuario/Usuario.model';
 import { EventosJogo } from '../eventos_jogo/EventosJogo.model';
+import { Categoria } from '../categoria/Categoria.model';
+import { Frequencia } from '../frequencia/frequencia.model';
 
 @Entity({ name: "jogos" })
 export class Jogo {
@@ -33,5 +35,20 @@ export class Jogo {
 
     @OneToMany(() => EventosJogo, (eventosJogo) => eventosJogo.jogo)
     eventos!: EventosJogo[];
-    
+
+    @Index()
+    @ManyToOne(() => Categoria, (categoria) => categoria.jogos)
+    @JoinColumn({ name: "categoria_id" })
+    categoria?: Categoria | null;
+
+    @Index()
+    @Column({ type: "int", nullable: true, default:0 })
+    golsTimeA!: number;
+
+    @Index()
+    @Column({ type: "int", nullable: true, default:0 })
+    golsTimeB!: number;
+
+    @OneToMany(() => Frequencia, (frequencia) => frequencia.jogo)
+    frequencias!: Frequencia[];
 }

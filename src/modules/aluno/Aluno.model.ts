@@ -3,6 +3,7 @@ import { Nucleo } from "../nucleo/Nucleo.model";
 import { Treino } from "../treino/Treino.model";
 import { Frequencia } from "../frequencia/frequencia.model";
 import { Categoria } from "../categoria/Categoria.model";
+import { EventosJogo } from "../eventos_jogo/EventosJogo.model";
 
 @Index(["nucleo", "dataNascimento"])
 @Entity({ name: "alunos" })
@@ -44,4 +45,6 @@ export class Aluno {
     @JoinColumn({ name: "categoria_id" })
     categoria?: Categoria;
 
-} 
+    @OneToMany(() => EventosJogo, (eventos) => eventos.alunoEnvolvido)
+    eventos!: EventosJogo[];
+}

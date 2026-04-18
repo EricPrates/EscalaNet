@@ -1,5 +1,4 @@
 import { DataSource } from "typeorm";
-import { AppError } from "../../shared/utils/AppError";
 import { Nucleo } from "./Nucleo.model";
 import { CriarNucleoDTO } from "./nucleo.schemas";
 
@@ -30,12 +29,6 @@ export function fazerNucleoRepo(dataSource: DataSource): INucleoRepository {
             return nucleo || null;
         },
 
-        async criarNucleoSemRetorno(data: CriarNucleoDTO) {
-            const nucleo = await repo.insert(data);
-            if (!nucleo) {
-                throw new AppError(500, 'Erro ao criar núcleo');
-            }
-        },
         async criar(data: CriarNucleoDTO) {
             const nucleo = repo.create(data);
             return repo.save(nucleo);

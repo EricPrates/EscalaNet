@@ -1,8 +1,9 @@
 import { IUsuarioRepository, IUsuarioService } from "./usuario.interfaces";
 import { AppError } from "../../shared/utils/AppError";
 import bcrypt from 'bcrypt';
-import { RespostaUsuarioDTO, CriarUsuarioDTO, SchemaUsuarioResposta, } from './usuario.schemas';
+import { RespostaUsuarioDTO, CriarUsuarioDTO, SchemaUsuarioResposta, AtualizarUsuarioDTO } from './usuario.schemas';
 import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
+import { getContext } from "../../shared/utils/authStorage";
 
 
 
@@ -10,34 +11,42 @@ import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
 export const fazerUsuarioService = (usuarioRepo: IUsuarioRepository): IUsuarioService => {
 
     return {
-         async obterPorId(id: number): Promise<RespostaUsuarioDTO> {
+        async obterPorId(id: number): Promise<RespostaUsuarioDTO> {
             const usuario = await usuarioRepo.obterPorId(id);
             if (!usuario) {
                 throw new AppError(404, 'Usuário não encontrado');
             }
-            
+
             return SchemaUsuarioResposta.parse(usuario);
         },
 
         async criar(data: CriarUsuarioDTO): Promise<RespostaUsuarioDTO> {
-            data.senha = await bcrypt.hash(data.senha, 10);
-            const verificarEmailNBanco = await usuarioRepo.obterPorEmail(data.email);
-            if (verificarEmailNBanco) {
-                throw new AppError(409, 'Email já cadastrado');
-            }
-            const usuario = await usuarioRepo.criar(data);
-            if (!usuario) {
-                throw new AppError(500, 'Erro ao criar usuário');
-            }
+            const hashSenha = await bcrypt.hash(data.senha, 10);
+            const emailExistente = await usuarioRepo.obterPorEmail(data.email);
+            if (emailExistente) throw new AppError(409, 'Email já cadastrado');
+            const usuarioData: CriarUsuarioDTO = {
+                nome: data.nome,
+                email: data.email,
+                senha: hashSenha,
+                permissao: data.permissao,
+            };
+            data.nucleovinculadoId ? usuarioData.nucleovinculadoId = data.nucleovinculadoId : null;
+            const usuario = await usuarioRepo.criar(usuarioData);
+            if (!usuario) throw new AppError(500, 'Erro ao criar usuário');
             return SchemaUsuarioResposta.parse(usuario);
         },
 
-        async listar(pagina: number, limite: number) {
-            const { data, total } = await usuarioRepo.listar(pagina, limite);
-            if (data.length === 0) {
-                throw new AppError(404, 'Nenhum usuário encontrado');
+        async listar(pagina: number, limite: number ) {
+            const permissaoDoUsuarioLogado = getContext()?.permissao;
+            let where = {};
+            if (permissaoDoUsuarioLogado === 'coordenador' || permissaoDoUsuarioLogado === 'professor' || permissaoDoUsuarioLogado === 'auxiliar') {
+                where = { nucleoVinculado: { id: getContext()?.nucleoVinculado  } }; 
+            }
+            else if (permissaoDoUsuarioLogado === 'admin') {
+                where = {};
             }
             
+            const { data, total } = await usuarioRepo.listar(pagina, limite, where);
             const dataValidada = SchemaUsuarioResposta.array().parse(data);
             const totalPaginas = Math.ceil(total / limite);
 
@@ -52,7 +61,6 @@ export const fazerUsuarioService = (usuarioRepo: IUsuarioRepository): IUsuarioSe
             });
         },
 
-
         async obterPorEmail(email: string): Promise<RespostaUsuarioDTO> {
             const usuario = await usuarioRepo.obterPorEmail(email);
             if (!usuario) {
@@ -62,16 +70,17 @@ export const fazerUsuarioService = (usuarioRepo: IUsuarioRepository): IUsuarioSe
             return respostaDTO;
         },
 
-        async criarUsuarioSemRetorno(data: CriarUsuarioDTO): Promise<void> {
-            const verificarEmailNBanco = await usuarioRepo.obterPorEmail(data.email);
-            if (verificarEmailNBanco) {
-                throw new AppError(409, 'Email já cadastrado');
+        async atualizar(id: number, data: AtualizarUsuarioDTO): Promise<RespostaUsuarioDTO> {
+            const usuarioExistente = await usuarioRepo.obterPorId(id);
+            if (!usuarioExistente) {
+                throw new AppError(404, 'Usuário não encontrado');
             }
-            data.senha = await bcrypt.hash(data.senha, 10);
-            await usuarioRepo.criarUsuarioSemRetorno(data);
-        },
-
-        async atualizar(id: number, data: CriarUsuarioDTO): Promise<RespostaUsuarioDTO> {
+            if (data.email) {
+                const verificarEmailNBanco = await usuarioRepo.obterPorEmail(data.email);
+                if (verificarEmailNBanco) {
+                    throw new AppError(409, 'Email já cadastrado');
+                }
+            }
             const usuario = await usuarioRepo.atualizar(id, data);
             if (!usuario) {
                 throw new AppError(404, 'Usuário não encontrado');

@@ -1,6 +1,5 @@
-import { DataSource } from "typeorm";
+import { DataSource, FindOptionsWhere } from "typeorm";
 import { IUsuarioRepository } from "./usuario.interfaces";
-import { AppError } from "../../shared/utils/AppError";
 import { Usuario } from "./Usuario.model";
 import { CriarUsuarioDTO } from './usuario.schemas';
 
@@ -10,14 +9,16 @@ export function fazerUsuarioRepo(dataSource: DataSource): IUsuarioRepository {
     const repo = dataSource.getRepository(Usuario);
 
     return {
-        async listar(pagina: number = 1, limite: number = 10) {
+        async listar(pagina: number = 1, limite: number = 10, where: FindOptionsWhere<Usuario> = {}) {
             const skip = (pagina - 1) * limite;
 
             const [data, total] = await repo.findAndCount({
+                where,
                 skip,
                 take: limite,
+                order: { id: 'ASC' }
             });
-            return {data, total};          
+            return { data, total };
         },
 
         async obterPorId(id: number) {
@@ -35,12 +36,6 @@ export function fazerUsuarioRepo(dataSource: DataSource): IUsuarioRepository {
             return repo.save(usuario);
         },
 
-        async criarUsuarioSemRetorno(data: CriarUsuarioDTO) {
-            const user = await repo.insert(data);
-            if (!user) {
-                throw new AppError(500, 'Erro ao criar usuário');
-            }
-        },
 
         async atualizar(id: number, data: Partial<CriarUsuarioDTO>) {
             await repo.update({ id }, data);

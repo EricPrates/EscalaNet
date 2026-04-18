@@ -1,6 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { Aluno } from '../aluno/Aluno.model';
 import { Treino } from '../treino/Treino.model';
+import { Jogo } from '../jogo/Jogo.model';
 
 @Entity({ name: "frequencia" })
 export class Frequencia {
@@ -23,4 +24,7 @@ export class Frequencia {
     @ManyToOne(() => Treino, (treino) => treino.frequencias)
     @JoinColumn({ name: "treino_id" })
     treino!: Treino;
+
+    @ManyToOne(() => Jogo, { nullable: true })
+    jogo?: Jogo;
 }

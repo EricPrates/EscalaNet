@@ -1,7 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, OneToOne, Index, ManyToMany, ManyToOne, JoinColumn } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, Index, ManyToMany, ManyToOne, JoinColumn } from "typeorm";
 import { Nucleo } from "../nucleo/Nucleo.model";
 import { Treino } from "../treino/Treino.model";
 import { Jogo } from "../jogo/Jogo.model";
+import { EventosJogo } from "../eventos_jogo/EventosJogo.model";
 
 
 
@@ -40,17 +41,17 @@ export class Usuario {
     @ManyToMany(() => Treino, (treino) => treino.usuarios)
     treinos?: Treino[];
 
-    @OneToOne(() => Nucleo, (nucleo) => nucleo.coordenador)
-    nucleoCoordenado?: Nucleo | null;
 
     @Index()
     @ManyToOne(() => Nucleo, (nucleo) => nucleo.professores)
     @JoinColumn({ name: "nucleo_id" })
-    nucleoOndeProfessor?: Nucleo | null;
+    nucleovinculado!: Nucleo | null;
 
     @OneToMany(() => Jogo, (jogo) => jogo.arbitro)
     jogos?: Jogo[];
 
+    @OneToMany(() => EventosJogo, (eventos) => eventos.usuario)
+    eventos?: EventosJogo[];
     
 }
 

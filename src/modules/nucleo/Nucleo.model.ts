@@ -4,6 +4,7 @@ import { Aluno } from '../aluno/Aluno.model';
 import { Categoria } from '../categoria/Categoria.model';
 import { Jogo } from '../jogo/Jogo.model';
 import { Treino } from '../treino/Treino.model';
+import { EventosJogo } from '../eventos_jogo/EventosJogo.model';
 
 
 @Entity({ name: "nucleos" })
@@ -31,14 +32,17 @@ export class Nucleo {
     admin!: Usuario;
 
     @Index()
-    @OneToOne(() => Usuario, (usuario) => usuario.nucleoCoordenado )
-    @JoinColumn({ name: "coordenador_id" })
+    @OneToOne(() => Usuario, (usuario) => usuario.nucleovinculado )
+    @JoinColumn({ name: "nucleo_vinculado_id" })
     coordenador?: Usuario | null;
 
    
-    @OneToMany(() => Usuario, (usuario) => usuario.nucleoOndeProfessor )
+    @OneToMany(() => Usuario, (usuario) => usuario.nucleovinculado )
     professores?: Usuario[];
-
+    
+    @OneToMany(() => Usuario, (usuario) => usuario.nucleovinculado )
+    auxiliares?: Usuario[];
+    
     @OneToMany(() => Treino, (treino) => treino.nucleo )
     treinos?: Treino[];
 
@@ -60,5 +64,7 @@ export class Nucleo {
     @OneToMany(() => Jogo, (jogo) => jogo.timeB )
     jogosTimeB?: Jogo[];
 
+    @OneToMany(() => EventosJogo, (eventos) => eventos.nucleo )
+    eventos?: EventosJogo[];
 
 }
