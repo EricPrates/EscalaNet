@@ -23,15 +23,12 @@ export const SchemaUsuarioResumido = z.object({
     nome: z.string(),
     email: z.email(),
     permissao: z.enum(['admin', 'coordenador', 'professor', 'arbitro', 'auxiliar']),
-    nucleoVinculado: z.object({ id: z.number().int().positive(),
-        nome: z.string().min(1),
-     }).nullable().optional(),
+    nucleoVinculadoId: z.number().int().positive().nullable().optional(),
   
 });
 
 export const SchemaUsuarioDetalhado = SchemaUsuarioResumido.extend({
     nucleoVinculado: SchemaBaseNucleo.nullable().optional(),
-    nucleosAdministrados: z.array(SchemaBaseNucleo).optional(),
 });
 
 

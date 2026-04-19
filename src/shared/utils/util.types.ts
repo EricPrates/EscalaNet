@@ -17,7 +17,8 @@ export interface MontarRespostaPaginada<T> {
     };
 }
 
-export type PropiedadesDeValidacao = ['body'] | ['query'] | ['params'] | ['headers'] | ['cookies'];
+export type PropiedadesDeValidacao = Array<'body' | 'query' | 'params' | 'headers' | 'cookies'>;
+
 
 export type Entidades = 'Usuario' | 'Nucleo' | 'Treino' | 'Frequencia' | 'Jogo' | 'EventosJogo' | 'Aluno';
 export interface AuthContext {
@@ -25,10 +26,7 @@ export interface AuthContext {
     nome: string;
     email: string;
     permissao: 'coordenador' | 'admin' | 'professor' | 'arbitro' | 'auxiliar';
-    nucleoVinculado?: {
-        id: number;
-        nome: string;
-    } | null;
+    nucleoVinculadoId?: number | null;
 
 }
 

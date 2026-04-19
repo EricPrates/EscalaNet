@@ -1,4 +1,4 @@
-import { Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Nucleo } from "../nucleo/Nucleo.model";
 import { Aluno } from "../aluno/Aluno.model";
 import { Usuario } from "../usuario/Usuario.model";
@@ -9,22 +9,24 @@ export class Treino {
     @PrimaryGeneratedColumn()
     id!: number;
 
+    @Column({ type: "date", nullable: false })
+    data!: Date;
+
     @ManyToOne(() => Nucleo, (nucleo) => nucleo.treinos)
     @JoinColumn({ name: "nucleo_id" })
-    nucleo!: Promise<Nucleo>;
+    nucleo!: Nucleo;
 
-    @ManyToMany(() => Aluno, (aluno) => aluno.treinos , {lazy: true})
+    @ManyToMany(() => Aluno, (aluno) => aluno.treinos)
     @JoinTable({ 
         name: "treino_alunos",
-        joinColumn:{name: "treino_id", referencedColumnName: "id"},
-        inverseJoinColumn:{name: "aluno_id", referencedColumnName: "id"}
+        joinColumn: { name: "treino_id", referencedColumnName: "id" },
+        inverseJoinColumn: { name: "aluno_id", referencedColumnName: "id" }
     })
+    alunos!: Aluno[];
 
-    alunos!: Promise<Aluno[]>;
-    @ManyToMany(() => Usuario, (usuario) => usuario.treinos, {lazy: true})
-    usuarios!: Promise<Usuario[]>;
+    @ManyToMany(() => Usuario, (usuario) => usuario.treinos)
+    usuarios!: Usuario[];
 
-    @OneToMany(() => Frequencia, (frequencia) => frequencia.treino, {lazy: true})
-    frequencias!: Promise<Frequencia[]>;
-
+    @OneToMany(() => Frequencia, (frequencia) => frequencia.treino)
+    frequencias!: Frequencia[];
 }

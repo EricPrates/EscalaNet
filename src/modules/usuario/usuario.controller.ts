@@ -36,7 +36,7 @@ export function fazerUsuarioController(service: IUsuarioService) {
             const { email, senha } = req.body as LoginUsuarioDTO;
 
             const usuarioLogado = await service.obterUsuarioParaLogin(email, senha);
-            const payload = { id: usuarioLogado.id, nome: usuarioLogado.nome, email: usuarioLogado.email, permissao: usuarioLogado.permissao, nucleoVinculadoId: usuarioLogado.nucleoVinculado?.id };
+            const payload = { id: usuarioLogado.id, nome: usuarioLogado.nome, email: usuarioLogado.email, permissao: usuarioLogado.permissao, nucleoVinculadoId: usuarioLogado.nucleoVinculadoId };
             const token = gerarToken(payload);
             res.setHeader('Authorization', `Bearer ${token}`);
             return res.status(200).json(montarRespostaSucesso('Login realizado com sucesso', usuarioLogado, token));

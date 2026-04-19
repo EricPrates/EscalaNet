@@ -15,6 +15,7 @@ export function errorHandler(err: Error, _req: Request, res: Response, _next: Ne
         }
     
     }
+   
     console.error(`Erro não tratado: ${err.message}`);
     return res.status(500).json(montarRespostaErro(500, 'Erro interno do servidor', err.message));
 }

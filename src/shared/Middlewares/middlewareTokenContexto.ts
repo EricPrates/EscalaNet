@@ -10,19 +10,19 @@ export async function middlewareTokenContexto(req: Request, _res: Response, next
     const authHeader = req.headers.authorization;
     let decoded: AuthContext | null = null;
     if (!authHeader) {
-        throw new AppError(401);
+        throw new AppError(401, 'Header Authorization ausente');
     }
     const partAuthHeader = authHeader.split(' ');
 
     if (partAuthHeader[0] !== 'Bearer' || partAuthHeader.length !== 2 || !partAuthHeader[1]) {
-        throw new AppError(401);
+        throw new AppError(401, 'Formato de token inválido. Use: Bearer <token>');
     }
 
 
     const token = partAuthHeader[1];
     decoded = verificarToken(token);
     if (!decoded) {
-        throw new AppError(401);
+        throw new AppError(401, 'Token inválido');
     }
      authStorage.run(decoded, () => next());
 

@@ -8,6 +8,9 @@ import { errorHandler } from "./shared/Middlewares/erroHandler";
 import { usuarioController } from "./shared/factory/container";
 import { validate } from "./shared/Middlewares/validadorSchema";
 import { SchemaBaseUsuario,SchemaLoginUsuario } from "./modules/usuario/usuario.schemas";
+import nucleoRoutes from "./modules/nucleo/nucleo.routes";
+import usuarioRoutes from "./modules/usuario/usuario.routes";
+
 
 dotenv.config();
 
@@ -38,7 +41,8 @@ apiRouter.get('/', (_req, res) => {
 apiRouter.post('/login', validate(SchemaLoginUsuario, 'body'), usuarioController.login);
 apiRouter.post('/usuario', validate(SchemaBaseUsuario, 'body'), usuarioController.criarUsuario);
 apiRouter.use(middlewareTokenContexto);
-
+apiRouter.use('/usuarios', usuarioRoutes);
+apiRouter.use('/nucleos', nucleoRoutes);
 app.use(errorHandler);
 const PORT: number = process.env.PORT? parseInt(process.env.PORT) : 3000;
 

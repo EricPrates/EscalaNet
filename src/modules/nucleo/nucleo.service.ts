@@ -36,7 +36,7 @@ export const fazerNucleoService = (nucleoRepo: INucleoRepository): INucleoServic
         async obterPorId(id: number): Promise<RespostaNucleoDTO> {
             const permissao = getContext()?.permissao;
             if (permissao !== 'admin') {
-                const nucleoVinculadoId = getContext()?.nucleoVinculado?.id;
+                const nucleoVinculadoId = getContext()?.nucleoVinculadoId;
                 if (!nucleoVinculadoId) {
                     throw new AppError(403, 'Acesso negado: usuário sem núcleo vinculado');
                 }

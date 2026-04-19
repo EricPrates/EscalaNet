@@ -26,5 +26,5 @@ export class Frequencia {
     treino!: Treino;
 
     @ManyToOne(() => Jogo, { nullable: true })
-    jogo?: Jogo;
+    jogo?: Jogo | null;
 }

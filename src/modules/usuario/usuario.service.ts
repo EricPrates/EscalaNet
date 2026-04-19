@@ -32,7 +32,7 @@ export const fazerUsuarioService = (usuarioRepo: IUsuarioRepository): IUsuarioSe
             
             const hashSenha = await bcrypt.hash(data.senha, 10);
             const emailExistente = await usuarioRepo.obterPorEmail(data.email);
-            console.log(`Verificando email: ${data.email}, encontrado: ${emailExistente ? 'sim' : 'não'}`);
+        
             if (emailExistente) throw new AppError(409, 'Email já cadastrado');
             const usuarioData: CriarUsuarioDTO = {
                 nome: data.nome,
@@ -41,6 +41,9 @@ export const fazerUsuarioService = (usuarioRepo: IUsuarioRepository): IUsuarioSe
                 permissao: data.permissao,
                 
             };
+            if(data.nucleoVinculado) {
+                usuarioData.nucleoVinculado = { id: data.nucleoVinculado.id };
+            }
             const usuario = await usuarioRepo.criar(usuarioData);
             if (!usuario) throw new AppError(500, 'Erro ao criar usuário');
             return SchemaUsuarioResumido.parse(usuario);
@@ -62,7 +65,7 @@ export const fazerUsuarioService = (usuarioRepo: IUsuarioRepository): IUsuarioSe
             });
         },
         async listarPornucleoVinculado(pagina: number, limite: number) {
-            const nucleoVinculadoId = getContext()?.nucleoVinculado?.id;
+            const nucleoVinculadoId = getContext()?.nucleoVinculadoId;
             if (!nucleoVinculadoId) {
                 throw new AppError(400, 'Núcleo vinculado não encontrado');
             }
