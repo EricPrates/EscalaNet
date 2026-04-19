@@ -41,10 +41,15 @@ export class Aluno {
     ativo!: boolean;
 
     @Index()
+    @Column({ type: "varchar", length: 20, nullable: true })
+    telefone?: string;
+
+    @Index()
     @ManyToOne(() => Categoria, (categoria) => categoria.alunos)
     @JoinColumn({ name: "categoria_id" })
     categoria?: Categoria;
 
     @OneToMany(() => EventosJogo, (eventos) => eventos.alunoEnvolvido)
     eventos!: EventosJogo[];
+
 }

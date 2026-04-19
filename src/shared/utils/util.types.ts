@@ -25,8 +25,11 @@ export interface AuthContext {
     nome: string;
     email: string;
     permissao: 'coordenador' | 'admin' | 'professor' | 'arbitro' | 'auxiliar';
-    nucleoVinculado?: number | null;
-    nucleosAdministrados?: number[] | null;
+    nucleoVinculado?: {
+        id: number;
+        nome: string;
+    } | null;
+
 }
 
 export const HTTP_STATUS_ERRORS: { [key: number]: string } = {

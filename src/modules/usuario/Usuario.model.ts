@@ -35,18 +35,16 @@ export class Usuario {
     })
     permissao!: "admin" | "coordenador" | "professor" | "arbitro" | "auxiliar";
 
-    @OneToMany(() => Nucleo, (nucleo) => nucleo.admin)
-    nucleosAdministrados?: Nucleo[];
 
     @ManyToMany(() => Treino, (treino) => treino.usuarios)
     treinos?: Treino[];
 
 
     @Index()
-    @ManyToOne(() => Nucleo, (nucleo) => nucleo.professores)
+    @ManyToOne(() => Nucleo, (nucleo) => nucleo.usuariosVinculados)
     @JoinColumn({ name: "nucleo_id" })
-    nucleovinculado!: Nucleo | null;
-
+    nucleoVinculado!: Nucleo | null;
+    
     @OneToMany(() => Jogo, (jogo) => jogo.arbitro)
     jogos?: Jogo[];
 

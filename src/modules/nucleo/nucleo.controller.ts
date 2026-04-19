@@ -4,6 +4,8 @@ import { CriarNucleoDTO, RespostaNucleoDTO } from "./nucleo.schemas";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { IBaseService } from "../../shared/factory/BaseInterfaces";
 
+
+
 export function fazerNucleoController(service: IBaseService<RespostaNucleoDTO, CriarNucleoDTO>) {
     return {
         async listarNucleos(req: Request, res: Response) {

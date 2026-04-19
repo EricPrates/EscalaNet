@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn, ManyToOne, OneToMany, JoinTable, ManyToMany, Index } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, JoinTable, ManyToMany, Index } from 'typeorm';
 import { Usuario } from "../usuario/Usuario.model";
 import { Aluno } from '../aluno/Aluno.model';
 import { Categoria } from '../categoria/Categoria.model';
@@ -25,30 +25,15 @@ export class Nucleo {
 
     @UpdateDateColumn({ name: "updated_at" })
     updatedAt!: Date;
-
-   
-    @ManyToOne(() => Usuario, (usuario) => usuario.nucleosAdministrados)
-    @JoinColumn({ name: "admin_id" })
-    admin!: Usuario;
-
-    @Index()
-    @OneToOne(() => Usuario, (usuario) => usuario.nucleovinculado )
-    @JoinColumn({ name: "nucleo_vinculado_id" })
-    coordenador?: Usuario | null;
-
-   
-    @OneToMany(() => Usuario, (usuario) => usuario.nucleovinculado )
-    professores?: Usuario[];
     
-    @OneToMany(() => Usuario, (usuario) => usuario.nucleovinculado )
-    auxiliares?: Usuario[];
     
     @OneToMany(() => Treino, (treino) => treino.nucleo )
     treinos?: Treino[];
 
     @OneToMany(() => Aluno, (aluno) => aluno.nucleo )
     alunos?: Aluno[];
-
+    @OneToMany(() => Usuario, (usuario) => usuario.nucleoVinculado)
+    usuariosVinculados?: Usuario[];
   
     @ManyToMany(() => Categoria, (categoria) => categoria.nucleos )
     @JoinTable({

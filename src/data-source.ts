@@ -13,7 +13,7 @@ const AppDataSource = new DataSource({
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
     synchronize: true, // Só em desenvolvimento! Cria/atualiza tabelas automaticamente
-    logging: ["query", "error", "schema"],
+    logging: true,
     entities: [__dirname + "/modules/**/*.model.{js,ts}"],
     migrations: ["src/migrations/**/*.ts"],
 });

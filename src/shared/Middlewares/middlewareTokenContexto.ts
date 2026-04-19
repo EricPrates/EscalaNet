@@ -24,6 +24,6 @@ export async function middlewareTokenContexto(req: Request, _res: Response, next
     if (!decoded) {
         throw new AppError(401);
     }
-    return authStorage.run(decoded as AuthContext, () => next());
+     authStorage.run(decoded, () => next());
 
 };

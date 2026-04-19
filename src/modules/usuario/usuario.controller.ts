@@ -14,7 +14,11 @@ export function fazerUsuarioController(service: IUsuarioService) {
             const { data, meta } = await service.listar(pagina, limite);
             return res.status(200).json(montarRespostaPaginada('Usuários listados com sucesso', data, meta));
         },
-
+        async listarPornucleoVinculado (req: Request, res: Response) {
+            const {limite, pagina} = SchemaPaginacaoQuery.parse(req.query);
+            const { data, meta } = await service.listarPornucleoVinculado(pagina, limite);
+            return res.status(200).json(montarRespostaPaginada('Usuários listados com sucesso', data, meta));
+        },
         async obterUsuarioPorId(req: Request, res: Response) {
             const usuario = await service.obterPorId(Number(req.params.id));
             return res.status(200).json(montarRespostaSucesso('Usuário obtido com sucesso', usuario));
@@ -22,8 +26,9 @@ export function fazerUsuarioController(service: IUsuarioService) {
     
 
         async criarUsuario(req: Request, res: Response) {
-            const { email, senha, permissao, nome } = req.body as CriarUsuarioDTO;
-            const usuario = await service.criar({ email, senha, permissao, nome });
+            const { email, senha, permissao, nome, nucleoVinculado } = req.body as CriarUsuarioDTO;
+
+            const usuario = await service.criar({ email, senha, permissao, nome, nucleoVinculado });
             return res.status(201).json(montarRespostaSucesso('Usuário criado com sucesso', usuario));
         },
 
@@ -31,7 +36,7 @@ export function fazerUsuarioController(service: IUsuarioService) {
             const { email, senha } = req.body as LoginUsuarioDTO;
 
             const usuarioLogado = await service.obterUsuarioParaLogin(email, senha);
-            const payload = { id: usuarioLogado.id, nome: usuarioLogado.nome, email: usuarioLogado.email, permissao: usuarioLogado.permissao };
+            const payload = { id: usuarioLogado.id, nome: usuarioLogado.nome, email: usuarioLogado.email, permissao: usuarioLogado.permissao, nucleoVinculadoId: usuarioLogado.nucleoVinculado?.id };
             const token = gerarToken(payload);
             res.setHeader('Authorization', `Bearer ${token}`);
             return res.status(200).json(montarRespostaSucesso('Login realizado com sucesso', usuarioLogado, token));

@@ -1,7 +1,7 @@
 
 import { z } from 'zod';
-import { SchemaBaseUsuario } from '../usuario/usuario.schemas';
 import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
+
 
 export const SchemaDashboardNucleo = z.object({
 
@@ -22,22 +22,21 @@ export const SchemaDashboardNucleo = z.object({
 
 
 
-export const SchemaCriarNucleo = z.object({
+export const SchemaBaseNucleo = z.object({
+    id: z.number().int().positive().optional(),
     nome: z.string().min(1, "O nome do núcleo é obrigatório"),
     endereco: z.string().max(1000, "O endereço deve conter no máximo 1000 caracteres").optional(),
 });
-
-export const SchemaNucleoResposta = SchemaCriarNucleo.extend({
+export const SchemaIdNUcleo = z.object({
+    id: z.number().int().positive(),
+});
+export const SchemaNucleoResposta = SchemaBaseNucleo.extend({
     id: z.coerce.number().int().positive(),
-    coordenador: SchemaBaseUsuario.omit({ senha: true }).optional(),
-    admin: SchemaBaseUsuario.omit({ senha: true }),
-    alunos: z.array(SchemaBaseUsuario.omit({ senha: true })).optional(),
-    professores: z.array(SchemaBaseUsuario.omit({ senha: true })).optional(),
 });
 export const SchemaNucleosPaginados = SchemaRespostaPaginada(SchemaNucleoResposta);
 
 
-export type CriarNucleoDTO = z.infer<typeof SchemaCriarNucleo>;
+export type CriarNucleoDTO = z.infer<typeof SchemaBaseNucleo>;
 export type RespostaNucleoDTO = z.infer<typeof SchemaNucleoResposta>;
 export type DashboardNucleoDTO = z.infer<typeof SchemaDashboardNucleo>;
 export type NucleosPaginadosDTO = z.infer<typeof SchemaNucleosPaginados>;

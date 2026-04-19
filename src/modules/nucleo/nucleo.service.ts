@@ -8,17 +8,9 @@ import { RespostaNucleoDTO, SchemaNucleoResposta, CriarNucleoDTO } from './nucle
 export const fazerNucleoService = (nucleoRepo: INucleoRepository): INucleoService => {
 
     return {
+        //apenas admin pode listar todos os núcleos, os outros só podem buscar o seu núcleo vinculado
         async listar(pagina: number, limite: number) {
-            const permissaoDoUsuarioLogado = getContext()?.permissao;
-            let where = {};
-            if (permissaoDoUsuarioLogado === 'coordenador' || permissaoDoUsuarioLogado === 'professor' || permissaoDoUsuarioLogado === 'auxiliar') {
-                where = { nucleoVinculado: { id: getContext()?.nucleoVinculado || getContext()?.nucleosAdministrados } };
-            }
-            else if (permissaoDoUsuarioLogado === 'admin') {
-                where = {};
-            }
-
-            const { data, total } = await nucleoRepo.listar(pagina, limite, where);
+            const { data, total } = await nucleoRepo.listar(pagina, limite);
             const dataValidada = SchemaNucleoResposta.array().parse(data);
             const totalPaginas = Math.ceil(total / limite);
 
@@ -32,7 +24,9 @@ export const fazerNucleoService = (nucleoRepo: INucleoRepository): INucleoServic
                 }
             });
         },
+        //só admin pode obter nucleo por nome
         async obterPorNome(nome: string): Promise<RespostaNucleoDTO> {
+
             const nucleo = await nucleoRepo.obterPorNome(nome);
             if (!nucleo) {
                 throw new AppError(404, 'Núcleo não encontrado');
@@ -40,6 +34,16 @@ export const fazerNucleoService = (nucleoRepo: INucleoRepository): INucleoServic
             return SchemaNucleoResposta.parse(nucleo);
         },
         async obterPorId(id: number): Promise<RespostaNucleoDTO> {
+            const permissao = getContext()?.permissao;
+            if (permissao !== 'admin') {
+                const nucleoVinculadoId = getContext()?.nucleoVinculado?.id;
+                if (!nucleoVinculadoId) {
+                    throw new AppError(403, 'Acesso negado: usuário sem núcleo vinculado');
+                }
+                if (nucleoVinculadoId !== id) {
+                    throw new AppError(403, 'Acesso negado: só é permitido acessar o núcleo vinculado');
+                }
+            }
             const nucleo = await nucleoRepo.obterPorId(id);
             if (!nucleo) {
                 throw new AppError(404, 'Núcleo não encontrado');
