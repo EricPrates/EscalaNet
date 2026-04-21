@@ -6,7 +6,7 @@ export interface IBaseService<ResDTO, CreateDTO, ID = number> {
     criar(data: CreateDTO): Promise<ResDTO>;
     atualizar(id: ID, data: Partial<CreateDTO>): Promise<ResDTO>;
     deletar(id: ID): Promise<boolean>;
-    listar(pagina: number, limite: number): Promise<{ data: ResDTO[]; meta: { total: number; totalPaginas: number; pagina: number; limite: number } }>;
+    listar(pagina: number, limite: number, where?: any): Promise<{ data: ResDTO[]; meta: { total: number; totalPaginas: number; pagina: number; limite: number } }>;
 }
 
 export interface IBaseRepository<Entity, CreateDTO, ID = number> {
@@ -14,6 +14,6 @@ export interface IBaseRepository<Entity, CreateDTO, ID = number> {
     criar(data: CreateDTO): Promise<Entity>;
     atualizar(id: ID, data: Partial<CreateDTO>): Promise<Entity | null>;
     deletar(id: ID): Promise<boolean>;
-    listar(pagina: number, limite: number): Promise<{ data: Entity[]; total: number }>;
+    listar(pagina: number, limite: number, where?: any): Promise<{ data: Entity[]; total: number }>;
 }
 

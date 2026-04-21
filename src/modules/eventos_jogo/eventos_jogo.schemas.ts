@@ -14,7 +14,7 @@ export const SchemaBaseEventoJogo = z.object({
     alunoEnvolvido: z.object({ id: z.number().int().positive() }).nullable().optional(),
 });
 
-export const SchemaEventoJogoResposta = z.object({
+export const SchemaEventoJogoRespostaDetalhada = z.object({
     id: z.coerce.number().int().positive(),
     tipo: z.enum(tiposEvento),
     descricao: z.string().nullable().optional(),
@@ -24,10 +24,16 @@ export const SchemaEventoJogoResposta = z.object({
     nucleo: SchemaRefNucleo,
     alunoEnvolvido: SchemaRefAluno.nullable().optional(),
 });
+export const SchemaFiltroEventoJogo = z.object({
+    tipo: z.enum(tiposEvento).optional(),
+    jogoId: z.coerce.number().int().positive().optional(),
+    nucleoId: z.coerce.number().int().positive().optional(),
+    alunoId: z.coerce.number().int().positive().optional(),
+});
 
 export const SchemaAtualizarEventoJogo = SchemaBaseEventoJogo.partial();
-export const SchemaEventosJogoPaginados = SchemaRespostaPaginada(SchemaEventoJogoResposta);
+export const SchemaEventosJogoPaginados = SchemaRespostaPaginada(SchemaEventoJogoRespostaDetalhada);
 
 export type CriarEventoJogoDTO = z.infer<typeof SchemaBaseEventoJogo>;
-export type RespostaEventoJogoDTO = z.infer<typeof SchemaEventoJogoResposta>;
+export type RespostaEventoJogoDTO = z.infer<typeof SchemaEventoJogoRespostaDetalhada>;
 export type AtualizarEventoJogoDTO = z.infer<typeof SchemaAtualizarEventoJogo>;

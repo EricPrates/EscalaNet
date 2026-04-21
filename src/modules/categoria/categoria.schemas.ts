@@ -21,6 +21,11 @@ export const SchemaCategoriaResposta = z.object({
     ativa: z.boolean(),
 });
 
+export const SchemaFiltrosCategoria = z.object({
+    nome: z.string().optional(),
+    ativa: z.boolean().optional(),
+});
+
 export const SchemaAtualizarCategoria = SchemaCategoriaObjeto.partial();
 export const SchemaCategoriasPaginadas = SchemaRespostaPaginada(SchemaCategoriaResposta);
 

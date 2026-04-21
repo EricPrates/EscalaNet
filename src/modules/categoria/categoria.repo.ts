@@ -7,9 +7,14 @@ export function fazerCategoriaRepo(dataSource: DataSource): ICategoriaRepository
     const repo = dataSource.getRepository(Categoria);
 
     return {
-        async listar(pagina = 1, limite = 10) {
+        async listar(pagina = 1, limite = 10, where = {}) {
             const skip = (pagina - 1) * limite;
-            const [data, total] = await repo.findAndCount({ skip, take: limite, order: { id: 'ASC' } });
+            const [data, total] = await repo.findAndCount({
+                where,
+                skip,
+                take: limite,
+                order: { id: 'ASC' }
+            });
             return { data, total };
         },
 

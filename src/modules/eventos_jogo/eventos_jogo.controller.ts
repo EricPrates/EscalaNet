@@ -2,13 +2,14 @@ import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { IEventoJogoService } from "./eventos_jogo.interfaces";
-import { CriarEventoJogoDTO } from "./eventos_jogo.schemas";
+import { CriarEventoJogoDTO, SchemaFiltroEventoJogo } from "./eventos_jogo.schemas";
 
 export function fazerEventoJogoController(service: IEventoJogoService) {
     return {
-        async listarEventos(req: Request, res: Response) {
+        async listar(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
-            const { data, meta } = await service.listar(pagina, limite);
+            const filtro = SchemaFiltroEventoJogo.parse(req.query);
+            const { data, meta } = await service.listar(pagina, limite, filtro);
             return res.status(200).json(montarRespostaPaginada('Eventos listados com sucesso', data, meta));
         },
 

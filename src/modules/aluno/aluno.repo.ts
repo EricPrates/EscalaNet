@@ -1,7 +1,8 @@
-import { DataSource } from "typeorm";
+import { DataSource, FindOptionsWhere } from "typeorm";
 import { Aluno } from "./Aluno.model";
 import { CriarAlunoDTO } from "./aluno.schemas";
 import { IAlunoRepository } from "./aluno.interfaces";
+
 
 export function fazerAlunoRepo(dataSource: DataSource): IAlunoRepository {
     const repo = dataSource.getRepository(Aluno);
@@ -13,37 +14,25 @@ export function fazerAlunoRepo(dataSource: DataSource): IAlunoRepository {
     };
 
     return {
-        async listar(pagina = 1, limite = 10) {
+        async listar(pagina: number = 1, limite: number = 10, where: FindOptionsWhere<Aluno> = {}) {
             const skip = (pagina - 1) * limite;
             const [data, total] = await repo.findAndCount({
+                where,
                 skip, take: limite, order: { id: 'ASC' },
                 relations: ['nucleo', 'categoria'],
-                select: selectBase,
+            });
+            return { data, total };
+        },
+        async listarComFiltro(pagina = 1, limite = 10, where: FindOptionsWhere<Aluno> = {}) {
+            const skip = (pagina - 1) * limite;
+            const [data, total] = await repo.findAndCount({
+                where,
+                skip, take: limite, order: { id: 'ASC' },
+                relations: ['nucleo', 'categoria'],
             });
             return { data, total };
         },
 
-        async listarPorNucleo(pagina = 1, limite = 10, nucleoId: number) {
-            const skip = (pagina - 1) * limite;
-            const [data, total] = await repo.findAndCount({
-                where: { nucleo: { id: nucleoId } },
-                skip, take: limite, order: { id: 'ASC' },
-                relations: ['nucleo', 'categoria'],
-                select: selectBase,
-            });
-            return { data, total };
-        },
-
-        async listarPorCategoria(pagina = 1, limite = 10, categoriaId: number) {
-            const skip = (pagina - 1) * limite;
-            const [data, total] = await repo.findAndCount({
-                where: { categoria: { id: categoriaId } },
-                skip, take: limite, order: { id: 'ASC' },
-                relations: ['nucleo', 'categoria'],
-                select: selectBase,
-            });
-            return { data, total };
-        },
 
         async obterPorId(id: number) {
             return await repo.findOne({

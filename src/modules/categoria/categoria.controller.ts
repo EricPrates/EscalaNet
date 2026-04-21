@@ -2,13 +2,14 @@ import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { ICategoriaService } from "./categoria.interfaces";
-import { CriarCategoriaDTO } from "./categoria.schemas";
+import { CriarCategoriaDTO, SchemaFiltrosCategoria } from "./categoria.schemas";
 
 export function fazerCategoriaController(service: ICategoriaService) {
     return {
-        async listarCategorias(req: Request, res: Response) {
+        async listar(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
-            const { data, meta } = await service.listar(pagina, limite);
+            const filtro = SchemaFiltrosCategoria.parse(req.query);
+            const { data, meta } = await service.listar(pagina, limite, filtro);
             return res.status(200).json(montarRespostaPaginada('Categorias listadas com sucesso', data, meta));
         },
 

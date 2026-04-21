@@ -2,27 +2,23 @@ import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { IAlunoService } from "./aluno.interfaces";
-import { CriarAlunoDTO } from "./aluno.schemas";
+import { CriarAlunoDTO, SchemaFiltrosAluno } from "./aluno.schemas";
+import { getContext } from "../../shared/utils/authStorage";
+
 
 export function fazerAlunoController(service: IAlunoService) {
     return {
-        async listarAlunos(req: Request, res: Response) {
+        async listar(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
-            const { data, meta } = await service.listar(pagina, limite);
+            const filtros = SchemaFiltrosAluno.parse(req.query);
+            const { data, meta } = await service.listar(pagina, limite, filtros);
             return res.status(200).json(montarRespostaPaginada('Alunos listados com sucesso', data, meta));
         },
 
         async listarPorNucleo(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
-            const nucleoId = Number(req.params.nucleoId);
-            const { data, meta } = await service.listarPorNucleo(pagina, limite, nucleoId);
-            return res.status(200).json(montarRespostaPaginada('Alunos listados com sucesso', data, meta));
-        },
-
-        async listarPorCategoria(req: Request, res: Response) {
-            const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
-            const categoriaId = Number(req.params.categoriaId);
-            const { data, meta } = await service.listarPorCategoria(pagina, limite, categoriaId);
+            const nucleoId = getContext()?.nucleoVinculadoId;
+            const { data, meta } = await service.listar(pagina, limite, { nucleoId });
             return res.status(200).json(montarRespostaPaginada('Alunos listados com sucesso', data, meta));
         },
 

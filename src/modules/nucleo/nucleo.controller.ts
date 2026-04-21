@@ -8,7 +8,7 @@ import { IBaseService } from "../../shared/factory/BaseInterfaces";
 
 export function fazerNucleoController(service: IBaseService<RespostaNucleoDTO, CriarNucleoDTO>) {
     return {
-        async listarNucleos(req: Request, res: Response) {
+        async listarNucleosComUsuariosVinculados(req: Request, res: Response) {
             const {limite, pagina} = SchemaPaginacaoQuery.parse(req.query);
             const { data, meta } = await service.listar(pagina, limite);
             return res.status(200).json(montarRespostaPaginada('Núcleos listados com sucesso', data, meta));

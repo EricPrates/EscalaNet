@@ -16,10 +16,6 @@ export class Categoria {
     nome!:  string;
 
     @Index()
-    @Column({ type: "int", nullable: false })
-    idadeMinima!: number;
-
-    @Index()
     @Column({ type: "int",  nullable: false })
     idadeMaxima!: number;
 

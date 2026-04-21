@@ -21,6 +21,14 @@ export const SchemaAlunoResposta = z.object({
     categoria: SchemaRefCategoria.nullable().optional(),
 });
 
+export const SchemaFiltrosAluno = z.object({
+    nome: z.string().optional(),
+    nucleoId: z.coerce.number().int().positive().optional(),
+    categoriaId: z.coerce.number().int().positive().optional(),
+    
+});
+
+export type FiltrosAlunoDTO = z.infer<typeof SchemaFiltrosAluno>;
 export const SchemaAtualizarAluno = SchemaBaseAluno.partial();
 export const SchemaAlunosPaginados = SchemaRespostaPaginada(SchemaAlunoResposta);
 

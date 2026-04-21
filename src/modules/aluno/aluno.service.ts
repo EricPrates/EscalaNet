@@ -1,70 +1,44 @@
 import { AppError } from "../../shared/utils/AppError";
 import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
-import { getContext } from "../../shared/utils/authStorage";
 import { IAlunoRepository, IAlunoService } from "./aluno.interfaces";
-import { CriarAlunoDTO, RespostaAlunoDTO, SchemaAlunoResposta } from "./aluno.schemas";
+import { CriarAlunoDTO, FiltrosAlunoDTO, RespostaAlunoDTO, SchemaAlunoResposta } from "./aluno.schemas";
+import { FindOptionsWhere, ILike } from "typeorm";
+import { Aluno } from "./Aluno.model";
 
-function mapearAluno(aluno: any): RespostaAlunoDTO {
-    return SchemaAlunoResposta.parse({
-        id: aluno.id,
-        nome: aluno.nome,
-        dataNascimento: aluno.dataNascimento,
-        ativo: aluno.ativo,
-        telefone: aluno.telefone,
-        nucleo: aluno.nucleo ? { id: aluno.nucleo.id, nome: aluno.nucleo.nome } : undefined,
-        categoria: aluno.categoria ? { id: aluno.categoria.id, nome: aluno.categoria.nome } : null,
-    });
-}
 
 export function fazerAlunoService(alunoRepo: IAlunoRepository): IAlunoService {
     return {
-        async listar(pagina: number, limite: number) {
-            const ctx = getContext();
-            // coordenador/professor só veem alunos do seu núcleo
-            if (ctx?.permissao !== 'admin' && ctx?.nucleoVinculadoId) {
-                return this.listarPorNucleo(pagina, limite, ctx.nucleoVinculadoId);
-            }
-            const { data, total } = await alunoRepo.listar(pagina, limite);
+        
+        async listar(pagina: number, limite: number, filtros: FiltrosAlunoDTO) {
+            const where: FindOptionsWhere<Aluno> = {};
+            if (filtros.nome) where.nome = ILike(`%${filtros.nome}%`);
+            if (filtros.nucleoId) where.nucleo = { id: filtros.nucleoId };
+            if (filtros.categoriaId) where.categoria = { id: filtros.categoriaId };
+            const { data, total } = await alunoRepo.listar(pagina, limite, where);
             const totalPaginas = Math.ceil(total / limite);
+            const dataValidada = SchemaAlunoResposta.array().parse(data);
             return SchemaRespostaPaginada(SchemaAlunoResposta).parse({
-                data: data.map(mapearAluno),
+                data: dataValidada,
                 meta: { pagina, limite, total, totalPaginas },
             });
         },
 
-        async listarPorNucleo(pagina: number, limite: number, nucleoId: number) {
-            const { data, total } = await alunoRepo.listarPorNucleo(pagina, limite, nucleoId);
-            const totalPaginas = Math.ceil(total / limite);
-            return SchemaRespostaPaginada(SchemaAlunoResposta).parse({
-                data: data.map(mapearAluno),
-                meta: { pagina, limite, total, totalPaginas },
-            });
-        },
-
-        async listarPorCategoria(pagina: number, limite: number, categoriaId: number) {
-            const { data, total } = await alunoRepo.listarPorCategoria(pagina, limite, categoriaId);
-            const totalPaginas = Math.ceil(total / limite);
-            return SchemaRespostaPaginada(SchemaAlunoResposta).parse({
-                data: data.map(mapearAluno),
-                meta: { pagina, limite, total, totalPaginas },
-            });
-        },
 
         async obterPorId(id: number): Promise<RespostaAlunoDTO> {
             const aluno = await alunoRepo.obterPorId(id);
             if (!aluno) throw new AppError(404, 'Aluno não encontrado');
-            return mapearAluno(aluno);
+            return SchemaAlunoResposta.parse(aluno);
         },
 
         async criar(data: CriarAlunoDTO): Promise<RespostaAlunoDTO> {
             const aluno = await alunoRepo.criar(data);
-            return mapearAluno(aluno);
+            return SchemaAlunoResposta.parse(aluno);
         },
 
         async atualizar(id: number, data: Partial<CriarAlunoDTO>): Promise<RespostaAlunoDTO> {
             const aluno = await alunoRepo.atualizar(id, data);
             if (!aluno) throw new AppError(404, 'Aluno não encontrado');
-            return mapearAluno(aluno);
+            return SchemaAlunoResposta.parse(aluno);
         },
 
         async deletar(id: number): Promise<boolean> {
