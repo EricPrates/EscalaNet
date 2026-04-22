@@ -1,10 +1,10 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, JoinTable, ManyToMany, Index } from 'typeorm';
 import { Usuario } from "../usuario/Usuario.model";
-import { Aluno } from '../aluno/Aluno.model';
 import { Categoria } from '../categoria/Categoria.model';
-import { Jogo } from '../jogo/Jogo.model';
 import { Treino } from '../treino/Treino.model';
 import { EventosJogo } from '../eventos_jogo/EventosJogo.model';
+import { Time } from '../time/time.model';
+import { MaterialRepasse } from '../materialNucleo/MaterialRepasse';
 
 
 @Entity({ name: "nucleos" })
@@ -30,8 +30,6 @@ export class Nucleo {
     @OneToMany(() => Treino, (treino) => treino.nucleo )
     treinos?: Treino[];
 
-    @OneToMany(() => Aluno, (aluno) => aluno.nucleo )
-    alunos?: Aluno[];
     @OneToMany(() => Usuario, (usuario) => usuario.nucleoVinculado)
     usuariosVinculados?: Usuario[];
   
@@ -43,13 +41,12 @@ export class Nucleo {
     })
     categorias?: Categoria[];
 
-    @OneToMany(() => Jogo, (jogo) => jogo.timeA )
-    jogosTimeA?: Jogo[];
-
-    @OneToMany(() => Jogo, (jogo) => jogo.timeB )
-    jogosTimeB?: Jogo[];
+    @OneToMany(() => Time, (time) => time.nucleoVinculado )
+    times?: Time[];
 
     @OneToMany(() => EventosJogo, (eventos) => eventos.nucleo )
     eventos?: EventosJogo[];
 
+    @OneToMany(() => MaterialRepasse, (material) => material.nucleo )
+    materiais?:  MaterialRepasse[];
 }

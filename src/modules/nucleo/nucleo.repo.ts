@@ -17,7 +17,7 @@ export function fazerNucleoRepo(dataSource: DataSource): INucleoRepository {
             const [data, total] = await repo.findAndCount({
                 skip,
                 take: limite,
-                relations: ['usuarios']
+                order: { id: 'ASC' }
             });
             return {data, total};          
         },

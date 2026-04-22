@@ -1,6 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn,   UpdateDateColumn,  ManyToMany, Index, OneToMany } from 'typeorm';
 import { Nucleo } from '../nucleo/Nucleo.model';
-import { Aluno } from '../aluno/Aluno.model';
 import { Jogo } from '../jogo/Jogo.model';
 
 
@@ -33,8 +32,7 @@ export class Categoria {
     @ManyToMany(() => Nucleo, (nucleos) => nucleos.categorias)
     nucleos!: Nucleo[];
 
-    @OneToMany(() => Aluno, (aluno) => aluno.categoria)
-    alunos!: Aluno[];
+
     @OneToMany(() => Jogo, (jogo) => jogo.categoria)
     jogos!: Jogo[];
 }

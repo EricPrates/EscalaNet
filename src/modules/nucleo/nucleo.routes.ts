@@ -12,7 +12,7 @@ const router = Router();
 
 router.get(
     '/',verificarPermissao('admin'),
-    nucleoController.listarNucleos
+    nucleoController.listarNucleosComUsuariosVinculados
 );
 
 router.get(

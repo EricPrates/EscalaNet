@@ -38,6 +38,7 @@ export const montarRespostaPaginada = <T>(
             totalPaginas: meta.totalPaginas,
             pagina: meta.pagina,
             limite: meta.limite,
+        
         }
     };
 };

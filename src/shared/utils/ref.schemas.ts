@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-// Schemas de referência reutilizados nas respostas de outros módulos
-// Retornam apenas id + nome para evitar N+1 no frontend
+
 
 export const SchemaRefNucleo = z.object({
     id: z.number().int().positive(),

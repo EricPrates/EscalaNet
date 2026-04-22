@@ -33,7 +33,7 @@ export class Usuario {
     @Column({
         type: "varchar", length: 50, nullable: false, default: "coordenador"
     })
-    permissao!: "admin" | "coordenador" | "professor" | "arbitro" | "auxiliar";
+    permissao!: "admin" |"coordenador" | "professor" | "arbitro" | "auxiliar";
 
 
     @ManyToMany(() => Treino, (treino) => treino.usuarios)

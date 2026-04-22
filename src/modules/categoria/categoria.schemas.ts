@@ -16,7 +16,6 @@ export const SchemaBaseCategoria = SchemaCategoriaObjeto.refine(
 export const SchemaCategoriaResposta = z.object({
     id: z.coerce.number().int().positive(),
     nome: z.string(),
-    idadeMinima: z.number(),
     idadeMaxima: z.number(),
     ativa: z.boolean(),
 });
@@ -28,7 +27,7 @@ export const SchemaFiltrosCategoria = z.object({
 
 export const SchemaAtualizarCategoria = SchemaCategoriaObjeto.partial();
 export const SchemaCategoriasPaginadas = SchemaRespostaPaginada(SchemaCategoriaResposta);
-
+export type FiltrosCategoriaDTO = z.infer<typeof SchemaFiltrosCategoria>;
 export type CriarCategoriaDTO = z.infer<typeof SchemaBaseCategoria>;
 export type RespostaCategoriaDTO = z.infer<typeof SchemaCategoriaResposta>;
 export type AtualizarCategoriaDTO = z.infer<typeof SchemaAtualizarCategoria>;

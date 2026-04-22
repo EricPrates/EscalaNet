@@ -23,15 +23,7 @@ export function fazerAlunoRepo(dataSource: DataSource): IAlunoRepository {
             });
             return { data, total };
         },
-        async listarComFiltro(pagina = 1, limite = 10, where: FindOptionsWhere<Aluno> = {}) {
-            const skip = (pagina - 1) * limite;
-            const [data, total] = await repo.findAndCount({
-                where,
-                skip, take: limite, order: { id: 'ASC' },
-                relations: ['nucleo', 'categoria'],
-            });
-            return { data, total };
-        },
+
 
 
         async obterPorId(id: number) {

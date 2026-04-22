@@ -1,12 +1,17 @@
 import { AppError } from "../../shared/utils/AppError";
 import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
 import { ICategoriaRepository, ICategoriaService } from "./categoria.interfaces";
-import { CriarCategoriaDTO, RespostaCategoriaDTO, SchemaCategoriaResposta } from "./categoria.schemas";
+import { Categoria } from "./Categoria.model";
+import { CriarCategoriaDTO, FiltrosCategoriaDTO, RespostaCategoriaDTO, SchemaCategoriaResposta } from "./categoria.schemas";
+import { FindOptionsWhere, ILike } from 'typeorm';
 
 export function fazerCategoriaService(categoriaRepo: ICategoriaRepository): ICategoriaService {
     return {
-        async listar(pagina: number, limite: number) {
-            const { data, total } = await categoriaRepo.listar(pagina, limite);
+        async listar(pagina: number, limite: number, filtros?: FiltrosCategoriaDTO) {
+            const where: FindOptionsWhere<Categoria> = {};
+            if (filtros?.nome) where.nome = ILike(`%${filtros.nome}%`);
+            if (filtros?.ativa !== undefined) where.ativa = filtros.ativa;
+            const { data, total } = await categoriaRepo.listar(pagina, limite, where);
             const totalPaginas = Math.ceil(total / limite);
             return SchemaRespostaPaginada(SchemaCategoriaResposta).parse({
                 data: SchemaCategoriaResposta.array().parse(data),

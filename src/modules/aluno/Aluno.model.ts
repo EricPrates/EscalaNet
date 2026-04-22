@@ -1,9 +1,8 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, Index, ManyToMany, OneToMany } from "typeorm";
-import { Nucleo } from "../nucleo/Nucleo.model";
 import { Treino } from "../treino/Treino.model";
 import { Frequencia } from "../frequencia/frequencia.model";
-import { Categoria } from "../categoria/Categoria.model";
 import { EventosJogo } from "../eventos_jogo/EventosJogo.model";
+import { Time } from "../time/time.model";
 
 @Index(["nucleo", "dataNascimento"])
 @Entity({ name: "alunos" })
@@ -27,9 +26,9 @@ export class Aluno {
     updatedAt!: Date;
 
     @Index()
-    @ManyToOne(() => Nucleo, (nucleo) => nucleo.alunos)
-    @JoinColumn({ name: "nucleo_id" })
-    nucleo!: Nucleo;
+    @ManyToOne(() => Time, (time) => time.jogadores)
+    @JoinColumn({ name: "time_id" })
+    time!: Time;
 
     @ManyToMany(() => Treino, (treino) => treino.alunos)
     treinos!: Treino[];
@@ -44,12 +43,9 @@ export class Aluno {
     @Column({ type: "varchar", length: 20, nullable: true })
     telefone?: string;
 
-    @Index()
-    @ManyToOne(() => Categoria, (categoria) => categoria.alunos)
-    @JoinColumn({ name: "categoria_id" })
-    categoria?: Categoria;
-
     @OneToMany(() => EventosJogo, (eventos) => eventos.alunoEnvolvido)
     eventos!: EventosJogo[];
+
+
 
 }

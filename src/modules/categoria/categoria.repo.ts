@@ -1,4 +1,4 @@
-import { DataSource } from "typeorm";
+import { DataSource, FindOptionsWhere } from "typeorm";
 import { Categoria } from "./Categoria.model";
 import { CriarCategoriaDTO } from "./categoria.schemas";
 import { ICategoriaRepository } from "./categoria.interfaces";
@@ -7,7 +7,7 @@ export function fazerCategoriaRepo(dataSource: DataSource): ICategoriaRepository
     const repo = dataSource.getRepository(Categoria);
 
     return {
-        async listar(pagina = 1, limite = 10, where = {}) {
+        async listar(pagina = 1, limite = 10, where?: FindOptionsWhere<Categoria>) {
             const skip = (pagina - 1) * limite;
             const [data, total] = await repo.findAndCount({
                 where,
