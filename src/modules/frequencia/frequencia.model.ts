@@ -11,7 +11,7 @@ export class Frequencia {
     @Index()
     @Column({ type: 'date' })
     data!: Date;
-
+    
     @Column({ type: 'boolean' })
     presente!: boolean;
 

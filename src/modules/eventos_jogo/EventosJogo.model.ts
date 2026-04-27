@@ -1,8 +1,9 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Jogo } from "../jogo/Jogo.model";
 import { Usuario } from "../usuario/Usuario.model";
-import { Nucleo } from "../nucleo/Nucleo.model";
 import { Aluno } from "../aluno/Aluno.model";
+import { Time } from "../time/time.model";
+
 
 
 @Entity({ name: "eventos_jogo" })
@@ -30,12 +31,16 @@ export class EventosJogo {
     usuario!: Usuario;
 
     @Index()
-    @ManyToOne(() => Nucleo, (nucleo) => nucleo.eventos)
-    @JoinColumn({ name: "nucleo_id" })
-    nucleo!: Nucleo;
+    @ManyToOne(() => Time, (time) => time.eventos)
+    @JoinColumn({ name: "time_id" })
+    time!: Time;
 
     @Index()
     @ManyToOne(() => Aluno, (aluno) => aluno.eventos)
     @JoinColumn({ name: "aluno_envolvido_id" })
     alunoEnvolvido!: Aluno | null;
+
+
+
+
 }

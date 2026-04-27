@@ -1,6 +1,19 @@
 import { z } from 'zod';
 
 
+export const SchemaRefEvento = z.object({
+    id: z.number().int().positive(),
+    tipo: z.string(),
+    descricao: z.string().nullable().optional(),
+    minuto: z.number().int().nonnegative().optional(),
+    jogo: z.object({ id: z.number().int().positive(), nome: z.string(), data: z.coerce.date() }).optional(),
+    time: z.object({ id: z.number().int().positive(), nome: z.string() }).optional(),
+});
+export const SchemaRefFrequencia = z.object({
+    id: z.number().int().positive(),
+    data: z.coerce.date(),
+    presente: z.boolean(),
+});
 
 export const SchemaRefNucleo = z.object({
     id: z.number().int().positive(),
@@ -16,7 +29,14 @@ export const SchemaRefUsuario = z.object({
     id: z.number().int().positive(),
     nome: z.string(),
 });
+export const SchemaRefTime = z.object({
+    id: z.number().int().positive(),
+    nome: z.string(),
+    nucleo: SchemaRefNucleo.optional(),
+    categoria: SchemaRefCategoria.optional(),
+    treinador: SchemaRefUsuario.optional(),
 
+});
 export const SchemaRefAluno = z.object({
     id: z.number().int().positive(),
     nome: z.string(),

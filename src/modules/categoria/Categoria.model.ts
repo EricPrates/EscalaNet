@@ -1,6 +1,6 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn,   UpdateDateColumn,  ManyToMany, Index, OneToMany } from 'typeorm';
-import { Nucleo } from '../nucleo/Nucleo.model';
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn,   UpdateDateColumn,   Index, OneToMany } from 'typeorm';
 import { Jogo } from '../jogo/Jogo.model';
+import { Time } from '../time/time.model';
 
 
 @Entity({ name: "categorias" })
@@ -29,8 +29,8 @@ export class Categoria {
     updatedAt!: Date;
     
    
-    @ManyToMany(() => Nucleo, (nucleos) => nucleos.categorias)
-    nucleos!: Nucleo[];
+    @OneToMany(() => Time, (time) => time.categoria)
+    times!: Time[];
 
 
     @OneToMany(() => Jogo, (jogo) => jogo.categoria)

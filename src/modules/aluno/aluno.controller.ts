@@ -2,8 +2,9 @@ import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { IAlunoService } from "./aluno.interfaces";
-import { CriarAlunoDTO, SchemaFiltrosAluno } from "./aluno.schemas";
+import { AtualizarAlunoDTO, CriarAlunoDTO, SchemaAtualizarAluno, SchemaCriarAluno, SchemaFiltrosAluno } from "./aluno.schemas";
 import { getContext } from "../../shared/utils/authStorage";
+import { AppError } from "../../shared/utils/AppError";
 
 
 export function fazerAlunoController(service: IAlunoService) {
@@ -11,31 +12,45 @@ export function fazerAlunoController(service: IAlunoService) {
         async listar(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
             const filtros = SchemaFiltrosAluno.parse(req.query);
-            const { data, meta } = await service.listar(pagina, limite, filtros);
+            const includes = req.query.includes
+                ? String(req.query.includes).split(',').map(s => s.trim())
+                : [];
+            const { data, meta } = await service.listar(pagina, limite, filtros, includes);
             return res.status(200).json(montarRespostaPaginada('Alunos listados com sucesso', data, meta));
         },
 
-        async listarPorNucleo(req: Request, res: Response) {
+        async listarPorNucleoParaTreinador(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
-            const nucleoId = getContext()?.nucleoVinculadoId;
-            const { data, meta } = await service.listar(pagina, limite, { nucleoId });
+            const nucleoId = getContext()!.nucleoVinculadoId;
+            if (!nucleoId) throw new AppError(400, 'Núcleo não vinculado');
+            const filtros = SchemaFiltrosAluno.parse( { nucleoId } );
+            const includes = req.query.includes
+                ? String(req.query.includes).split(',').map(s => s.trim())
+                : [];
+
+            const { data, meta } = await service.listar(pagina, limite, filtros, includes);
             return res.status(200).json(montarRespostaPaginada('Alunos listados com sucesso', data, meta));
         },
 
         async obterAlunoPorId(req: Request, res: Response) {
-            const aluno = await service.obterPorId(Number(req.params.id));
+            const {id} = SchemaFiltrosAluno.parse(req.params);
+            const includes = req.query.includes
+                ? String(req.query.includes).split(',').map(s => s.trim())
+                : [];
+        
+            const aluno = await service.obterPorId(Number(id), includes);
             return res.status(200).json(montarRespostaSucesso('Aluno obtido com sucesso', aluno));
         },
 
         async criarAluno(req: Request, res: Response) {
-            const data = req.body as CriarAlunoDTO;
+            const data: CriarAlunoDTO = SchemaCriarAluno.parse(req.body);
             const aluno = await service.criar(data);
             return res.status(201).json(montarRespostaSucesso('Aluno criado com sucesso', aluno));
         },
 
         async atualizarAluno(req: Request, res: Response) {
             const { id } = req.params;
-            const data = req.body as Partial<CriarAlunoDTO>;
+            const data = SchemaAtualizarAluno.parse(req.body) as AtualizarAlunoDTO;
             const aluno = await service.atualizar(Number(id), data);
             return res.status(200).json(montarRespostaSucesso('Aluno atualizado com sucesso', aluno));
         },

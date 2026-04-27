@@ -1,10 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, JoinTable, ManyToMany, Index } from 'typeorm';
-import { Usuario } from "../usuario/Usuario.model";
-import { Categoria } from '../categoria/Categoria.model';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, Index } from 'typeorm';
 import { Treino } from '../treino/Treino.model';
-import { EventosJogo } from '../eventos_jogo/EventosJogo.model';
 import { Time } from '../time/time.model';
 import { MaterialRepasse } from '../materialNucleo/MaterialRepasse';
+import { Usuario } from '../usuario/Usuario.model';
 
 
 @Entity({ name: "nucleos" })
@@ -14,39 +12,27 @@ export class Nucleo {
 
     @Index()
     @Column({ type: "varchar", length: 255, nullable: false })
-    nome!: string;
+    nome!: string; 
 
-    
     @Column({ type: "varchar", length: 1000, nullable: true })
-    endereco!: string;
+    endereco!: string; 
 
     @CreateDateColumn({ name: "created_at" })
     createdAt!: Date;
 
     @UpdateDateColumn({ name: "updated_at" })
     updatedAt!: Date;
-    
-    
-    @OneToMany(() => Treino, (treino) => treino.nucleo )
-    treinos?: Treino[];
+
+   
+    @OneToMany(() => Time, (time) => time.nucleo)
+    times!: Time[]; 
+
+    @OneToMany(() => Treino, (treino) => treino.nucleo)
+    treinos!: Treino[]; 
 
     @OneToMany(() => Usuario, (usuario) => usuario.nucleoVinculado)
-    usuariosVinculados?: Usuario[];
-  
-    @ManyToMany(() => Categoria, (categoria) => categoria.nucleos )
-    @JoinTable({
-        name: "nucleos_categorias",
-        joinColumn: { name: "nucleo_id", referencedColumnName: "id" },
-        inverseJoinColumn: { name: "categoria_id", referencedColumnName: "id" }
-    })
-    categorias?: Categoria[];
+    usuariosVinculados!: Usuario[];
 
-    @OneToMany(() => Time, (time) => time.nucleoVinculado )
-    times?: Time[];
-
-    @OneToMany(() => EventosJogo, (eventos) => eventos.nucleo )
-    eventos?: EventosJogo[];
-
-    @OneToMany(() => MaterialRepasse, (material) => material.nucleo )
-    materiais?:  MaterialRepasse[];
+    @OneToMany(() => MaterialRepasse, (repasse) => repasse.nucleo)
+    materiaisRecebidos!: MaterialRepasse[]; 
 }

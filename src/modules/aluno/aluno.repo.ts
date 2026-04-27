@@ -1,36 +1,35 @@
-import { DataSource, FindOptionsWhere } from "typeorm";
+import { DataSource, FindOptionsRelations, FindOptionsSelect, FindOptionsWhere } from "typeorm";
 import { Aluno } from "./Aluno.model";
 import { CriarAlunoDTO } from "./aluno.schemas";
 import { IAlunoRepository } from "./aluno.interfaces";
 
 
+
+
 export function fazerAlunoRepo(dataSource: DataSource): IAlunoRepository {
     const repo = dataSource.getRepository(Aluno);
 
-    const selectBase = {
-        id: true, nome: true, dataNascimento: true, ativo: true, telefone: true,
-        nucleo: { id: true, nome: true },
-        categoria: { id: true, nome: true },
-    };
+  
 
     return {
-        async listar(pagina: number = 1, limite: number = 10, where: FindOptionsWhere<Aluno> = {}) {
+        async listar(pagina: number, limite: number, where?: FindOptionsWhere<Aluno>, relations?: FindOptionsRelations<Aluno>, select?: FindOptionsSelect<Aluno>) {
             const skip = (pagina - 1) * limite;
             const [data, total] = await repo.findAndCount({
                 where,
-                skip, take: limite, order: { id: 'ASC' },
-                relations: ['nucleo', 'categoria'],
+                relations,
+                select,
+                skip,
+                take: limite,
+                order: { nome: 'ASC' },
             });
             return { data, total };
         },
-
-
-
-        async obterPorId(id: number) {
+      
+        async obterPorId(id: number, relations?: FindOptionsRelations<Aluno>, select?: FindOptionsSelect<Aluno>) {
             return await repo.findOne({
                 where: { id },
-                relations: ['nucleo', 'categoria'],
-                select: selectBase,
+                relations,
+                select,
             }) || null;
         },
 

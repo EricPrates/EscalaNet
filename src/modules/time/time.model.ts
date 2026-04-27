@@ -1,9 +1,10 @@
-import { Column, ManyToOne, OneToMany, PrimaryGeneratedColumn, Entity } from 'typeorm';
+import { Column, ManyToOne, OneToMany, PrimaryGeneratedColumn, Entity, Index, JoinColumn } from 'typeorm';
 import { Nucleo } from "../nucleo/Nucleo.model";
 import { Aluno } from "../aluno/Aluno.model";
 import { Categoria } from '../categoria/Categoria.model';
 import { Usuario } from '../usuario/Usuario.model';
 import { Jogo } from '../jogo/Jogo.model';
+import { EventosJogo } from '../eventos_jogo/EventosJogo.model';
 
 @Entity({ name: "times" })
 export class Time {
@@ -11,15 +12,21 @@ export class Time {
     id!: number;
 
     @Column({ length: 100 })
-    nome!: string; 
+    nome!: string;
 
-    @ManyToOne(() => Nucleo, (nucleo) => nucleo.times)
-    nucleoVinculado!: Nucleo;
+    @Index()
+    @ManyToOne(() => Nucleo, (nucleo) => nucleo.times, { nullable: false })
+    @JoinColumn({ name: "nucleo_id" })
+    nucleo!: Nucleo;
 
-    @ManyToOne(() => Categoria)
-    categoria!: Categoria;
+    @Index()
+    @ManyToOne(() => Categoria, { nullable: false })
+    @JoinColumn({ name: "categoria_id" })
+    categoria!: Categoria; 
 
-    @ManyToOne(() => Usuario) // Treinador responsável
+    @Index()
+    @ManyToOne(() => Usuario, { nullable: false })
+    @JoinColumn({ name: "treinador_id" })
     treinador!: Usuario;
 
     @OneToMany(() => Aluno, (aluno) => aluno.time)
@@ -30,4 +37,7 @@ export class Time {
 
     @OneToMany(() => Jogo, (jogo) => jogo.timeB)
     jogosComoTimeB!: Jogo[];
+
+    @OneToMany(() => EventosJogo, (evento) => evento.time)
+    eventos!: EventosJogo[];
 }

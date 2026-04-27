@@ -4,7 +4,7 @@ import { Frequencia } from "../frequencia/frequencia.model";
 import { EventosJogo } from "../eventos_jogo/EventosJogo.model";
 import { Time } from "../time/time.model";
 
-@Index(["nucleo", "dataNascimento"])
+@Index(["time", "dataNascimento"])
 @Entity({ name: "alunos" })
 export class Aluno {
 
@@ -42,7 +42,7 @@ export class Aluno {
     @Index()
     @Column({ type: "varchar", length: 20, nullable: true })
     telefone?: string;
-
+    
     @OneToMany(() => EventosJogo, (eventos) => eventos.alunoEnvolvido)
     eventos!: EventosJogo[];
 

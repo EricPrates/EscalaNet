@@ -25,4 +25,6 @@ export class MaterialRepasse {
 
     @Column({ type: "text", nullable: true })
     observacao?: string;
+
+    
 }
