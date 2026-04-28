@@ -4,6 +4,7 @@ import { EventosJogo } from '../eventos_jogo/EventosJogo.model';
 import { Categoria } from '../categoria/Categoria.model';
 import { Frequencia } from '../frequencia/frequencia.model';
 import { Time } from '../time/time.model';
+import { Competicao } from '../competicao/Competicao.model';
 
 @Entity({ name: "jogos" })
 export class Jogo {
@@ -51,4 +52,8 @@ export class Jogo {
 
     @OneToMany(() => Frequencia, (frequencia) => frequencia.jogo)
     frequencias!: Frequencia[];
+
+    @ManyToOne(() => Competicao, (competicao) => competicao.jogos)
+    @JoinColumn({ name: "competicao_id" })
+    competicao?: Competicao | null;
 }

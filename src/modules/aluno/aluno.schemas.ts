@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
-import { SchemaRefEvento, SchemaRefFrequencia, SchemaRefTime } from '../../shared/utils/ref.schemas';
+import { SchemaRefEvento,  SchemaRefTime } from '../../shared/utils/ref.schemas';
 
 
 
@@ -28,7 +28,6 @@ export const SchemaAlunoDetalhado = SchemaAlunoResumido.extend({
     createdAt: z.coerce.date().optional(),
     updatedAt: z.coerce.date().optional(),
     eventos: z.array(SchemaRefEvento).optional(),
-    frequencias: z.array(SchemaRefFrequencia).optional(),
     time: SchemaRefTime.optional(),
 
 });

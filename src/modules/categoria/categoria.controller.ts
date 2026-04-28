@@ -9,12 +9,16 @@ export function fazerCategoriaController(service: ICategoriaService) {
         async listar(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
             const filtro = SchemaFiltrosCategoria.parse(req.query);
-            const { data, meta } = await service.listar(pagina, limite, filtro);
+            const includes = req.query.includes ? String(req.query.includes).split(',').map(s => s.trim())
+                : [];
+            const { data, meta } = await service.listar(pagina, limite, filtro, includes);
             return res.status(200).json(montarRespostaPaginada('Categorias listadas com sucesso', data, meta));
         },
 
         async obterCategoriaPorId(req: Request, res: Response) {
-            const categoria = await service.obterPorId(Number(req.params.id));
+            const includes = req.query.includes ? String(req.query.includes).split(',').map(s => s.trim())
+                : [];
+            const categoria = await service.obterPorId(Number(req.params.id), includes);
             return res.status(200).json(montarRespostaSucesso('Categoria obtida com sucesso', categoria));
         },
 

@@ -47,15 +47,14 @@ export function fazerAlunoFiltrosERelacoes(filtros?: FiltrosAlunoDTO, includes?:
         };
     }
 
-  
-    if (includes?.includes('frequencias')) {
-        relations.frequencias = true;
-        select.frequencias = {
+    if (includes?.includes('treinos')) {
+        relations.treinos = true;
+        select.treinos = {
             id: true,
             data: true,
-            presente: true,
         };
     }
+    
     if (filtros?.ativo !== undefined) where.ativo = filtros.ativo;
     if (filtros?.nome) where.nome = ILike(`%${filtros.nome}%`);
     if (filtros?.dataNascimento) where.dataNascimento = filtros.dataNascimento;
@@ -75,4 +74,4 @@ export function fazerAlunoFiltrosERelacoes(filtros?: FiltrosAlunoDTO, includes?:
     return { where, relations, select };
 }
 
-export const includesPermitidos = ['time', 'eventos', 'frequencias', 'data'] as string[];
+export const includesPermitidos = ['time', 'eventos', 'data', 'treinos'] as string[];

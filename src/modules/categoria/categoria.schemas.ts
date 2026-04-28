@@ -23,6 +23,7 @@ export const SchemaCategoriaResposta = z.object({
 export const SchemaFiltrosCategoria = z.object({
     nome: z.string().optional(),
     ativa: z.boolean().optional(),
+    idadeMaxima: z.number().int().positive().optional(),
 });
 
 export const SchemaAtualizarCategoria = SchemaCategoriaObjeto.partial();
