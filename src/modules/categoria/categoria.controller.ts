@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { ICategoriaService } from "./categoria.interfaces";
-import { CriarCategoriaDTO, SchemaFiltrosCategoria } from "./categoria.schemas";
+import { SchemaFiltrosCategoria, SchemaCriarCategoria, SchemaAtualizarCategoria,  SchemaBuscarPorIdCategoria } from './categoria.schemas';
 
 export function fazerCategoriaController(service: ICategoriaService) {
     return {
@@ -23,14 +23,14 @@ export function fazerCategoriaController(service: ICategoriaService) {
         },
 
         async criarCategoria(req: Request, res: Response) {
-            const data = req.body as CriarCategoriaDTO;
+            const data = SchemaCriarCategoria.parse(req.body)
             const categoria = await service.criar(data);
             return res.status(201).json(montarRespostaSucesso('Categoria criada com sucesso', categoria));
         },
 
         async atualizarCategoria(req: Request, res: Response) {
-            const { id } = req.params;
-            const data = req.body as Partial<CriarCategoriaDTO>;
+            const { id } = SchemaBuscarPorIdCategoria.parse(req.params);
+            const data = SchemaAtualizarCategoria.parse(req.body) ;
             const categoria = await service.atualizar(Number(id), data);
             return res.status(200).json(montarRespostaSucesso('Categoria atualizada com sucesso', categoria));
         },

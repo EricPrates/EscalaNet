@@ -37,7 +37,7 @@ export const SchemaRefTime = z.object({
     treinador: SchemaRefUsuario.optional(),
 
 });
-export const SchemaRefAluno = z.object({
+export const SchemaRefJogador = z.object({
     id: z.number().int().positive(),
     nome: z.string(),
 });

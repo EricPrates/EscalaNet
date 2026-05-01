@@ -5,7 +5,7 @@ import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
 
 export const SchemaDashboardNucleo = z.object({
 
-    totalAlunos: z.number().default(0),
+    totalJogadores: z.number().default(0),
     totalProfessores: z.number().default(0),
     totalJogos: z.number().default(0),
     totalTreinos: z.number().default(0),
@@ -14,7 +14,7 @@ export const SchemaDashboardNucleo = z.object({
     totalNucleos: z.number().default(0),
     
   
-    crescimentoAlunos: z.number().optional(), // percentual
+    crescimentoJogadores: z.number().optional(), // percentual
     jogosRealizados: z.number().optional(),
     jogosFuturos: z.number().optional(),
 });

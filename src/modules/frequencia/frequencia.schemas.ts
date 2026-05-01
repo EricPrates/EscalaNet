@@ -1,11 +1,11 @@
 import { z } from 'zod';
 import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
-import { SchemaRefAluno, SchemaRefJogo, SchemaRefTreino } from '../../shared/utils/ref.schemas';
+import { SchemaRefJogador, SchemaRefJogo, SchemaRefTreino } from '../../shared/utils/ref.schemas';
 
 export const SchemaBaseFrequencia = z.object({
     data: z.coerce.date({ error: "Data inválida" }),
     presente: z.boolean(),
-    aluno: z.object({ id: z.number().int().positive() }),
+    jogador: z.object({ id: z.number().int().positive() }),
     treino: z.object({ id: z.number().int().positive() }),
     jogo: z.object({ id: z.number().int().positive() }).nullable().optional(),
 });
@@ -14,7 +14,7 @@ export const SchemaFrequenciaResposta = z.object({
     id: z.coerce.number().int().positive(),
     data: z.coerce.date(),
     presente: z.boolean(),
-    aluno: SchemaRefAluno,
+    jogador: SchemaRefJogador,
     treino: SchemaRefTreino,
     jogo: SchemaRefJogo.nullable().optional(),
 });

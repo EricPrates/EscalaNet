@@ -15,10 +15,10 @@ import { fazerCategoriaRepo } from "../../modules/categoria/categoria.repo";
 import { fazerCategoriaService } from "../../modules/categoria/categoria.service";
 import { fazerCategoriaController } from "../../modules/categoria/categoria.controller";
 
-// Aluno
-import { fazerAlunoRepo } from "../../modules/aluno/aluno.repo";
-import { fazerAlunoService } from "../../modules/aluno/aluno.service";
-import { fazerAlunoController } from "../../modules/aluno/aluno.controller";
+// Jogador
+import { fazerJogadorRepo } from "../../modules/jogador/aluno.repo";
+import { fazerJogadorService } from "../../modules/jogador/jogador.service";
+import { fazerJogadorController } from "../../modules/jogador/jogador.controller";
 
 // Treino
 import { fazerTreinoRepo } from "../../modules/treino/treino.repo";
@@ -54,9 +54,9 @@ const categoriaRepo = fazerCategoriaRepo(AppDataSource);
 const categoriaService = fazerCategoriaService(categoriaRepo);
 export const categoriaController = fazerCategoriaController(categoriaService);
 
-const alunoRepo = fazerAlunoRepo(AppDataSource);
-const alunoService = fazerAlunoService(alunoRepo);
-export const alunoController = fazerAlunoController(alunoService);
+const jogadorRepo = fazerJogadorRepo(AppDataSource);
+const jogadorService = fazerJogadorService(jogadorRepo);
+export const jogadorController = fazerJogadorController(jogadorService);
 
 const treinoRepo = fazerTreinoRepo(AppDataSource);
 const treinoService = fazerTreinoService(treinoRepo);

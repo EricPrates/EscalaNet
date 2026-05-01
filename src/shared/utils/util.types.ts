@@ -20,7 +20,7 @@ export interface MontarRespostaPaginada<T> {
 export type PropiedadesDeValidacao = Array<'body' | 'query' | 'params' | 'headers' | 'cookies'>;
 
 
-export type Entidades = 'Usuario' | 'Nucleo' | 'Treino' | 'Frequencia' | 'Jogo' | 'EventosJogo' | 'Aluno';
+export type Entidades = 'Usuario' | 'Nucleo' | 'Treino' | 'Frequencia' | 'Jogo' | 'EventosJogo' | 'Jogador';
 export interface AuthContext {
     id: number;
     nome: string;

@@ -8,7 +8,7 @@ export function fazerFrequenciaRepo(dataSource: DataSource): IFrequenciaReposito
 
     const selectBase = {
         id: true, data: true, presente: true,
-        aluno: { id: true, nome: true },
+        jogador: { id: true, nome: true },
         treino: { id: true, data: true },
         jogo: { id: true, nome: true, data: true },
     };
@@ -18,18 +18,18 @@ export function fazerFrequenciaRepo(dataSource: DataSource): IFrequenciaReposito
             const skip = (pagina - 1) * limite;
             const [data, total] = await repo.findAndCount({
                 skip, take: limite, order: { id: 'ASC' },
-                relations: ['aluno', 'treino', 'jogo'],
+                relations: ['jogador', 'treino', 'jogo'],
                 select: selectBase,
             });
             return { data, total };
         },
 
-        async listarPorAluno(pagina = 1, limite = 10, alunoId: number) {
+        async listarPorJogador(pagina = 1, limite = 10, jogadorId: number) {
             const skip = (pagina - 1) * limite;
             const [data, total] = await repo.findAndCount({
-                where: { aluno: { id: alunoId } },
+                where: { jogador: { id: jogadorId } },
                 skip, take: limite, order: { data: 'DESC' },
-                relations: ['aluno', 'treino', 'jogo'],
+                relations: ['jogador', 'treino', 'jogo'],
                 select: selectBase,
             });
             return { data, total };
@@ -40,7 +40,7 @@ export function fazerFrequenciaRepo(dataSource: DataSource): IFrequenciaReposito
             const [data, total] = await repo.findAndCount({
                 where: { treino: { id: treinoId } },
                 skip, take: limite, order: { id: 'ASC' },
-                relations: ['aluno', 'treino', 'jogo'],
+                relations: ['jogador', 'treino', 'jogo'],
                 select: selectBase,
             });
             return { data, total };
@@ -49,7 +49,7 @@ export function fazerFrequenciaRepo(dataSource: DataSource): IFrequenciaReposito
         async obterPorId(id: number) {
             return await repo.findOne({
                 where: { id },
-                relations: ['aluno', 'treino', 'jogo'],
+                relations: ['jogador', 'treino', 'jogo'],
                 select: selectBase,
             }) || null;
         },

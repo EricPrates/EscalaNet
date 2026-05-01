@@ -5,7 +5,7 @@ import { SchemaRefNucleo } from '../../shared/utils/ref.schemas';
 export const SchemaBaseTreino = z.object({
     data: z.coerce.date({ error: "Data do treino inválida" }),
     nucleo: z.object({ id: z.number().int().positive() }),
-    alunos: z.array(z.object({ id: z.number().int().positive() })).optional(),
+    jogadores: z.array(z.object({ id: z.number().int().positive() })).optional(),
     usuarios: z.array(z.object({ id: z.number().int().positive() })).optional(),
 });
 

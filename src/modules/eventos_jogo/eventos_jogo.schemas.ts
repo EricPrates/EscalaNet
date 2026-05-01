@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
-import { SchemaRefAluno, SchemaRefJogo, SchemaRefNucleo, SchemaRefUsuario } from '../../shared/utils/ref.schemas';
+import { SchemaRefJogador, SchemaRefJogo, SchemaRefNucleo, SchemaRefUsuario } from '../../shared/utils/ref.schemas';
 
 const tiposEvento = ['gol', 'falta', 'cartao_amarelo', 'cartao_vermelho', 'escanteio', 'substituicao'] as const;
 
@@ -11,7 +11,7 @@ export const SchemaBaseEventoJogo = z.object({
     jogo: z.object({ id: z.number().int().positive() }),
     usuario: z.object({ id: z.number().int().positive() }),
     nucleo: z.object({ id: z.number().int().positive() }),
-    alunoEnvolvido: z.object({ id: z.number().int().positive() }).nullable().optional(),
+    jogadorEnvolvido: z.object({ id: z.number().int().positive() }).nullable().optional(),
 });
 
 export const SchemaEventoJogoRespostaDetalhada = z.object({
@@ -22,18 +22,21 @@ export const SchemaEventoJogoRespostaDetalhada = z.object({
     jogo: SchemaRefJogo,
     usuario: SchemaRefUsuario,
     nucleo: SchemaRefNucleo,
-    alunoEnvolvido: SchemaRefAluno.nullable().optional(),
+    jogadorEnvolvido: SchemaRefJogador.nullable().optional(),
 });
 export const SchemaFiltroEventoJogo = z.object({
     tipo: z.enum(tiposEvento).optional(),
-    jogoId: z.coerce.number().int().positive().optional(),
-    nucleoId: z.coerce.number().int().positive().optional(),
-    alunoId: z.coerce.number().int().positive().optional(),
+    minuto: z.number().int().nonnegative().optional(),
+    jogoId: z.number().int().positive().optional(),
+    usuarioId: z.number().int().positive().optional(),
+    nucleoId: z.number().int().positive().optional(),
+    jogadorEnvolvidoId: z.number().int().positive().optional(),
+    descricao: z.string().optional(),
 });
 
 export const SchemaAtualizarEventoJogo = SchemaBaseEventoJogo.partial();
 export const SchemaEventosJogoPaginados = SchemaRespostaPaginada(SchemaEventoJogoRespostaDetalhada);
-
+export type FiltrosEventoJogoDTO = z.infer<typeof SchemaFiltroEventoJogo>;
 export type CriarEventoJogoDTO = z.infer<typeof SchemaBaseEventoJogo>;
 export type RespostaEventoJogoDTO = z.infer<typeof SchemaEventoJogoRespostaDetalhada>;
 export type AtualizarEventoJogoDTO = z.infer<typeof SchemaAtualizarEventoJogo>;

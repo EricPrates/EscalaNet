@@ -5,8 +5,8 @@ import { EventosJogo } from "../eventos_jogo/EventosJogo.model";
 import { Time } from "../time/time.model";
 
 @Index(["time", "dataNascimento"])
-@Entity({ name: "alunos" })
-export class Aluno {
+@Entity({ name: "jogadores" })
+export class Jogador {
 
     @PrimaryGeneratedColumn()
     id!: number;
@@ -30,10 +30,10 @@ export class Aluno {
     @JoinColumn({ name: "time_id" })
     time!: Time;
 
-    @ManyToMany(() => Treino, (treino) => treino.alunos)
+    @ManyToMany(() => Treino, (treino) => treino.jogadores)
     treinos!: Treino[];
 
-    @OneToMany(() => Frequencia, (frequencia) => frequencia.aluno)
+    @OneToMany(() => Frequencia, (frequencia) => frequencia.jogador)
     frequencias!: Frequencia[];
 
     @Column({ type: "boolean", default: true })
@@ -43,7 +43,7 @@ export class Aluno {
     @Column({ type: "varchar", length: 20, nullable: true })
     telefone?: string;
     
-    @OneToMany(() => EventosJogo, (eventos) => eventos.alunoEnvolvido)
+    @OneToMany(() => EventosJogo, (eventos) => eventos.jogadorEnvolvido)
     eventos!: EventosJogo[];
 
 

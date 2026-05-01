@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Nucleo } from "../nucleo/Nucleo.model";
-import { Aluno } from "../aluno/Aluno.model";
+import { Jogador } from "../jogador/jogador.model";
 import { Usuario } from "../usuario/Usuario.model";
 import { Frequencia } from "../frequencia/frequencia.model";
 
@@ -16,13 +16,13 @@ export class Treino {
     @JoinColumn({ name: "nucleo_id" })
     nucleo!: Nucleo;
 
-    @ManyToMany(() => Aluno, (aluno) => aluno.treinos)
+    @ManyToMany(() => Jogador, (jogador) => jogador.treinos)
     @JoinTable({ 
         name: "treino_alunos",
         joinColumn: { name: "treino_id", referencedColumnName: "id" },
-        inverseJoinColumn: { name: "aluno_id", referencedColumnName: "id" }
+        inverseJoinColumn: { name: "jogador_id", referencedColumnName: "id" }
     })
-    alunos!: Aluno[];
+    jogadores!: Jogador[];
 
     @ManyToMany(() => Usuario, (usuario) => usuario.treinos)
     usuarios!: Usuario[];

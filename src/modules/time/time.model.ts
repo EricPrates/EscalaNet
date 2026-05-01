@@ -1,6 +1,6 @@
 import { Column, ManyToOne, OneToMany, PrimaryGeneratedColumn, Entity, Index, JoinColumn } from 'typeorm';
 import { Nucleo } from "../nucleo/Nucleo.model";
-import { Aluno } from "../aluno/Aluno.model";
+import { Jogador } from "../jogador/jogador.model";
 import { Categoria } from '../categoria/Categoria.model';
 import { Usuario } from '../usuario/Usuario.model';
 import { Jogo } from '../jogo/Jogo.model';
@@ -29,8 +29,8 @@ export class Time {
     @JoinColumn({ name: "treinador_id" })
     treinador!: Usuario;
 
-    @OneToMany(() => Aluno, (aluno) => aluno.time)
-    jogadores!: Aluno[];
+    @OneToMany(() => Jogador, (jogador) => jogador.time)
+    jogadores!: Jogador[];
 
     @OneToMany(() => Jogo, (jogo) => jogo.timeA)
     jogosComoTimeA!: Jogo[];

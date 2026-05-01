@@ -12,10 +12,10 @@ export function fazerFrequenciaController(service: IFrequenciaService) {
             return res.status(200).json(montarRespostaPaginada('Frequências listadas com sucesso', data, meta));
         },
 
-        async listarPorAluno(req: Request, res: Response) {
+        async listarPorJogador(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
-            const alunoId = Number(req.params.alunoId);
-            const { data, meta } = await service.listarPorAluno(pagina, limite, alunoId);
+            const jogadorId = Number(req.params.jogadorId);
+            const { data, meta } = await service.listarPorJogador(pagina, limite, jogadorId);
             return res.status(200).json(montarRespostaPaginada('Frequências listadas com sucesso', data, meta));
         },
 

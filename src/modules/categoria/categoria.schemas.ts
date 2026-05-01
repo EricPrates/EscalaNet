@@ -1,34 +1,33 @@
 import { z } from 'zod';
 import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
 
-const SchemaCategoriaObjeto = z.object({
+
+export const SchemaCriarCategoria = z.object({
     nome: z.string().min(1, "O nome da categoria é obrigatório"),
-    idadeMinima: z.number().int().nonnegative("Idade mínima deve ser >= 0"),
-    idadeMaxima: z.number().int().positive("Idade máxima deve ser > 0"),
+    idadeMaxima: z.coerce.number().int().positive("Idade máxima deve ser > 0"),
     ativa: z.boolean().default(true),
 });
 
-export const SchemaBaseCategoria = SchemaCategoriaObjeto.refine(
-    d => d.idadeMaxima > d.idadeMinima,
-    { message: "Idade máxima deve ser maior que a mínima", path: ["idadeMaxima"] }
-);
 
-export const SchemaCategoriaResposta = z.object({
+
+export const SchemaBaseCategoria = z.object({
     id: z.coerce.number().int().positive(),
     nome: z.string(),
-    idadeMaxima: z.number(),
+    idadeMaxima: z.coerce.number().int().positive(),
     ativa: z.boolean(),
 });
 
 export const SchemaFiltrosCategoria = z.object({
     nome: z.string().optional(),
     ativa: z.boolean().optional(),
-    idadeMaxima: z.number().int().positive().optional(),
+    idadeMaxima: z.coerce.number().int().positive().optional(),
 });
-
-export const SchemaAtualizarCategoria = SchemaCategoriaObjeto.partial();
-export const SchemaCategoriasPaginadas = SchemaRespostaPaginada(SchemaCategoriaResposta);
+export const SchemaBuscarPorIdCategoria = z.object({
+    id: z.coerce.number().int().positive("ID da categoria deve ser um número inteiro positivo"),
+});
+export const SchemaAtualizarCategoria = SchemaCriarCategoria.partial();
+export const SchemaCategoriasPaginadas = SchemaRespostaPaginada(SchemaBaseCategoria);
 export type FiltrosCategoriaDTO = z.infer<typeof SchemaFiltrosCategoria>;
-export type CriarCategoriaDTO = z.infer<typeof SchemaBaseCategoria>;
-export type RespostaCategoriaDTO = z.infer<typeof SchemaCategoriaResposta>;
+export type CriarCategoriaDTO = z.infer<typeof SchemaCriarCategoria>;
+export type RespostaCategoriaDTO = z.infer<typeof SchemaBaseCategoria>;
 export type AtualizarCategoriaDTO = z.infer<typeof SchemaAtualizarCategoria>;

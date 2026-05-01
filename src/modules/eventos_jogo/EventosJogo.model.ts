@@ -1,7 +1,7 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Jogo } from "../jogo/Jogo.model";
 import { Usuario } from "../usuario/Usuario.model";
-import { Aluno } from "../aluno/Aluno.model";
+import { Jogador } from "../jogador/jogador.model";
 import { Time } from "../time/time.model";
 
 
@@ -36,9 +36,9 @@ export class EventosJogo {
     time!: Time;
 
     @Index()
-    @ManyToOne(() => Aluno, (aluno) => aluno.eventos)
-    @JoinColumn({ name: "aluno_envolvido_id" })
-    alunoEnvolvido!: Aluno | null;
+    @ManyToOne(() => Jogador, (jogador) => jogador.eventos)
+    @JoinColumn({ name: "jogador_envolvido_id" })
+    jogadorEnvolvido!: Jogador | null;
 
 
 

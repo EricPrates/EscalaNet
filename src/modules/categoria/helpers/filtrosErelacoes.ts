@@ -2,7 +2,7 @@ import { FindOptionsRelations, FindOptionsSelect, FindOptionsWhere, ILike } from
 import { Categoria } from "../Categoria.model";
 import { FiltrosCategoriaDTO } from "../categoria.schemas";
 
-export function fazerCategoriaFiltrosERelacoes(filtros?: FiltrosCategoriaDTO, includes?: string[]): { where: FindOptionsWhere<Categoria>; relations: FindOptionsRelations<Categoria>; select: FindOptionsSelect<Categoria> } {
+export function fazerCategoriaFiltrosERelacoes(filtros?: FiltrosCategoriaDTO): { where: FindOptionsWhere<Categoria>; relations: FindOptionsRelations<Categoria>; select: FindOptionsSelect<Categoria> } {
     const relations: FindOptionsRelations<Categoria> = {};
     const where = {} as FindOptionsWhere<Categoria>;
     const select: FindOptionsSelect<Categoria> = {
@@ -12,24 +12,7 @@ export function fazerCategoriaFiltrosERelacoes(filtros?: FiltrosCategoriaDTO, in
         ativa: true,
 
     };
-    if (includes?.includes('data')) {
-        select.createdAt = true;
-        select.updatedAt = true;
-    }
-
-    if (includes?.includes('time')) {
-        relations.times = {
-            nucleo: true,
-            categoria: true,
-        };
-        select.times = {
-            id: true,
-            nome: true,
-            nucleo: { id: true, nome: true },
-            categoria: { id: true, nome: true },
-        };
-    }
-
+    
 
     
     if (filtros?.ativa !== undefined) where.ativa = filtros.ativa;
@@ -41,4 +24,4 @@ export function fazerCategoriaFiltrosERelacoes(filtros?: FiltrosCategoriaDTO, in
     return { where, relations, select };
 }
 
-export const includesPermitidos = ['time', 'eventos', 'frequencias', 'data'] as string[];
+

@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
-import { Aluno } from '../aluno/Aluno.model';
+import { Jogador } from '../jogador/jogador.model';
 import { Treino } from '../treino/Treino.model';
 import { Jogo } from '../jogo/Jogo.model';
 
@@ -16,9 +16,9 @@ export class Frequencia {
     presente!: boolean;
 
     @Index()
-    @ManyToOne(() => Aluno, (aluno) => aluno.frequencias)
-    @JoinColumn({ name: "aluno_id" })
-    aluno!: Aluno;
+    @ManyToOne(() => Jogador, (jogador) => jogador.frequencias)
+    @JoinColumn({ name: "jogador_id" })
+    jogador!: Jogador;
 
     @Index()
     @ManyToOne(() => Treino, (treino) => treino.frequencias)

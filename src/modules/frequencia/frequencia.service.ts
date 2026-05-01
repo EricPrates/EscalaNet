@@ -8,7 +8,7 @@ function mapearFrequencia(f: any): RespostaFrequenciaDTO {
         id: f.id,
         data: f.data,
         presente: f.presente,
-        aluno: f.aluno ? { id: f.aluno.id, nome: f.aluno.nome } : undefined,
+        jogador: f.jogador ? { id: f.jogador.id, nome: f.jogador.nome } : undefined,
         treino: f.treino ? { id: f.treino.id, data: f.treino.data } : undefined,
         jogo: f.jogo ? { id: f.jogo.id, nome: f.jogo.nome, data: f.jogo.data } : null,
     });
@@ -25,8 +25,8 @@ export function fazerFrequenciaService(frequenciaRepo: IFrequenciaRepository): I
             });
         },
 
-        async listarPorAluno(pagina: number, limite: number, alunoId: number) {
-            const { data, total } = await frequenciaRepo.listarPorAluno(pagina, limite, alunoId);
+        async listarPorJogador(pagina: number, limite: number, jogadorId: number) {
+            const { data, total } = await frequenciaRepo.listarPorJogador(pagina, limite, jogadorId);
             const totalPaginas = Math.ceil(total / limite);
             return SchemaRespostaPaginada(SchemaFrequenciaResposta).parse({
                 data: data.map(mapearFrequencia),

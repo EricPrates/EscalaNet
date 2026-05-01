@@ -1,12 +1,12 @@
 import { FindOptionsRelations, FindOptionsSelect, FindOptionsWhere, ILike } from "typeorm";
-import { Aluno } from "../Aluno.model";
-import { FiltrosAlunoDTO } from "../aluno.schemas";
+import { Jogador } from "../jogador.model";
+import { FiltrosJogadorDTO } from "../jogador.schemas";
 import { Time } from "../../time/time.model";
 
-export function fazerAlunoFiltrosERelacoes(filtros?: FiltrosAlunoDTO, includes?: string[]): { where: FindOptionsWhere<Aluno>; relations: FindOptionsRelations<Aluno>; select: FindOptionsSelect<Aluno> } {
-    const relations: FindOptionsRelations<Aluno> = {};
-    const where = {} as FindOptionsWhere<Aluno>;
-    const select: FindOptionsSelect<Aluno> = {
+export function fazerJogadorFiltrosERelacoes(filtros?: FiltrosJogadorDTO, includes?: string[]): { where: FindOptionsWhere<Jogador>; relations: FindOptionsRelations<Jogador>; select: FindOptionsSelect<Jogador> } {
+    const relations: FindOptionsRelations<Jogador> = {};
+    const where = {} as FindOptionsWhere<Jogador>;
+    const select: FindOptionsSelect<Jogador> = {
         id: true,
         nome: true,
         dataNascimento: true,
@@ -17,7 +17,7 @@ export function fazerAlunoFiltrosERelacoes(filtros?: FiltrosAlunoDTO, includes?:
         select.createdAt = true;
         select.updatedAt = true;
     }
-
+    
     if (includes?.includes('time')) {
         relations.time = {
             nucleo: true,
@@ -30,8 +30,13 @@ export function fazerAlunoFiltrosERelacoes(filtros?: FiltrosAlunoDTO, includes?:
             categoria: { id: true, nome: true },
         };
     }
-
-
+    if (includes?.includes('treinos')) {
+        relations.treinos = true;
+        select.treinos = {
+            id: true,
+            data: true,
+        };
+    }
     if (includes?.includes('eventos')) {
         relations.eventos = {
             jogo: true,
@@ -42,18 +47,10 @@ export function fazerAlunoFiltrosERelacoes(filtros?: FiltrosAlunoDTO, includes?:
             tipo: true,
             descricao: true,
             minuto: true,
-            jogo: { id: true, data: true },
-            time: { id: true, nome: true },
-        };
+        }
     }
 
-    if (includes?.includes('treinos')) {
-        relations.treinos = true;
-        select.treinos = {
-            id: true,
-            data: true,
-        };
-    }
+
     
     if (filtros?.ativo !== undefined) where.ativo = filtros.ativo;
     if (filtros?.nome) where.nome = ILike(`%${filtros.nome}%`);
@@ -74,4 +71,4 @@ export function fazerAlunoFiltrosERelacoes(filtros?: FiltrosAlunoDTO, includes?:
     return { where, relations, select };
 }
 
-export const includesPermitidos = ['time', 'eventos', 'data', 'treinos'] as string[];
+export const includesPermitidos = ['time', 'data', 'treinos', 'eventos', 'frequencias'] as string[];
