@@ -1,11 +1,6 @@
-# Banco de dados
-database.sqlite
-*.sqlite
-*.db
-*.sqlite3
+
 escalanet-perguntas-stakeholder (1).docx
 
-test-latency.sh
 
 
 # Dependências
