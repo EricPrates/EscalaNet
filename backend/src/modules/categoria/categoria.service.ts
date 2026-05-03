@@ -1,21 +1,20 @@
 import { AppError } from "../../shared/utils/AppError";
 import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
+import { montarPaginacao } from "../../shared/utils/montarPaginacao";
 import { ICategoriaRepository, ICategoriaService } from "./categoria.interfaces";
-import { Categoria } from "./Categoria.model";
+
 import { CriarCategoriaDTO, FiltrosCategoriaDTO, RespostaCategoriaDTO, SchemaBaseCategoria } from "./categoria.schemas";
-import { FindOptionsWhere, ILike } from 'typeorm';
+
+import { fazerCategoriaFiltrosERelacoes } from "./helpers/filtrosErelacoes";
 
 export function fazerCategoriaService(categoriaRepo: ICategoriaRepository): ICategoriaService {
     return {
         async listar(pagina: number, limite: number, filtros?: FiltrosCategoriaDTO) {
-            const where: FindOptionsWhere<Categoria> = {};
-            if (filtros?.nome) where.nome = ILike(`%${filtros.nome}%`);
-            if (filtros?.ativa !== undefined) where.ativa = filtros.ativa;
-            const { data, total } = await categoriaRepo.listar(pagina, limite, where);
-            const totalPaginas = Math.ceil(total / limite);
+            const { where, relations, select } = fazerCategoriaFiltrosERelacoes(filtros);
+            const { data, total } = await categoriaRepo.listar(pagina, limite, where, relations, select);   
             return SchemaRespostaPaginada(SchemaBaseCategoria).parse({
-                data: SchemaBaseCategoria.array().parse(data),
-                meta: { pagina, limite, total, totalPaginas },
+                data: data,
+                meta: montarPaginacao(pagina, limite, total),
             });
         },
 

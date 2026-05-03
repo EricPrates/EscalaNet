@@ -2,9 +2,9 @@ import { Column, Entity,  PrimaryGeneratedColumn, ManyToOne, JoinColumn,  Index,
 import { Usuario } from '../usuario/Usuario.model';
 import { EventosJogo } from '../eventos_jogo/EventosJogo.model';
 import { Categoria } from '../categoria/Categoria.model';
-import { Frequencia } from '../frequencia/frequencia.model';
 import { Time } from '../time/time.model';
 import { Competicao } from '../competicao/Competicao.model';
+import { Chamada } from '../chamada/chamada.model';
 
 @Entity({ name: "jogos" })
 export class Jogo {
@@ -50,8 +50,8 @@ export class Jogo {
     @Column({ type: "int", nullable: true, default:0 })
     golsTimeB!: number;
 
-    @OneToMany(() => Frequencia, (frequencia) => frequencia.jogo)
-    frequencias!: Frequencia[];
+    @OneToMany(() => Chamada, (chamada) => chamada.jogo)
+    chamadas!: Chamada[];
 
     @ManyToOne(() => Competicao, (competicao) => competicao.jogos)
     @JoinColumn({ name: "competicao_id" })

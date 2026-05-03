@@ -1,4 +1,4 @@
-import { DataSource } from "typeorm";
+import { DataSource, FindOptionsRelations, FindOptionsSelect } from "typeorm";
 import { EventosJogo } from "./EventosJogo.model";
 import { CriarEventoJogoDTO } from "./eventos_jogo.schemas";
 import { IEventoJogoRepository } from "./eventos_jogo.interfaces";
@@ -6,41 +6,26 @@ import { IEventoJogoRepository } from "./eventos_jogo.interfaces";
 export function fazerEventoJogoRepo(dataSource: DataSource): IEventoJogoRepository {
     const repo = dataSource.getRepository(EventosJogo);
 
-    const selectBase = {
-        id: true, tipo: true, descricao: true, minuto: true,
-        jogo: { id: true, nome: true, data: true },
-        usuario: { id: true, nome: true },
-        nucleo: { id: true, nome: true },
-        alunoEnvolvido: { id: true, nome: true },
-    };
 
     return {
-        async listar(pagina = 1, limite = 10) {
+        async listar(pagina = 1, limite = 10, where?: any, relations?: FindOptionsRelations<EventosJogo>, select?: FindOptionsSelect<EventosJogo>) {
             const skip = (pagina - 1) * limite;
             const [data, total] = await repo.findAndCount({
-                skip, take: limite, order: { minuto: 'ASC' },
-                relations: ['jogo', 'usuario', 'nucleo', 'alunoEnvolvido'],
-                select: selectBase,
+               where,
+                relations,
+                select,
+                skip,
+                take: limite,
             });
             return { data, total };
         },
 
-        async listarPorJogo(pagina = 1, limite = 10, jogoId: number) {
-            const skip = (pagina - 1) * limite;
-            const [data, total] = await repo.findAndCount({
-                where: { jogo: { id: jogoId } },
-                skip, take: limite, order: { minuto: 'ASC' },
-                relations: ['jogo', 'usuario', 'nucleo', 'alunoEnvolvido'],
-                select: selectBase,
-            });
-            return { data, total };
-        },
 
         async obterPorId(id: number) {
             return await repo.findOne({
                 where: { id },
                 relations: ['jogo', 'usuario', 'nucleo', 'alunoEnvolvido'],
-                select: selectBase,
+                select: { id: true, tipo: true, descricao: true, minuto: true },
             }) || null;
         },
 

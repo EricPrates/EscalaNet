@@ -10,7 +10,6 @@ export function fazerCategoriaFiltrosERelacoes(filtros?: FiltrosCategoriaDTO): {
         nome: true,
         idadeMaxima: true,
         ativa: true,
-
     };
     
 

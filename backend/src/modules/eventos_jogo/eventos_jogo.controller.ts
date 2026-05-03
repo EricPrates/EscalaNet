@@ -4,12 +4,16 @@ import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { IEventoJogoService } from "./eventos_jogo.interfaces";
 import { CriarEventoJogoDTO, SchemaFiltroEventoJogo } from "./eventos_jogo.schemas";
 
+
 export function fazerEventoJogoController(service: IEventoJogoService) {
     return {
         async listar(req: Request, res: Response) {
-            const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
+             const includes = req.query.includes
+                ? String(req.query.includes).split(',').map(s => s.trim())
+                : [];
             const filtro = SchemaFiltroEventoJogo.parse(req.query);
-            const { data, meta } = await service.listar(pagina, limite, filtro);
+            const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
+            const { data, meta } = await service.listar(pagina, limite, filtro, includes);
             return res.status(200).json(montarRespostaPaginada('Eventos listados com sucesso', data, meta));
         },
 

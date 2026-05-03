@@ -1,8 +1,9 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, Index } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, Index, ManyToOne, JoinColumn } from 'typeorm';
 import { Treino } from '../treino/Treino.model';
 import { Time } from '../time/time.model';
-import { MaterialRepasse } from '../materialNucleo/MaterialRepasse';
+
 import { Usuario } from '../usuario/Usuario.model';
+
 
 
 @Entity({ name: "nucleos" })
@@ -33,6 +34,7 @@ export class Nucleo {
     @OneToMany(() => Usuario, (usuario) => usuario.nucleoVinculado)
     usuariosVinculados!: Usuario[];
 
-    @OneToMany(() => MaterialRepasse, (repasse) => repasse.nucleo)
-    materiaisRecebidos!: MaterialRepasse[]; 
+    @ManyToOne(() => Nucleo, (nucleo) => nucleo.materiaisRecebidos)
+    @JoinColumn({ name: "nucleo_recebedor_id"})
+    materiaisRecebidos!: Nucleo; 
 }

@@ -16,7 +16,7 @@ import { fazerCategoriaService } from "../../modules/categoria/categoria.service
 import { fazerCategoriaController } from "../../modules/categoria/categoria.controller";
 
 // Jogador
-import { fazerJogadorRepo } from "../../modules/jogador/aluno.repo";
+import { fazerJogadorRepo } from "../../modules/jogador/jogador.repo";
 import { fazerJogadorService } from "../../modules/jogador/jogador.service";
 import { fazerJogadorController } from "../../modules/jogador/jogador.controller";
 

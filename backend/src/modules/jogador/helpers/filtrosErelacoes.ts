@@ -37,18 +37,7 @@ export function fazerJogadorFiltrosERelacoes(filtros?: FiltrosJogadorDTO, includ
             data: true,
         };
     }
-    if (includes?.includes('eventos')) {
-        relations.eventos = {
-            jogo: true,
-            time: true,
-        };
-        select.eventos = {
-            id: true,
-            tipo: true,
-            descricao: true,
-            minuto: true,
-        }
-    }
+
 
 
     
@@ -65,6 +54,7 @@ export function fazerJogadorFiltrosERelacoes(filtros?: FiltrosJogadorDTO, includ
     
     if (Object.keys(timeWhere).length > 0) {
         where.time = timeWhere;
+         relations.time = relations.time ?? {};
     }
 
 

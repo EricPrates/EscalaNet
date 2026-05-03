@@ -4,20 +4,6 @@ import { getContext } from "../../shared/utils/authStorage";
 import { IJogoRepository, IJogoService } from "./jogo.interfaces";
 import { CriarJogoDTO, RespostaJogoDTO, SchemaJogoResposta } from "./jogo.schemas";
 
-function mapearJogo(jogo: any): RespostaJogoDTO {
-    return SchemaJogoResposta.parse({
-        id: jogo.id,
-        nome: jogo.nome,
-        data: jogo.data,
-        timeA: jogo.timeA ? { id: jogo.timeA.id, nome: jogo.timeA.nome } : undefined,
-        timeB: jogo.timeB ? { id: jogo.timeB.id, nome: jogo.timeB.nome } : undefined,
-        arbitro: jogo.arbitro ? { id: jogo.arbitro.id, nome: jogo.arbitro.nome } : null,
-        categoria: jogo.categoria ? { id: jogo.categoria.id, nome: jogo.categoria.nome } : null,
-        golsTimeA: jogo.golsTimeA,
-        golsTimeB: jogo.golsTimeB,
-    });
-}
-
 export function fazerJogoService(jogoRepo: IJogoRepository): IJogoService {
     return {
         async listar(pagina: number, limite: number) {
@@ -28,7 +14,7 @@ export function fazerJogoService(jogoRepo: IJogoRepository): IJogoService {
             const { data, total } = await jogoRepo.listar(pagina, limite);
             const totalPaginas = Math.ceil(total / limite);
             return SchemaRespostaPaginada(SchemaJogoResposta).parse({
-                data: data.map(mapearJogo),
+                data: data,
                 meta: { pagina, limite, total, totalPaginas },
             });
         },
@@ -37,7 +23,7 @@ export function fazerJogoService(jogoRepo: IJogoRepository): IJogoService {
             const { data, total } = await jogoRepo.listarPorNucleo(pagina, limite, nucleoId);
             const totalPaginas = Math.ceil(total / limite);
             return SchemaRespostaPaginada(SchemaJogoResposta).parse({
-                data: data.map(mapearJogo),
+                data: data,
                 meta: { pagina, limite, total, totalPaginas },
             });
         },
@@ -46,7 +32,7 @@ export function fazerJogoService(jogoRepo: IJogoRepository): IJogoService {
             const { data, total } = await jogoRepo.listarPorCategoria(pagina, limite, categoriaId);
             const totalPaginas = Math.ceil(total / limite);
             return SchemaRespostaPaginada(SchemaJogoResposta).parse({
-                data: data.map(mapearJogo),
+                data: data,
                 meta: { pagina, limite, total, totalPaginas },
             });
         },
@@ -60,13 +46,13 @@ export function fazerJogoService(jogoRepo: IJogoRepository): IJogoService {
         async criar(data: CriarJogoDTO): Promise<RespostaJogoDTO> {
             if (data.timeA.id === data.timeB.id) throw new AppError(400, 'Time A e Time B não podem ser o mesmo núcleo');
             const jogo = await jogoRepo.criar(data);
-            return mapearJogo(jogo);
+            return SchemaJogoResposta.parse(jogo);
         },
 
         async atualizar(id: number, data: Partial<CriarJogoDTO>): Promise<RespostaJogoDTO> {
             const jogo = await jogoRepo.atualizar(id, data);
             if (!jogo) throw new AppError(404, 'Jogo não encontrado');
-            return mapearJogo(jogo);
+            return SchemaJogoResposta.parse(jogo);
         },
 
         async deletar(id: number): Promise<boolean> {

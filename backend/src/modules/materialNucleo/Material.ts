@@ -1,11 +1,11 @@
 // MaterialRepasse.model.ts
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { Nucleo } from "../nucleo/Nucleo.model";
-import { Material } from "../material/material.model";
 
 
-@Entity({ name: "materiais_repasses" })
-export class MaterialRepasse {
+
+@Entity({ name: "materiais" })
+export class Material {
     @PrimaryGeneratedColumn()
     id!: number;
 
@@ -13,9 +13,6 @@ export class MaterialRepasse {
     @JoinColumn({ name: "nucleo_id" })
     nucleo!: Nucleo; 
 
-    @ManyToOne(() => Material, (material) => material.repasses, { nullable: false })
-    @JoinColumn({ name: "material_id" })
-    material!: Material;
 
     @Column({ type: "int", nullable: false })
     quantidade!: number; 
@@ -25,6 +22,15 @@ export class MaterialRepasse {
 
     @Column({ type: "text", nullable: true })
     observacao?: string;
+
+    @Column({ type: "varchar", length: 255, nullable: true })
+    tipoMaterial?: string;
+    
+    @CreateDateColumn({ name: "created_at" })
+        createdAt!: Date;
+    
+    @UpdateDateColumn({ name: "updated_at" })
+    updatedAt!: Date;
 
     
 }

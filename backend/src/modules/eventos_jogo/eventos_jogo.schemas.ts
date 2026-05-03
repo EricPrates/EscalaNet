@@ -1,11 +1,11 @@
 import { z } from 'zod';
 import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
 import { SchemaRefJogador, SchemaRefJogo, SchemaRefNucleo, SchemaRefUsuario } from '../../shared/utils/ref.schemas';
+import { TipoEvento } from './TipoEvento';
 
-const tiposEvento = ['gol', 'falta', 'cartao_amarelo', 'cartao_vermelho', 'escanteio', 'substituicao'] as const;
 
 export const SchemaBaseEventoJogo = z.object({
-    tipo: z.enum(tiposEvento),
+    tipo: z.enum(TipoEvento),
     descricao: z.string().max(1000).nullable().optional(),
     minuto: z.number().int().nonnegative(),
     jogo: z.object({ id: z.number().int().positive() }),
@@ -16,16 +16,16 @@ export const SchemaBaseEventoJogo = z.object({
 
 export const SchemaEventoJogoRespostaDetalhada = z.object({
     id: z.coerce.number().int().positive(),
-    tipo: z.enum(tiposEvento),
-    descricao: z.string().nullable().optional(),
-    minuto: z.number(),
-    jogo: SchemaRefJogo,
-    usuario: SchemaRefUsuario,
-    nucleo: SchemaRefNucleo,
+    tipo: z.enum(TipoEvento),
+    descricao: z.string().max(1000).nullable(),
+    minuto: z.number().int().nonnegative(),
+    jogo: SchemaRefJogo.optional(),
+    usuario: SchemaRefUsuario.optional(),
+    nucleo: SchemaRefNucleo.optional(),
     jogadorEnvolvido: SchemaRefJogador.nullable().optional(),
 });
 export const SchemaFiltroEventoJogo = z.object({
-    tipo: z.enum(tiposEvento).optional(),
+    tipo: z.enum(TipoEvento).optional(),
     minuto: z.number().int().nonnegative().optional(),
     jogoId: z.number().int().positive().optional(),
     usuarioId: z.number().int().positive().optional(),

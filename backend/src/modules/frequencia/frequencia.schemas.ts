@@ -5,9 +5,9 @@ import { SchemaRefJogador, SchemaRefJogo, SchemaRefTreino } from '../../shared/u
 export const SchemaBaseFrequencia = z.object({
     data: z.coerce.date({ error: "Data inválida" }),
     presente: z.boolean(),
-    jogador: z.object({ id: z.number().int().positive() }),
-    treino: z.object({ id: z.number().int().positive() }),
-    jogo: z.object({ id: z.number().int().positive() }).nullable().optional(),
+    jogadorId : z.number().int().positive(),
+    treinoId: z.number().int().positive().optional(),
+    jogoId: z.number().int().positive().nullable().optional(),
 });
 
 export const SchemaFrequenciaResposta = z.object({
@@ -15,7 +15,7 @@ export const SchemaFrequenciaResposta = z.object({
     data: z.coerce.date(),
     presente: z.boolean(),
     jogador: SchemaRefJogador,
-    treino: SchemaRefTreino,
+    treino: SchemaRefTreino.optional(),
     jogo: SchemaRefJogo.nullable().optional(),
 });
 
