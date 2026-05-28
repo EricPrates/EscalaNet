@@ -23,7 +23,7 @@ export const fazerUsuarioService = (usuarioRepo: IUsuarioRepository): IUsuarioSe
         },
 
         async criar(data: CriarUsuarioDTO): Promise<RespostaUsuarioDTO> {
-            console.log('Criando usuário com dados:', data);
+            // Removido log informal para manter código limpo
             if (data.permissao === 'coordenador' || data.permissao === 'professor' || data.permissao === 'auxiliar') {
                 if (!data.nucleoVinculado) {
                     throw new AppError(400, `Usuários com permissão '${data.permissao}' devem estar vinculados a um núcleo`);

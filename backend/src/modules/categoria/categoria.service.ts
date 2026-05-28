@@ -1,25 +1,30 @@
+
 import { AppError } from "../../shared/utils/AppError";
 import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
 import { montarPaginacao } from "../../shared/utils/montarPaginacao";
 import { ICategoriaRepository, ICategoriaService } from "./categoria.interfaces";
+import { Categoria } from "./Categoria.model";
+import { CriarCategoriaDTO, RespostaCategoriaDTO, SchemaBaseCategoria } from "./categoria.schemas";
+import { FindOptionsRelations,  FindOptionsWhere } from 'typeorm';
 
-import { CriarCategoriaDTO, FiltrosCategoriaDTO, RespostaCategoriaDTO, SchemaBaseCategoria } from "./categoria.schemas";
 
-import { fazerCategoriaFiltrosERelacoes } from "./helpers/filtrosErelacoes";
 
 export function fazerCategoriaService(categoriaRepo: ICategoriaRepository): ICategoriaService {
     return {
-        async listar(pagina: number, limite: number, filtros?: FiltrosCategoriaDTO) {
-            const { where, relations, select } = fazerCategoriaFiltrosERelacoes(filtros);
-            const { data, total } = await categoriaRepo.listar(pagina, limite, where, relations, select);   
+        async listar(pagina: number, limite: number, where?: FindOptionsWhere<Categoria>, relations?: FindOptionsRelations<Categoria>): Promise<{ data: RespostaCategoriaDTO[]; meta: { total: number; totalPaginas: number; pagina: number; limite: number } }> {
+            const { data, total } = await categoriaRepo.listar(pagina, limite, where, relations);
             return SchemaRespostaPaginada(SchemaBaseCategoria).parse({
                 data: data,
                 meta: montarPaginacao(pagina, limite, total),
             });
         },
 
+        async buscarPorIdadeMaxima(idadeMaxima: number): Promise<RespostaCategoriaDTO | null> {
+            const categoria = await categoriaRepo.buscarPorIdadeMaxima(idadeMaxima);
+            return categoria ? SchemaBaseCategoria.parse(categoria) : null;
+        },
         async obterPorId(id: number): Promise<RespostaCategoriaDTO> {
-            const categoria = await categoriaRepo.obterPorId(id);
+            const categoria = await categoriaRepo.obterPorId(id );
             if (!categoria) throw new AppError(404, 'Categoria não encontrada');
             return SchemaBaseCategoria.parse(categoria);
         },

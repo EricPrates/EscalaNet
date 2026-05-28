@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
 import { SchemaRefEvento,  SchemaRefTime } from '../../shared/utils/ref.schemas';
+import { criarIncludesSchema } from '../../shared/utils/query.schema';
+import { FindOptionsWhere, ILike } from 'typeorm';
+import { Jogador } from './jogador.model';
 
 
 
@@ -14,6 +17,8 @@ export const SchemaCriarJogador = z.object({
     }),
 
 });
+
+export const SchemaBaseJogador = SchemaCriarJogador;
 
 
 export const SchemaJogadorResumido = z.object({
@@ -29,17 +34,6 @@ export const SchemaJogadorDetalhado = SchemaJogadorResumido.extend({
     updatedAt: z.coerce.date().optional(),
     eventos: z.array(SchemaRefEvento).optional(),
     time: SchemaRefTime.optional(),
-
-});
-export const SchemaFiltrosJogador = z.object({
-    id:z.number().int().positive().optional(),
-    nome: z.string().optional(),
-    timeId: z.number().int().positive().optional(),
-    treinadorId: z.number().int().positive().optional(),
-    ativo: z.coerce.boolean().optional(),
-    dataNascimento: z.coerce.date().optional(),
-    nucleoId: z.number().int().positive().optional(),
-    categoriaId: z.number().int().positive().optional(),
 
 });
 
@@ -59,7 +53,33 @@ export const SchemaAtualizarJogador = z.object({
 }).partial();
 export const SchemaJogadoresPaginados = SchemaRespostaPaginada(SchemaJogadorResumido);
 
-export type CriarJogadorDTO = z.infer<typeof SchemaCriarJogador>;
+export const SchemaFiltrosJogador = z.object({
+    id:z.coerce.number().int().positive().optional(),
+    nome: z.string().optional(),
+    timeId: z.coerce.number().int().positive().optional(),
+    treinadorId: z.coerce.number().int().positive().optional(),
+    ativo: z.coerce.boolean().optional(),
+    dataNascimento: z.coerce.date().optional(),
+    nucleoId: z.coerce.number().int().positive().optional(),
+    categoriaId: z.coerce.number().int().positive().optional(),
+}).transform(filtros => {
+    const where: FindOptionsWhere<Jogador> = {};
+    
+    if (filtros.id) where.id = filtros.id;
+    if (filtros.nome) where.nome = ILike(`%${filtros.nome}%`);
+    if (filtros.timeId) where.time = { id: filtros.timeId };
+    if (filtros.treinadorId) where.time = { treinador: { id: filtros.treinadorId } };
+    if (filtros.ativo !== undefined) where.ativo = filtros.ativo;
+    if (filtros.dataNascimento) where.dataNascimento = filtros.dataNascimento;
+    if (filtros.nucleoId) where.time = { nucleo: { id: filtros.nucleoId } };
+    if (filtros.categoriaId) where.time = { categoria: { id: filtros.categoriaId } };
+    return where;
+});
+
+export const RELACOES_JOGADOR = [ 'time'] as const;
+export const QueryIncludesJogador = criarIncludesSchema(RELACOES_JOGADOR);
+
+export type CriarJogadorDTO = z.infer<typeof SchemaBaseJogador>;
 export type RespostaResumidaJogadorDTO = z.infer<typeof SchemaJogadorResumido>;
 export type AtualizarJogadorDTO = z.infer<typeof SchemaAtualizarJogador>;
 export type RespostaJogadorDetalhadoDTO = z.infer<typeof SchemaJogadorDetalhado>;

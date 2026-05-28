@@ -3,6 +3,7 @@ import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
 import { IJogadorRepository, IJogadorService } from "./jogador.interfaces";
 import { CriarJogadorDTO, FiltrosJogadorDTO, RespostaResumidaJogadorDTO, SchemaJogadorDetalhado, SchemaJogadorResumido, RespostaJogadorDetalhadoDTO } from './jogador.schemas';
 import { fazerJogadorFiltrosERelacoes, includesPermitidos } from './helpers/filtrosErelacoes';
+import { FindOptionsRelations, FindOptionsSelect } from 'typeorm';
 
 
 
@@ -11,12 +12,9 @@ import { fazerJogadorFiltrosERelacoes, includesPermitidos } from './helpers/filt
 export function fazerJogadorService(jogadorRepo: IJogadorRepository): IJogadorService {
     return {
 
-        async listar(pagina: number, limite: number, filtros: FiltrosJogadorDTO, includes: string[] = []): Promise<{ data: RespostaJogadorDetalhadoDTO[]; meta: { total: number; totalPaginas: number; pagina: number; limite: number } }> {
-            if (includes.some((include) => !includesPermitidos.includes(include))) {
-                throw new AppError(400, 'Includes inválidos');
-            }
-            const { where, relations, select } = fazerJogadorFiltrosERelacoes(filtros, includes);
-            const { data, total } = await jogadorRepo.listar(pagina, limite, where, relations, select);
+        async listar(pagina: number, limite: number, where: FiltrosJogadorDTO, relations?: FindOptionsRelations<RespostaJogadorDetalhadoDTO>): Promise<{ data: RespostaJogadorDetalhadoDTO[]; meta: { total: number; totalPaginas: number; pagina: number; limite: number } }> {
+           
+            const { data, total } = await jogadorRepo.listar(pagina, limite, where, relations);
             const totalPaginas = Math.ceil(total / limite);
             const dataValidada: RespostaJogadorDetalhadoDTO[] = SchemaJogadorDetalhado.array().parse(data);
             return SchemaRespostaPaginada(SchemaJogadorDetalhado).parse({
@@ -25,13 +23,11 @@ export function fazerJogadorService(jogadorRepo: IJogadorRepository): IJogadorSe
             });
         },
 
-        async obterPorId(id: number, includes: string[] = []): Promise<RespostaResumidaJogadorDTO> {
-            if (!includes.some((include) => !includesPermitidos.includes(include))) {
-                throw new AppError(400, 'Includes inválidos');
-            }
+        async obterPorId(id: number, relations?: FindOptionsRelations<RespostaJogadorDetalhadoDTO>): Promise<RespostaResumidaJogadorDTO> {
+        
             const filtros: FiltrosJogadorDTO = { id };
-            const { relations, select } = fazerJogadorFiltrosERelacoes(filtros, includes);
-            const jogador = await jogadorRepo.obterPorId(id, relations, select);
+            
+            const jogador = await jogadorRepo.obterPorId(id, relations);
             if (!jogador) throw new AppError(404, 'Jogador não encontrado');
             return SchemaJogadorDetalhado.parse(jogador);
         },

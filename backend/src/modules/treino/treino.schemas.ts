@@ -21,3 +21,9 @@ export const SchemaTreinosPaginados = SchemaRespostaPaginada(SchemaTreinoRespost
 export type CriarTreinoDTO = z.infer<typeof SchemaBaseTreino>;
 export type RespostaTreinoDTO = z.infer<typeof SchemaTreinoResposta>;
 export type AtualizarTreinoDTO = z.infer<typeof SchemaAtualizarTreino>;
+
+export const SchemaBuscarPorIdTreino = z.object({
+    id: z.coerce.number().int().positive('ID do treino deve ser um número inteiro positivo'),
+});
+
+export const SchemaBuscarPorNucleo = z.object({ nucleoId: z.coerce.number().int().positive('ID do núcleo deve ser um número inteiro positivo') });

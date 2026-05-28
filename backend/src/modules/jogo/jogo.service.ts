@@ -40,7 +40,7 @@ export function fazerJogoService(jogoRepo: IJogoRepository): IJogoService {
         async obterPorId(id: number): Promise<RespostaJogoDTO> {
             const jogo = await jogoRepo.obterPorId(id);
             if (!jogo) throw new AppError(404, 'Jogo não encontrado');
-            return mapearJogo(jogo);
+            return SchemaJogoResposta.parse(jogo);
         },
 
         async criar(data: CriarJogoDTO): Promise<RespostaJogoDTO> {

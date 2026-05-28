@@ -6,6 +6,6 @@ export interface ITreinoRepository extends IBaseRepository<Treino, CriarTreinoDT
     listarPorNucleo(pagina: number, limite: number, nucleoId: number): Promise<{ data: Treino[]; total: number }>;
 }
 
-export interface ITreinoService extends IBaseService<RespostaTreinoDTO, CriarTreinoDTO> {
+export interface ITreinoService extends IBaseService<RespostaTreinoDTO, any, CriarTreinoDTO, number> {
     listarPorNucleo(pagina: number, limite: number, nucleoId: number): Promise<{ data: RespostaTreinoDTO[]; meta: { total: number; totalPaginas: number; pagina: number; limite: number } }>;
 }

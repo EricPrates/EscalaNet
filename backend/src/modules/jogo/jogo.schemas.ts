@@ -31,3 +31,7 @@ export const SchemaJogosPaginados = SchemaRespostaPaginada(SchemaJogoResposta);
 export type CriarJogoDTO = z.infer<typeof SchemaBaseJogo>;
 export type RespostaJogoDTO = z.infer<typeof SchemaJogoResposta>;
 export type AtualizarJogoDTO = z.infer<typeof SchemaAtualizarJogo>;
+
+export const SchemaBuscarPorIdJogo = z.object({ id: z.coerce.number().int().positive('ID do jogo deve ser um número inteiro positivo') });
+export const SchemaBuscarPorNucleo = z.object({ nucleoId: z.coerce.number().int().positive('ID do núcleo deve ser um número inteiro positivo') });
+export const SchemaBuscarPorCategoria = z.object({ categoriaId: z.coerce.number().int().positive('ID da categoria deve ser um número inteiro positivo') });

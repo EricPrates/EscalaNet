@@ -16,6 +16,7 @@ export const SchemaRefFrequencia = z.object({
     presente: z.boolean(),
 });
 
+
 export const SchemaRefNucleo = z.object({
     id: z.number().int().positive(),
     nome: z.string(),

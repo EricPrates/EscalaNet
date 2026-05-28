@@ -1,4 +1,4 @@
-import { DataSource } from "typeorm";
+import { DataSource, FindOptionsRelations, FindOptionsWhere } from 'typeorm';
 import { Frequencia } from "./frequencia.model";
 import { CriarFrequenciaDTO } from "./frequencia.schemas";
 import { IFrequenciaRepository } from "./frequencia.interfaces";
@@ -6,20 +6,13 @@ import { IFrequenciaRepository } from "./frequencia.interfaces";
 export function fazerFrequenciaRepo(dataSource: DataSource): IFrequenciaRepository {
     const repo = dataSource.getRepository(Frequencia);
 
-    const selectBase = {
-        id: true, data: true, presente: true,
-        jogador: { id: true, nome: true },
-        treino: { id: true, data: true },
-        jogo: { id: true, nome: true, data: true },
-    };
-
     return {
-        async listar(pagina = 1, limite = 10) {
+        async listar(pagina = 1, limite = 10, where: FindOptionsWhere<Frequencia>, relations?: FindOptionsRelations<any>) {
             const skip = (pagina - 1) * limite;
             const [data, total] = await repo.findAndCount({
                 skip, take: limite, order: { id: 'ASC' },
-                relations: ['jogador', 'treino', 'jogo'],
-                select: selectBase,
+                where,
+                relations,
             });
             return { data, total };
         },
@@ -28,20 +21,8 @@ export function fazerFrequenciaRepo(dataSource: DataSource): IFrequenciaReposito
             const skip = (pagina - 1) * limite;
             const [data, total] = await repo.findAndCount({
                 where: { jogador: { id: jogadorId } },
-                skip, take: limite, order: { data: 'DESC' },
+                skip, take: limite, order: { id: 'DESC' },
                 relations: ['jogador', 'treino', 'jogo'],
-                select: selectBase,
-            });
-            return { data, total };
-        },
-
-        async listarPorTreino(pagina = 1, limite = 10, treinoId: number) {
-            const skip = (pagina - 1) * limite;
-            const [data, total] = await repo.findAndCount({
-                where: { treino: { id: treinoId } },
-                skip, take: limite, order: { id: 'ASC' },
-                relations: ['jogador', 'treino', 'jogo'],
-                select: selectBase,
             });
             return { data, total };
         },
@@ -50,7 +31,6 @@ export function fazerFrequenciaRepo(dataSource: DataSource): IFrequenciaReposito
             return await repo.findOne({
                 where: { id },
                 relations: ['jogador', 'treino', 'jogo'],
-                select: selectBase,
             }) || null;
         },
 

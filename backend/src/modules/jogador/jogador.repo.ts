@@ -12,12 +12,11 @@ export function fazerJogadorRepo(dataSource: DataSource): IJogadorRepository {
   
 
     return {
-        async listar(pagina: number, limite: number, where?: FindOptionsWhere<Jogador>, relations?: FindOptionsRelations<Jogador>, select?: FindOptionsSelect<Jogador>) {
+        async listar(pagina: number, limite: number, where?: FindOptionsWhere<Jogador>, relations?: FindOptionsRelations<Jogador>) {
             const skip = (pagina - 1) * limite;
             const [data, total] = await repo.findAndCount({
                 where,
                 relations,
-                select,
                 skip,
                 take: limite,
                 order: { nome: 'ASC' },
@@ -43,7 +42,7 @@ export function fazerJogadorRepo(dataSource: DataSource): IJogadorRepository {
             if (!jogador) return null;
             repo.merge(jogador, data);
             await repo.save(jogador);
-            return this.obterPorId(id);
+            return await this.obterPorId(id);
         },
 
         async deletar(id: number) {

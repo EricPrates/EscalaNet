@@ -35,6 +35,10 @@ export const SchemaUsuarioDetalhado = SchemaUsuarioResumido.extend({
 export const SchemaUsuarioRelacionamento = SchemaBaseUsuario.omit({ senha: true });
 export const SchemaAtualizarUsuario = SchemaBaseUsuario.partial();
 
+export const SchemaBuscarPorIdUsuario = z.object({
+    id: z.coerce.number().int().positive('ID do usuário deve ser um número inteiro positivo'),
+});
+
 export type AtualizarUsuarioDTO = z.infer<typeof SchemaAtualizarUsuario>;
 export type CriarUsuarioDTO = z.infer<typeof SchemaBaseUsuario>;
 export type LoginUsuarioDTO = z.infer<typeof SchemaLoginUsuario>;

@@ -6,6 +6,7 @@ import { Usuario } from '../usuario/Usuario.model';
 import { Jogo } from '../jogo/Jogo.model';
 import { EventosJogo } from '../eventos_jogo/EventosJogo.model';
 import { Competicao } from '../competicao/Competicao.model';
+import { Chamada } from '../chamada/chamada.model';
 
 @Entity({ name: "times" })
 export class Time {
@@ -44,4 +45,7 @@ export class Time {
 
     @OneToMany(() => Competicao, (competicao) => competicao.times)
     competicoes!: Competicao[];
+
+    @OneToMany(() => Chamada, (chamada) => chamada.time)
+    chamadas!: Chamada[];
 }

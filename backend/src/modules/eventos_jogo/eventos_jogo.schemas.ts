@@ -2,6 +2,10 @@ import { z } from 'zod';
 import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
 import { SchemaRefJogador, SchemaRefJogo, SchemaRefNucleo, SchemaRefUsuario } from '../../shared/utils/ref.schemas';
 import { TipoEvento } from './TipoEvento';
+import { FindOptionsWhere } from 'typeorm';
+import { EventosJogo } from './EventosJogo.model';
+import { criarIncludesSchema } from '../../shared/utils/query.schema';
+import { ILike } from "typeorm";
 
 
 export const SchemaBaseEventoJogo = z.object({
@@ -26,13 +30,29 @@ export const SchemaEventoJogoRespostaDetalhada = z.object({
 });
 export const SchemaFiltroEventoJogo = z.object({
     tipo: z.enum(TipoEvento).optional(),
-    minuto: z.number().int().nonnegative().optional(),
-    jogoId: z.number().int().positive().optional(),
-    usuarioId: z.number().int().positive().optional(),
-    nucleoId: z.number().int().positive().optional(),
-    jogadorEnvolvidoId: z.number().int().positive().optional(),
+    minuto: z.coerce.number().int().nonnegative().optional(),
+    jogoId: z.coerce.number().int().positive().optional(),
+    usuarioId: z.coerce.number().int().positive().optional(),
+    nucleoId: z.coerce.number().int().positive().optional(),
+    jogadorEnvolvidoId: z.coerce.number().int().positive().optional(),
     descricao: z.string().optional(),
+    acrescimo: z.coerce.number().int().nonnegative().optional(),
+}).transform(filtros => {
+    const where: FindOptionsWhere<EventosJogo> = {};
+
+    if (filtros.tipo) where.tipo = filtros.tipo;
+    if (filtros.minuto !== undefined) where.minuto = filtros.minuto;
+    if (filtros.jogoId) where.jogo = { id: filtros.jogoId };
+    if (filtros.usuarioId) where.usuario = { id: filtros.usuarioId };
+    if (filtros.jogadorEnvolvidoId) where.jogadorEnvolvido = { id: filtros.jogadorEnvolvidoId };
+    if (filtros.descricao) where.descricao = ILike(`%${filtros.descricao}%`);
+    if (filtros.minuto !== undefined) where.minuto = filtros.minuto;
+    if (filtros.acrescimo !== undefined) where.acrescimo = filtros.acrescimo;
+    return where;
 });
+
+export const RELACOES_EVENTOS_JOGO = [ 'time', 'jogo', 'treino', 'jogadorEnvolvido', 'usuario' ] as const;
+export const QueryIncludesEventosJogo = criarIncludesSchema(RELACOES_EVENTOS_JOGO);
 
 export const SchemaAtualizarEventoJogo = SchemaBaseEventoJogo.partial();
 export const SchemaEventosJogoPaginados = SchemaRespostaPaginada(SchemaEventoJogoRespostaDetalhada);

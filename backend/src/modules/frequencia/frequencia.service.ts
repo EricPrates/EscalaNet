@@ -1,20 +1,28 @@
+import { FindOptionsRelations } from "typeorm";
 import { AppError } from "../../shared/utils/AppError";
 import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
+import { montarPaginacao } from "../../shared/utils/montarPaginacao";
 import { IFrequenciaRepository, IFrequenciaService } from "./frequencia.interfaces";
-import { CriarFrequenciaDTO, RespostaFrequenciaDTO, SchemaFrequenciaResposta } from './frequencia.schemas';
+import { CriarFrequenciaDTO, FiltrosFrequenciaDTO, RespostaFrequenciaDTO, SchemaFrequenciaResposta } from './frequencia.schemas';
+
 
 
 export function fazerFrequenciaService(frequenciaRepo: IFrequenciaRepository): IFrequenciaService {
     return {
-        async listar(pagina: number, limite: number) {
-            const { data, total } = await frequenciaRepo.listar(pagina, limite);
-            const totalPaginas = Math.ceil(total / limite);
+         async listar(pagina: number, limite: number, where: FiltrosFrequenciaDTO, relations?: FindOptionsRelations<RespostaFrequenciaDTO>) {
+            const { data, total } = await frequenciaRepo.listar(pagina, limite, where, relations);
             return SchemaRespostaPaginada(SchemaFrequenciaResposta).parse({
                 data: data,
-                meta: { pagina, limite, total, totalPaginas },
+                meta: montarPaginacao(pagina, limite, total),
             });
         },
-
+        async listarPorJogador(pagina: number, limite: number, jogadorId: number) {
+            const { data, total } = await frequenciaRepo.listarPorJogador(pagina, limite, jogadorId);
+            return SchemaRespostaPaginada(SchemaFrequenciaResposta).parse({
+                data: data,
+                meta: montarPaginacao(pagina, limite, total),
+            });
+        },
 
         async obterPorId(id: number): Promise<RespostaFrequenciaDTO> {
             const frequencia = await frequenciaRepo.obterPorId(id);

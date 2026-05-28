@@ -2,52 +2,51 @@ import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { IFrequenciaService } from "./frequencia.interfaces";
-import { CriarFrequenciaDTO } from "./frequencia.schemas";
+import { QueryIncludesFrequencia, SchemaBaseFrequencia, SchemaFrequenciaId, SchemaFrequenciaResposta } from './frequencia.schemas';
+import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
+
 
 export function fazerFrequenciaController(service: IFrequenciaService) {
     return {
         async listarFrequencias(req: Request, res: Response) {
+            
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
-            const { data, meta } = await service.listar(pagina, limite);
-            return res.status(200).json(montarRespostaPaginada('Frequências listadas com sucesso', data, meta));
-        },
-
-        async listarPorJogador(req: Request, res: Response) {
-            const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
-            const jogadorId = Number(req.params.jogadorId);
-            const { data, meta } = await service.listarPorJogador(pagina, limite, jogadorId);
-            return res.status(200).json(montarRespostaPaginada('Frequências listadas com sucesso', data, meta));
-        },
-
-        async listarPorTreino(req: Request, res: Response) {
-            const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
-            const treinoId = Number(req.params.treinoId);
-            const { data, meta } = await service.listarPorTreino(pagina, limite, treinoId);
+            const { includes } = QueryIncludesFrequencia.parse(req.query);
+            const includesRelations = transformarIncludesEmRelations(includes);
+            const { data, meta } = await service.listar(pagina, limite, undefined, includesRelations);
             return res.status(200).json(montarRespostaPaginada('Frequências listadas com sucesso', data, meta));
         },
 
         async obterFrequenciaPorId(req: Request, res: Response) {
-            const f = await service.obterPorId(Number(req.params.id));
-            return res.status(200).json(montarRespostaSucesso('Frequência obtida com sucesso', f));
+            const { includes } = QueryIncludesFrequencia.parse(req.query);
+            const includesRelations = transformarIncludesEmRelations(includes);
+            const { id } = SchemaFrequenciaId.parse(req.params);
+            const frequencia = await service.obterPorId(id, includesRelations);
+            return res.status(200).json(montarRespostaSucesso('Frequência obtida com sucesso', frequencia));
         },
 
         async criarFrequencia(req: Request, res: Response) {
-            const data = req.body as CriarFrequenciaDTO;
-            const f = await service.criar(data);
-            return res.status(201).json(montarRespostaSucesso('Frequência registrada com sucesso', f));
+            const data = SchemaBaseFrequencia.parse(req.body);
+            const frequencia = await service.criar(data);
+            return res.status(201).json(montarRespostaSucesso('Frequência registrada com sucesso', frequencia));
         },
-
+        async listarFrequenciasPorJogador(req: Request, res: Response) {
+            const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
+            const { id } = SchemaFrequenciaId.parse(req.params);
+            const { data, meta } = await service.listarPorJogador(pagina, limite, id);
+            return res.status(200).json(montarRespostaPaginada('Frequências listadas com sucesso', data, meta));
+        },
         async atualizarFrequencia(req: Request, res: Response) {
-            const { id } = req.params;
-            const data = req.body as Partial<CriarFrequenciaDTO>;
-            const f = await service.atualizar(Number(id), data);
-            return res.status(200).json(montarRespostaSucesso('Frequência atualizada com sucesso', f));
+            const { id } = SchemaFrequenciaId.parse(req.params);
+            const data = SchemaFrequenciaResposta.partial().parse(req.body);
+            const frequencia = await service.atualizar(id, data);
+            return res.status(200).json(montarRespostaSucesso('Frequência atualizada com sucesso', frequencia));
         },
 
         async deletarFrequencia(req: Request, res: Response) {
-            const { id } = req.params;
-            await service.deletar(Number(id));
-            return res.status(200).json(montarRespostaSucesso('Frequência deletada com sucesso'));
+            const { id } = SchemaFrequenciaId.parse(req.params);
+            await service.deletar(id);
+            return res.status(204).send();
         },
     };
 }

@@ -1,4 +1,4 @@
-import { DataSource, FindOptionsRelations, FindOptionsSelect } from "typeorm";
+import { DataSource, FindOptionsRelations, FindOptionsSelect, FindOptionsWhere } from 'typeorm';
 import { EventosJogo } from "./EventosJogo.model";
 import { CriarEventoJogoDTO } from "./eventos_jogo.schemas";
 import { IEventoJogoRepository } from "./eventos_jogo.interfaces";
@@ -8,10 +8,10 @@ export function fazerEventoJogoRepo(dataSource: DataSource): IEventoJogoReposito
 
 
     return {
-        async listar(pagina = 1, limite = 10, where?: any, relations?: FindOptionsRelations<EventosJogo>, select?: FindOptionsSelect<EventosJogo>) {
+        async listar(pagina = 1, limite = 10, where: FindOptionsWhere<EventosJogo>, relations?: FindOptionsRelations<EventosJogo>, select?: FindOptionsSelect<EventosJogo>) {
             const skip = (pagina - 1) * limite;
             const [data, total] = await repo.findAndCount({
-               where,
+                where,
                 relations,
                 select,
                 skip,
@@ -21,11 +21,11 @@ export function fazerEventoJogoRepo(dataSource: DataSource): IEventoJogoReposito
         },
 
 
-        async obterPorId(id: number) {
+        async obterPorId(id: number, relations?: FindOptionsRelations<EventosJogo>, select?: FindOptionsSelect<EventosJogo>) {
             return await repo.findOne({
                 where: { id },
-                relations: ['jogo', 'usuario', 'nucleo', 'alunoEnvolvido'],
-                select: { id: true, tipo: true, descricao: true, minuto: true },
+                relations,
+                select,
             }) || null;
         },
 

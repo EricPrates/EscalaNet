@@ -1,4 +1,4 @@
-import { DataSource, FindOptionsWhere } from "typeorm";
+import { DataSource, FindOptionsWhere, FindOptionsRelations } from 'typeorm';
 import { Categoria } from "./Categoria.model";
 import { CriarCategoriaDTO } from "./categoria.schemas";
 import { ICategoriaRepository } from "./categoria.interfaces";
@@ -7,23 +7,26 @@ export function fazerCategoriaRepo(dataSource: DataSource): ICategoriaRepository
     const repo = dataSource.getRepository(Categoria);
 
     return {
-        async listar(pagina = 1, limite = 10, where?: FindOptionsWhere<Categoria>) {
+        async listar(pagina = 1, limite = 10, where?: FindOptionsWhere<Categoria>, relations?: FindOptionsRelations<Categoria>) {
             const skip = (pagina - 1) * limite;
             const [data, total] = await repo.findAndCount({
                 where,
+                relations,
                 skip,
                 take: limite,
                 order: { id: 'ASC' }
             });
             return { data, total };
         },
-
+        async buscarPorIdadeMaxima(idadeMaxima: number) {
+            return await repo.findOne({ where: { idadeMaxima } }) || null;
+        },
         async obterPorId(id: number) {
-            return await repo.findOne({ where: { id } }) || null;
+            return await repo.findOne({ where: { id }}) || null;
         },
 
         async obterPorNome(nome: string) {
-            return await repo.findOne({ where: { nome } }) || null;
+            return await repo.findOne({ where: { nome }}) || null;
         },
 
         async criar(data: CriarCategoriaDTO) {
