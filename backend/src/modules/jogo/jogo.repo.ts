@@ -21,6 +21,31 @@ export function fazerJogoRepo(dataSource: DataSource): IJogoRepository {
             return { data, total };
         },
 
+        async listarPorNucleo(pagina: number, limite: number, nucleoId: number) {
+            const skip = (pagina - 1) * limite;
+            const [data, total] = await repo.findAndCount({
+                where: [
+                    { timeA: { nucleo: { id: nucleoId } } },
+                    { timeB: { nucleo: { id: nucleoId } } },
+                ],
+                skip,
+                take: limite,
+                order: { data: 'DESC' },
+            });
+            return { data, total };
+        },
+
+        async listarPorCategoria(pagina: number, limite: number, categoriaId: number) {
+            const skip = (pagina - 1) * limite;
+            const [data, total] = await repo.findAndCount({
+                where: { categoria: { id: categoriaId } },
+                skip,
+                take: limite,
+                order: { data: 'DESC' },
+            });
+            return { data, total };
+        },
+
 
         async obterPorId(id: number, relations?: FindOptionsRelations<Jogo>, select?: FindOptionsSelect<Jogo>) {
             return await repo.findOne({

@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
-import { CriarNucleoDTO, RespostaNucleoDTO, SchemaBaseNucleo, SchemaIdNUcleo, SchemaAtualizarNucleo } from "./nucleo.schemas";
+import { SchemaBaseNucleo, SchemaIdNUcleo, SchemaAtualizarNucleo } from "./nucleo.schemas";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
-import { IBaseService } from "../../shared/factory/BaseInterfaces";
+import { INucleoService } from "./nucleo.interfaces";
 
 
 
-export function fazerNucleoController(service: IBaseService<RespostaNucleoDTO, CriarNucleoDTO>) {
+export function fazerNucleoController(service: INucleoService) {
     return {
         async listarNucleosComUsuariosVinculados(req: Request, res: Response) {
             const {limite, pagina} = SchemaPaginacaoQuery.parse(req.query);

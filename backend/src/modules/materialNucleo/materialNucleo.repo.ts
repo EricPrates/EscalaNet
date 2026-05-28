@@ -5,6 +5,11 @@ import { IMaterialNucleoRepository } from "./materialNucleo.interfaces";
 
 export function fazerMaterialNucleoRepo(dataSource: DataSource): IMaterialNucleoRepository {
     const repo = dataSource.getRepository(Material);
+    const normalizarDadosMaterial = (data: Partial<CriarMaterialDTO>) => ({
+        ...data,
+        observacao: data.observacao ?? undefined,
+        tipoMaterial: data.tipoMaterial ?? undefined,
+    }) as Partial<Material>;
 
     return {
         async listar(pagina: number, limite: number, where?: FindOptionsWhere<Material>, relations?: FindOptionsRelations<Material>, select?: FindOptionsSelect<Material>) {
@@ -29,14 +34,14 @@ export function fazerMaterialNucleoRepo(dataSource: DataSource): IMaterialNucleo
         },
 
         async criar(data: CriarMaterialDTO) {
-            const material = repo.create(data);
+            const material = repo.create(normalizarDadosMaterial(data));
             return repo.save(material);
         },
 
         async atualizar(id: number, data: Partial<CriarMaterialDTO>) {
             const material = await repo.findOne({ where: { id } });
             if (!material) return null;
-            repo.merge(material, data);
+            repo.merge(material, normalizarDadosMaterial(data));
             await repo.save(material);
             return this.obterPorId(id);
         },

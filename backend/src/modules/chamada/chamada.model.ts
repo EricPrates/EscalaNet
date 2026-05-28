@@ -14,7 +14,7 @@ export class Chamada {
     @Column({ type: 'date' })
     data!: Date;
 
-    @ManyToOne(() => Treino, { nullable: true })
+    @ManyToOne(() => Treino, (treino) => treino.chamadas, { nullable: true })
     treino?: Treino;
 
     @ManyToOne(() => Jogo, { nullable: true })

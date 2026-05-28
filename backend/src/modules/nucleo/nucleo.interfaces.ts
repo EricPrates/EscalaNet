@@ -9,7 +9,7 @@ export interface INucleoRepository extends IBaseRepository<Nucleo, CriarNucleoDT
    
 }
 
-export interface INucleoService extends IBaseService<RespostaNucleoDTO, CriarNucleoDTO> {
+export interface INucleoService extends IBaseService<RespostaNucleoDTO, undefined, CriarNucleoDTO> {
     
     obterPorNome(nome: string): Promise<RespostaNucleoDTO>;
     
