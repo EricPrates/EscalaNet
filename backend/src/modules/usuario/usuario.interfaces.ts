@@ -3,6 +3,11 @@ import { IBaseRepository, IBaseService } from "../../shared/factory/BaseInterfac
 import { Usuario } from "./Usuario.model";
 import { CriarUsuarioDTO, RespostaUsuarioDTO } from "./usuario.schemas";
 
+export interface ListarUsuariosFiltros {
+    nucleoId?: number;    
+    permissao?: string;    
+    busca?: string;        
+}
 
 export interface IUsuarioRepository extends IBaseRepository<Usuario, CriarUsuarioDTO> {
     obterPorEmail(email: string): Promise<Usuario | null>;
@@ -10,15 +15,9 @@ export interface IUsuarioRepository extends IBaseRepository<Usuario, CriarUsuari
     
 }
 
-export interface IUsuarioService extends IBaseService<RespostaUsuarioDTO, CriarUsuarioDTO> {
+export interface IUsuarioService extends IBaseService<RespostaUsuarioDTO, ListarUsuariosFiltros, CriarUsuarioDTO> {
     obterPorEmail(email: string): Promise<RespostaUsuarioDTO>;
     obterUsuarioParaLogin(email: string, senha: string): Promise<RespostaUsuarioDTO>;
     listarPornucleoVinculado(pagina: number, limite: number): Promise<{ data: RespostaUsuarioDTO[]; meta: { total: number; totalPaginas: number; pagina: number; limite: number } }>;
     
-}
-
-export interface ListarUsuariosFiltros {
-    nucleoId?: number;    
-    permissao?: string;    
-    busca?: string;        
 }

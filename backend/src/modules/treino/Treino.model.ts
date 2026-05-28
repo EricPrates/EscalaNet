@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany
 import { Nucleo } from "../nucleo/Nucleo.model";
 import { Jogador } from "../jogador/jogador.model";
 import { Usuario } from "../usuario/Usuario.model";
-import { Frequencia } from "../frequencia/frequencia.model";
+import { Chamada } from "../chamada/chamada.model";
 
 @Entity({ name: "treinos" })
 export class Treino {
@@ -27,6 +27,6 @@ export class Treino {
     @ManyToMany(() => Usuario, (usuario) => usuario.treinos)
     usuarios!: Usuario[];
 
-    @OneToMany(() => Frequencia, (frequencia) => frequencia.treino)
-    frequencias!: Frequencia[];
+    @OneToMany(() => Chamada, (chamada) => chamada.treino)
+    chamadas!: Chamada[];
 }

@@ -5,6 +5,7 @@ import { ITimeRepository } from "./time.interfaces";
 
 export function fazerTimeRepo(dataSource: DataSource): ITimeRepository {
     const repo = dataSource.getRepository(Time);
+    const normalizarDadosTime = (data: Partial<CriarTimeDTO>) => data as unknown as Partial<Time>;
 
     return {
         async listar(pagina: number, limite: number, where?: FindOptionsWhere<Time>, relations?: FindOptionsRelations<Time>, select?: FindOptionsSelect<Time>) {
@@ -25,14 +26,14 @@ export function fazerTimeRepo(dataSource: DataSource): ITimeRepository {
         },
 
         async criar(data: CriarTimeDTO) {
-            const time = repo.create(data as any);
+            const time = repo.create(normalizarDadosTime(data));
             return repo.save(time);
         },
 
         async atualizar(id: number, data: Partial<CriarTimeDTO>) {
             const time = await repo.findOne({ where: { id } });
             if (!time) return null;
-            repo.merge(time, data as any);
+            repo.merge(time, normalizarDadosTime(data));
             await repo.save(time);
             return this.obterPorId(id);
         },

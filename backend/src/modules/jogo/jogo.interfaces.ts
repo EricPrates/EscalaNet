@@ -4,7 +4,8 @@ import { Jogo } from "./Jogo.model";
 import { CriarJogoDTO, RespostaJogoDTO } from "./jogo.schemas";
 
 export interface IJogoRepository extends IBaseRepository<Jogo, CriarJogoDTO> {
-
+    listarPorNucleo(pagina: number, limite: number, nucleoId: number): Promise<{ data: Jogo[]; total: number }>;
+    listarPorCategoria(pagina: number, limite: number, categoriaId: number): Promise<{ data: Jogo[]; total: number }>;
 }
 
 export interface IJogoService extends IBaseService<RespostaJogoDTO, FiltrosJogadorDTO, CriarJogoDTO, number> {

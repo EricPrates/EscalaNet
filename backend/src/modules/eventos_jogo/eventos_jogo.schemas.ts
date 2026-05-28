@@ -47,7 +47,7 @@ export const SchemaFiltroEventoJogo = z.object({
     if (filtros.jogadorEnvolvidoId) where.jogadorEnvolvido = { id: filtros.jogadorEnvolvidoId };
     if (filtros.descricao) where.descricao = ILike(`%${filtros.descricao}%`);
     if (filtros.minuto !== undefined) where.minuto = filtros.minuto;
-    if (filtros.acrescimo !== undefined) where.acrescimo = filtros.acrescimo;
+    if (filtros.acrescimo !== undefined) where.acescimo = filtros.acrescimo;
     return where;
 });
 

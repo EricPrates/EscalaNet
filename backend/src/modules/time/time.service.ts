@@ -3,7 +3,7 @@ import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
 import { montarPaginacao } from "../../shared/utils/montarPaginacao";
 import { ITimeRepository, ITimeService } from "./time.interfaces";
 import { Time } from "./time.model";
-import { CriarTimeDTO, RespostaTimeDTO, SchemaBaseTime, AtualizarTimeDTO, FiltrosTimeDTO } from "./time.schemas";
+import { CriarTimeDTO, SchemaBaseTime, AtualizarTimeDTO, FiltrosTimeDTO } from "./time.schemas";
 import { FindOptionsRelations, FindOptionsWhere } from "typeorm";
 
 export function fazerTimeService(timeRepo: ITimeRepository): ITimeService {
