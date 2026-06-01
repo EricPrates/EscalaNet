@@ -20,12 +20,12 @@ export function fazerChamadaRepo(dataSource: DataSource): IChamadaRepository {
             return { data, total };
         },
 
-        async obterPorId(id: number, relations?: FindOptionsRelations<Chamada>, select?: FindOptionsSelect<Chamada>) {
-            return await repo.findOne({ where: { id }, relations, select }) || null;
+        async obterPorId(id: number, relations?: FindOptionsRelations<Chamada>) {
+            return await repo.findOne({ where: { id }, relations }) || null;
         },
 
-        async obterPorData(data: FindOptionsWhere<Chamada>) {
-            return await repo.findOne({ where: data }) || null;
+        async obterPorFiltro(data: FindOptionsWhere<Chamada>, relations?: FindOptionsRelations<Chamada>) {
+            return await repo.findOne({ where: data, relations }) || null;
         },
 
         async criar(data: CriarChamadaDTO) {

@@ -2,8 +2,7 @@ import { AppError } from "../../shared/utils/AppError";
 import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
 import { IJogadorRepository, IJogadorService } from "./jogador.interfaces";
 import { CriarJogadorDTO, FiltrosJogadorDTO, RespostaResumidaJogadorDTO, SchemaJogadorDetalhado, SchemaJogadorResumido, RespostaJogadorDetalhadoDTO } from './jogador.schemas';
-import { fazerJogadorFiltrosERelacoes, includesPermitidos } from './helpers/filtrosErelacoes';
-import { FindOptionsRelations, FindOptionsSelect } from 'typeorm';
+import { FindOptionsRelations } from 'typeorm';
 
 
 
@@ -24,9 +23,6 @@ export function fazerJogadorService(jogadorRepo: IJogadorRepository): IJogadorSe
         },
 
         async obterPorId(id: number, relations?: FindOptionsRelations<RespostaJogadorDetalhadoDTO>): Promise<RespostaResumidaJogadorDTO> {
-        
-            const filtros: FiltrosJogadorDTO = { id };
-            
             const jogador = await jogadorRepo.obterPorId(id, relations);
             if (!jogador) throw new AppError(404, 'Jogador não encontrado');
             return SchemaJogadorDetalhado.parse(jogador);

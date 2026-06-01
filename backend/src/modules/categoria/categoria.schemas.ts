@@ -15,7 +15,7 @@ export const SchemaCriarCategoria = z.object({
 
 
 export const SchemaBaseCategoria = z.object({
-    id: z.coerce.number().int().positive(),
+    id: z.number().int().positive(),
     nome: z.string(),
     idadeMaxima: z.coerce.number().int().positive(),
     ativa: z.boolean(),

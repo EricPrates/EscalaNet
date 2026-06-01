@@ -1,10 +1,9 @@
 
 import { AppError } from "../../shared/utils/AppError";
-import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
 import { montarPaginacao } from "../../shared/utils/montarPaginacao";
 import { ICategoriaRepository, ICategoriaService } from "./categoria.interfaces";
 import { Categoria } from "./Categoria.model";
-import { CriarCategoriaDTO, RespostaCategoriaDTO, SchemaBaseCategoria } from "./categoria.schemas";
+import { CriarCategoriaDTO, RespostaCategoriaDTO, SchemaBaseCategoria, SchemaCategoriasPaginadas } from "./categoria.schemas";
 import { FindOptionsRelations,  FindOptionsWhere } from 'typeorm';
 
 
@@ -13,7 +12,7 @@ export function fazerCategoriaService(categoriaRepo: ICategoriaRepository): ICat
     return {
         async listar(pagina: number, limite: number, where?: FindOptionsWhere<Categoria>, relations?: FindOptionsRelations<Categoria>): Promise<{ data: RespostaCategoriaDTO[]; meta: { total: number; totalPaginas: number; pagina: number; limite: number } }> {
             const { data, total } = await categoriaRepo.listar(pagina, limite, where, relations);
-            return SchemaRespostaPaginada(SchemaBaseCategoria).parse({
+            return SchemaCategoriasPaginadas.parse({
                 data: data,
                 meta: montarPaginacao(pagina, limite, total),
             });

@@ -9,7 +9,7 @@ import { SchemaBuscarPorIdCategoria } from '../categoria/categoria.schemas';
 
 export function fazerEventoJogoController(service: IEventoJogoService) {
     return {
-        async listar(req: Request, res: Response) {
+        async listarEventos(req: Request, res: Response) {
             const where = SchemaFiltroEventoJogo.parse(req.query);
             const { includes } = QueryIncludesEventosJogo.parse(req.query);
             const queryIncludes = transformarIncludesEmRelations(includes);

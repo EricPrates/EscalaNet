@@ -1,16 +1,12 @@
 import { AppError } from "../../shared/utils/AppError";
 import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
-import { getContext } from "../../shared/utils/authStorage";
 import { IJogoRepository, IJogoService } from "./jogo.interfaces";
 import { CriarJogoDTO, RespostaJogoDTO, SchemaJogoResposta } from "./jogo.schemas";
 
 export function fazerJogoService(jogoRepo: IJogoRepository): IJogoService {
     return {
         async listar(pagina: number, limite: number) {
-            const ctx = getContext();
-            if (ctx?.permissao !== 'admin' && ctx?.nucleoVinculadoId) {
-                return this.listarPorNucleo(pagina, limite, ctx.nucleoVinculadoId);
-            }
+        
             const { data, total } = await jogoRepo.listar(pagina, limite);
             const totalPaginas = Math.ceil(total / limite);
             return SchemaRespostaPaginada(SchemaJogoResposta).parse({
@@ -19,23 +15,6 @@ export function fazerJogoService(jogoRepo: IJogoRepository): IJogoService {
             });
         },
 
-        async listarPorNucleo(pagina: number, limite: number, nucleoId: number) {
-            const { data, total } = await jogoRepo.listarPorNucleo(pagina, limite, nucleoId);
-            const totalPaginas = Math.ceil(total / limite);
-            return SchemaRespostaPaginada(SchemaJogoResposta).parse({
-                data: data,
-                meta: { pagina, limite, total, totalPaginas },
-            });
-        },
-
-        async listarPorCategoria(pagina: number, limite: number, categoriaId: number) {
-            const { data, total } = await jogoRepo.listarPorCategoria(pagina, limite, categoriaId);
-            const totalPaginas = Math.ceil(total / limite);
-            return SchemaRespostaPaginada(SchemaJogoResposta).parse({
-                data: data,
-                meta: { pagina, limite, total, totalPaginas },
-            });
-        },
 
         async obterPorId(id: number): Promise<RespostaJogoDTO> {
             const jogo = await jogoRepo.obterPorId(id);

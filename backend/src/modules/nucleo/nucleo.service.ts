@@ -52,12 +52,10 @@ export const fazerNucleoService = (nucleoRepo: INucleoRepository): INucleoServic
             return SchemaNucleoResposta.parse(nucleo);
         },
 
-        async criar(data: CriarNucleoDTO): Promise<RespostaNucleoDTO> {
+          async criar(data: CriarNucleoDTO): Promise<RespostaNucleoDTO> {
             const nucleo = await nucleoRepo.criar(data);
-            if (!nucleo) {
-                throw new AppError(500, 'Erro ao criar núcleo');
-            }
-            return SchemaNucleoResposta.parse(nucleo);
+            const respostaDTO: RespostaNucleoDTO = SchemaNucleoResposta.parse(nucleo);
+            return respostaDTO;
         },
 
 

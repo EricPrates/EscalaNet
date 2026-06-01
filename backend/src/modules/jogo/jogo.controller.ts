@@ -2,29 +2,17 @@ import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { IJogoService } from "./jogo.interfaces";
-import { SchemaBaseJogo, SchemaBuscarPorIdJogo, SchemaBuscarPorNucleo, SchemaBuscarPorCategoria, SchemaAtualizarJogo } from "./jogo.schemas";
+import { SchemaBaseJogo, SchemaBuscarPorIdJogo, SchemaAtualizarJogo } from "./jogo.schemas";
 
 export function fazerJogoController(service: IJogoService) {
     return {
-        async listar(req: Request, res: Response) {
+        async listarJogos(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
             const { data, meta } = await service.listar(pagina, limite);
             return res.status(200).json(montarRespostaPaginada('Jogos listados com sucesso', data, meta));
         },
 
-        async listarPorNucleo(req: Request, res: Response) {
-            const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
-            const { nucleoId } = SchemaBuscarPorNucleo.parse(req.params);
-            const { data, meta } = await service.listarPorNucleo(pagina, limite, nucleoId);
-            return res.status(200).json(montarRespostaPaginada('Jogos listados com sucesso', data, meta));
-        },
-
-        async listarPorCategoria(req: Request, res: Response) {
-            const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
-            const { categoriaId } = SchemaBuscarPorCategoria.parse(req.params);
-            const { data, meta } = await service.listarPorCategoria(pagina, limite, categoriaId);
-            return res.status(200).json(montarRespostaPaginada('Jogos listados com sucesso', data, meta));
-        },
+       
 
         async obterJogoPorId(req: Request, res: Response) {
             const { id } = SchemaBuscarPorIdJogo.parse(req.params);

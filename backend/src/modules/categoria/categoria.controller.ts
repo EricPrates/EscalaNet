@@ -7,7 +7,7 @@ import { transformarIncludesEmRelations } from "../../shared/utils/query.schema"
 
 export function fazerCategoriaController(service: ICategoriaService) {
     return {
-        async listar(req: Request, res: Response) {
+        async listarCategorias(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
             const filtros = SchemaFiltrosCategoria.parse(req.query);
             const { includes } = QueryIncludesCategoria.parse(req.query);

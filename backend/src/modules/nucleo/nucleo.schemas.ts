@@ -19,6 +19,9 @@ export const SchemaDashboardNucleo = z.object({
     jogosFuturos: z.number().optional(),
 });
 
+export const SchemaFiltrosNucleo = z.object({
+    nome: z.string().optional(),
+});
 
 
 
@@ -35,6 +38,7 @@ export const SchemaNucleoResposta = SchemaBaseNucleo.extend({
 export const SchemaNucleosPaginados = SchemaRespostaPaginada(SchemaNucleoResposta);
 export const SchemaAtualizarNucleo = SchemaBaseNucleo.partial();
 
+export type FiltrosNucleoDTO = z.infer<typeof SchemaFiltrosNucleo>;
 export type AtualizarNucleoDTO = z.infer<typeof SchemaAtualizarNucleo>;
 export type CriarNucleoDTO = z.infer<typeof SchemaBaseNucleo>;
 export type RespostaNucleoDTO = z.infer<typeof SchemaNucleoResposta>;

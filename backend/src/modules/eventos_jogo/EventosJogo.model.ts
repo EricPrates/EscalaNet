@@ -41,7 +41,7 @@ export class EventosJogo {
     jogadorEnvolvido!: Jogador | null;
 
     @Column({ type: "int", nullable: true })
-    acescimo!: number | null;
+    acrescimo!: number | null;
 
 
 

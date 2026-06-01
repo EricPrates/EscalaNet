@@ -4,7 +4,7 @@ import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
 import { montarPaginacao } from "../../shared/utils/montarPaginacao";
 import { IChamadaRepository, IChamadaService } from "./chamada.interfaces";
 import { Chamada } from "./chamada.model";
-import { CriarChamadaDTO, RespostaChamadaDTO, SchemaBaseChamada, AtualizarChamadaDTO } from './chamada.schemas';
+import { CriarChamadaDTO, RespostaChamadaDTO, SchemaBaseChamada, AtualizarChamadaDTO, SchemaFiltrosChamada } from './chamada.schemas';
 import { FindOptionsWhere, FindOptionsRelations } from "typeorm";
 
 export function fazerChamadaService(chamadaRepo: IChamadaRepository): IChamadaService {
@@ -17,20 +17,25 @@ export function fazerChamadaService(chamadaRepo: IChamadaRepository): IChamadaSe
             });
         },
 
-        async obterPorId(id: number): Promise<RespostaChamadaDTO> {
-            const chamada = await chamadaRepo.obterPorId(id);
+        async obterPorId(id: number, relations?: FindOptionsRelations<Chamada>): Promise<RespostaChamadaDTO> {
+            const chamada = await chamadaRepo.obterPorId(id, relations);
+            if (!chamada) throw new AppError(404, 'Chamada não encontrada');
+            return SchemaBaseChamada.parse(chamada);
+        },
+        async obterPorFiltro(filtro: FindOptionsWhere<Chamada>, relations?: FindOptionsRelations<Chamada>): Promise<RespostaChamadaDTO> {
+            const chamada = await chamadaRepo.obterPorFiltro(filtro, relations);
             if (!chamada) throw new AppError(404, 'Chamada não encontrada');
             return SchemaBaseChamada.parse(chamada);
         },
 
-        async obterPorData(filtro: FindOptionsWhere<Chamada>): Promise<RespostaChamadaDTO> {
-            const chamada = await chamadaRepo.obterPorData(filtro);
+        async obterPorData(filtro: FindOptionsWhere<Chamada>, relations?: FindOptionsRelations<Chamada>): Promise<RespostaChamadaDTO> {
+            const chamada = await chamadaRepo.obterPorFiltro(SchemaFiltrosChamada.parse(filtro), relations);
             if (!chamada) throw new AppError(404, 'Chamada não encontrada');
             return SchemaBaseChamada.parse(chamada);
         },
 
         async criar(data: CriarChamadaDTO): Promise<RespostaChamadaDTO> {
-            const existente = await chamadaRepo.obterPorData({ data: data.data });
+            const existente = await this.obterPorData({ data: data.data });
             if (existente) throw new AppError(409, 'Chamada já cadastrada');
             const chamada = await chamadaRepo.criar(data);
             return SchemaBaseChamada.parse(chamada);

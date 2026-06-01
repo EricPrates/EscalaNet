@@ -7,7 +7,7 @@ import { transformarIncludesEmRelations } from "../../shared/utils/query.schema"
 
 export function fazerChamadaController(service: IChamadaService) {
     return {
-        async listar(req: Request, res: Response) {
+        async listarChamadas(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
             const filtro = SchemaFiltrosChamada.parse(req.query);
             const { includes } = QueryIncludesChamada.parse(req.query);
@@ -23,7 +23,13 @@ export function fazerChamadaController(service: IChamadaService) {
             const chamada = await service.obterPorId(id, includesRelations);
             return res.status(200).json(montarRespostaSucesso('Chamada obtida com sucesso', chamada));
         },
-
+        async obterChamadaPorFiltro(req: Request, res: Response) {
+            const filtro = SchemaFiltrosChamada.parse(req.query);
+            const { includes } = QueryIncludesChamada.parse(req.query);
+            const includesRelations = transformarIncludesEmRelations(includes);
+            const chamada = await service.obterPorFiltro(filtro, includesRelations);
+            return res.status(200).json(montarRespostaSucesso('Chamada obtida com sucesso', chamada));
+        },
         async criarChamada(req: Request, res: Response) {
             const data = SchemaCriarChamada.parse(req.body)
             const chamada = await service.criar(data);

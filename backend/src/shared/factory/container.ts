@@ -39,8 +39,31 @@ import { fazerFrequenciaController } from "../../modules/frequencia/frequencia.c
 import { fazerEventoJogoRepo } from "../../modules/eventos_jogo/eventos_jogo.repo";
 import { fazerEventoJogoService } from "../../modules/eventos_jogo/eventos_jogo.service";
 import { fazerEventoJogoController } from "../../modules/eventos_jogo/eventos_jogo.controller";
+// Chamadas
+import { fazerChamadaRepo } from "../../modules/chamada/chamada.repo";
+import { fazerChamadaService } from "../../modules/chamada/chamada.service";
+import { fazerChamadaController } from "../../modules/chamada/chamada.controller";
+// Classificação
+import { fazerClassificacaoRepo } from "../../modules/classificacao/classificacao.repo";
+import { fazerClassificacaoService } from "../../modules/classificacao/classificacao.service";
+import { fazerClassificacaoController } from "../../modules/classificacao/classificacao.controller";
 
+// Competição
+import { fazerCompeticaoController } from "../../modules/competicao/competicao.controller";
+import {fazerCompeticaoService} from "../../modules/competicao/competicao.service";
+import {fazerCompeticaoRepo} from "../../modules/competicao/competicao.repo";
+
+//Material Núcleo
+import { fazerMaterialNucleoController } from "../../modules/materialNucleo/materialNucleo.controller";
+import { fazerMaterialNucleoService } from "../../modules/materialNucleo/materialNucleo.service";
+import { fazerMaterialNucleoRepo } from "../../modules/materialNucleo/materialNucleo.repo";
+
+//Time
+import { fazerTimeController } from "../../modules/time/time.controller";
+import { fazerTimeService } from "../../modules/time/time.service";
+import { fazerTimeRepo } from "../../modules/time/time.repo";
 // --- Instâncias ---
+
 
 const usuarioRepo = fazerUsuarioRepo(AppDataSource);
 const usuarioService = fazerUsuarioService(usuarioRepo);
@@ -73,3 +96,23 @@ export const frequenciaController = fazerFrequenciaController(frequenciaService)
 const eventoJogoRepo = fazerEventoJogoRepo(AppDataSource);
 const eventoJogoService = fazerEventoJogoService(eventoJogoRepo);
 export const eventoJogoController = fazerEventoJogoController(eventoJogoService);
+
+const chamadaRepo = fazerChamadaRepo(AppDataSource);
+const chamadaService = fazerChamadaService(chamadaRepo);
+export const chamadasController = fazerChamadaController(chamadaService);
+
+const classificacaoRepo = fazerClassificacaoRepo(AppDataSource);
+const classificacaoService = fazerClassificacaoService(classificacaoRepo);
+export const classificacaoController = fazerClassificacaoController(classificacaoService);
+
+const competicaoRepo = fazerCompeticaoRepo(AppDataSource);
+const competicaoService = fazerCompeticaoService(competicaoRepo);
+export const competicaoController = fazerCompeticaoController(competicaoService);
+
+const materialNucleoRepo = fazerMaterialNucleoRepo(AppDataSource);
+const materialNucleoService = fazerMaterialNucleoService(materialNucleoRepo);
+export const materialNucleoController = fazerMaterialNucleoController(materialNucleoService);
+
+const timeRepo = fazerTimeRepo(AppDataSource);
+const timeService = fazerTimeService(timeRepo);
+export const timeController = fazerTimeController(timeService);

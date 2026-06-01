@@ -4,7 +4,7 @@ import { Time } from '../time/time.model';
 
 
 @Entity({ name: "categorias" })
-@Index(['idadeMinima', 'idadeMaxima'])
+@Index(['idadeMaxima'])
 export class Categoria {
 
     @PrimaryGeneratedColumn()
