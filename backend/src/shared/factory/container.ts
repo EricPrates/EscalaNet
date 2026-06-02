@@ -63,6 +63,11 @@ import { fazerMaterialNucleoRepo } from "../../modules/material/material.repo";
 import { fazerTimeController } from "../../modules/time/time.controller";
 import { fazerTimeService } from "../../modules/time/time.service";
 import { fazerTimeRepo } from "../../modules/time/time.repo";
+
+//Postagem
+import { fazerPostagemController } from "../../modules/postagem/postagem.controller";
+import { fazerPostagemService } from "../../modules/postagem/postagem.service";
+import { fazerPostagemRepo } from "../../modules/postagem/postagem.repo";
 // --- Instâncias ---
 
 
@@ -117,3 +122,7 @@ export const materialNucleoController = fazerMaterialNucleoController(materialNu
 const timeRepo = fazerTimeRepo(AppDataSource);
 const timeService = fazerTimeService(timeRepo);
 export const timeController = fazerTimeController(timeService);
+
+const postagemRepo = fazerPostagemRepo(AppDataSource);
+const postagemService = fazerPostagemService(postagemRepo);
+export const postagemController = fazerPostagemController(postagemService);

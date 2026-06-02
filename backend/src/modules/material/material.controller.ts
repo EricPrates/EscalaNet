@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
-import {  IMaterialService } from "./material.interfaces";
+import { IMaterialService } from "./material.interfaces";
 import { QueryIncludesMaterial, SchemaAtualizarMaterial, SchemaBuscarPorIdMaterial, SchemaFiltrosMaterial, SchemaBaseMaterial } from "./material.schemas";
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
 
@@ -40,7 +40,7 @@ export function fazerMaterialNucleoController(service: IMaterialService) {
         async deletarMaterial(req: Request, res: Response) {
             const { id } = SchemaBuscarPorIdMaterial.parse(req.params);
             await service.deletar(id);
-            return res.status(204).send();
+            return res.status(204).json(montarRespostaSucesso('Material deletado com sucesso'));
         },
     };
 }

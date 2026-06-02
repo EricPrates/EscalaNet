@@ -4,13 +4,9 @@ import { IBaseRepository, IBaseService } from "../../shared/factory/BaseInterfac
 import { Nucleo } from "./Nucleo.model";
 
 
-export interface INucleoRepository extends IBaseRepository<Nucleo, CriarNucleoDTO, number> {
-    obterPorNome(nome: string): Promise<Nucleo | null>;
-   
-}
+export interface INucleoRepository extends IBaseRepository<Nucleo, CriarNucleoDTO> {
+    obterPorNome(nome: string): Promise<Nucleo | null>;}
 
-export interface INucleoService extends IBaseService<RespostaNucleoDTO,FiltrosNucleoDTO, CriarNucleoDTO, number> {
-    
-    obterPorNome(nome: string): Promise<RespostaNucleoDTO>;
-    
+export interface INucleoService extends IBaseService<RespostaNucleoDTO, FiltrosNucleoDTO, CriarNucleoDTO> {
+    obterPorNome(nome: string): Promise<RespostaNucleoDTO | null>;
 }

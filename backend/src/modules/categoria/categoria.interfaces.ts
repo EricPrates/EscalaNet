@@ -8,7 +8,7 @@ export interface ICategoriaRepository extends IBaseRepository<Categoria, CriarCa
     buscarPorIdadeMaxima(idadeMaxima: number): Promise<Categoria | null>;
 }
 
-export interface ICategoriaService extends IBaseService<RespostaCategoriaDTO, FiltrosCategoriaDTO, CriarCategoriaDTO, number> {
+export interface ICategoriaService extends IBaseService< RespostaCategoriaDTO, FiltrosCategoriaDTO, CriarCategoriaDTO, number> {
     obterPorNome(nome: string): Promise<RespostaCategoriaDTO>;
     buscarPorIdadeMaxima(idadeMaxima: number): Promise<RespostaCategoriaDTO | null>;
 }

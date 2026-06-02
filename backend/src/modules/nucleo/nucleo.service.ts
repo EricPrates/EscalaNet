@@ -3,7 +3,9 @@ import { AppError } from "../../shared/utils/AppError";
 import { getContext } from "../../shared/utils/authStorage";
 import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
 import { INucleoRepository, INucleoService } from "./nucleo.interfaces";
-import { RespostaNucleoDTO, SchemaNucleoResposta, CriarNucleoDTO } from './nucleo.schemas';
+import { Nucleo } from "./Nucleo.model";
+import { RespostaNucleoDTO, SchemaNucleoResposta, CriarNucleoDTO, FiltrosNucleoDTO } from './nucleo.schemas';
+import { FindOptionsRelations, FindOptionsWhere } from 'typeorm';
 
 export const fazerNucleoService = (nucleoRepo: INucleoRepository): INucleoService => {
 
@@ -24,12 +26,11 @@ export const fazerNucleoService = (nucleoRepo: INucleoRepository): INucleoServic
                 }
             });
         },
-        async obterPorFiltros(pagina: number, limite: number, where: any) {
-            const { data, total } = await nucleoRepo.obterPorFiltros(pagina, limite, where);
-            const dataValidada = SchemaNucleoResposta.array().parse(data);
+        async obterPorFiltros(pagina: number, limite: number, where: FindOptionsWhere<Nucleo>, relations: FindOptionsRelations<Nucleo>) {
+            const { data, total } = await nucleoRepo.obterPorFiltros(pagina, limite, where, relations);
             const totalPaginas = Math.ceil(total / limite);
             return SchemaRespostaPaginada(SchemaNucleoResposta).parse({
-                data: dataValidada,
+                data: data,
                 meta: { pagina, limite, total, totalPaginas },
             });
         },

@@ -6,6 +6,6 @@ import { CriarChamadaDTO, RespostaChamadaDTO, FiltrosChamadaDTO } from "./chamad
 export interface IChamadaRepository extends IBaseRepository<Chamada, CriarChamadaDTO> {
   obterPorData(data: Date, relations?: FindOptionsRelations<Chamada>): Promise<Chamada | null>;
 }
-export interface IChamadaService extends IBaseService<RespostaChamadaDTO, FiltrosChamadaDTO, CriarChamadaDTO, number> {
+export interface IChamadaService extends IBaseService< RespostaChamadaDTO, FiltrosChamadaDTO, CriarChamadaDTO, number> {
     obterPorData(filtro: Date, relations?: FindOptionsRelations<Chamada>): Promise<RespostaChamadaDTO>;
 }

@@ -15,8 +15,8 @@ export function fazerTimeService(timeRepo: ITimeRepository): ITimeService {
                 meta: montarPaginacao(pagina, limite, total),
             });
         },
-        async obterPorFiltros(pagina: number, limite: number, where: FiltrosTimeDTO, relations?: FindOptionsRelations<Time>) {
-            const { data, total } = await timeRepo.obterPorFiltros(pagina, limite, where as FindOptionsWhere<Time>, relations);
+        async obterPorFiltros(pagina: number, limite: number, where: FindOptionsWhere<Time>, relations?: FindOptionsRelations<Time>) {
+            const { data, total } = await timeRepo.obterPorFiltros(pagina, limite, where, relations);
             return SchemaRespostaPaginada(SchemaBaseTime).parse({
                 data,
                 meta: montarPaginacao(pagina, limite, total),

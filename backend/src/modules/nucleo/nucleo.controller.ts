@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
-import { CriarNucleoDTO, RespostaNucleoDTO, SchemaBaseNucleo, SchemaIdNUcleo, SchemaAtualizarNucleo } from "./nucleo.schemas";
+import { CriarNucleoDTO, RespostaNucleoDTO, SchemaBaseNucleo, SchemaIdNUcleo, SchemaAtualizarNucleo, SchemaFiltrosNucleo, QueryIncludesNucleo } from "./nucleo.schemas";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { IBaseService } from "../../shared/factory/BaseInterfaces";
+import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
 
 
 
@@ -10,10 +11,20 @@ export function fazerNucleoController(service: IBaseService<RespostaNucleoDTO, C
     return {
         async listarNucleos(req: Request, res: Response) {
             const {limite, pagina} = SchemaPaginacaoQuery.parse(req.query);
-            const { data, meta } = await service.listar(pagina, limite);
+            const filtros = SchemaFiltrosNucleo.parse(req.query);
+            const {includes} = QueryIncludesNucleo.parse(req.query);
+            const includesRelations = transformarIncludesEmRelations(includes);
+            const { data, meta } = await service.listar(pagina, limite, filtros, includesRelations);
             return res.status(200).json(montarRespostaPaginada('Núcleos listados com sucesso', data, meta));
         },
-
+        async obterNucleosPorFiltro(req: Request, res: Response) {
+            const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
+            const filtros = SchemaFiltrosNucleo.parse(req.query);
+            const {includes} = QueryIncludesNucleo.parse(req.query);
+            const includesRelations = transformarIncludesEmRelations(includes);
+            const { data, meta } = await service.obterPorFiltros(pagina, limite, filtros, includesRelations);
+            return res.status(200).json(montarRespostaPaginada('Núcleos listados com sucesso', data, meta));
+        },
         async obterNucleoPorId(req: Request, res: Response) {
             const { id } = SchemaIdNUcleo.parse(req.params);
             const nucleo = await service.obterPorId(id);

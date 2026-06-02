@@ -34,7 +34,7 @@ export class Nucleo {
     @OneToMany(() => Usuario, (usuario) => usuario.nucleoVinculado)
     usuariosVinculados!: Usuario[];
 
-    @ManyToOne(() => Nucleo, (nucleo) => nucleo.materiaisRecebidos)
+    @ManyToOne(() => Nucleo, (nucleo) => nucleo.materiais)
     @JoinColumn({ name: "nucleo_recebedor_id"})
-    materiaisRecebidos!: Nucleo; 
+    materiais!: Nucleo; 
 }
