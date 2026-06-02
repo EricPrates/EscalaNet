@@ -5,7 +5,7 @@ dotenv.config();
 
 
 export default function generateToken(payload: AuthContext): string {
-    return jsonwebtoken.sign(payload, process.env.JWT_SECRET || 'default_secret',
+    return jsonwebtoken.sign(payload, process.env.JWT_SECRET!,
         {
             expiresIn: '1h',
             algorithm: 'HS256'

@@ -7,7 +7,7 @@ export function fazerClassificacaoRepo(dataSource: DataSource): IClassificacaoRe
     const repo = dataSource.getRepository(Classificacao);
     return {
         async listar(pagina: number, limite: number, where?: FindOptionsWhere<Classificacao>, relations?: FindOptionsRelations<Classificacao>, select?: FindOptionsSelect<Classificacao>): Promise<{ data: Classificacao[]; total: number }> {
-             const skip = (pagina - 1) * limite;
+            const skip = (pagina - 1) * limite;
             const [data, total] = await repo.findAndCount({
                 relations,
                 select,
@@ -21,15 +21,26 @@ export function fazerClassificacaoRepo(dataSource: DataSource): IClassificacaoRe
         async obterPorId(id: number, relations?: FindOptionsRelations<Classificacao>): Promise<Classificacao | null> {
             return await repo.findOne({ where: { id }, relations }) || null;
         },
-        async obterPorFiltro(data: FindOptionsWhere<Classificacao>, relations?: FindOptionsRelations<Classificacao>): Promise<Classificacao | null> {
-            return await repo.findOne({ where: data, relations }) || null;
+        async obterPorFiltros(pagina: number, limite: number, where: FindOptionsWhere<Classificacao>, relations?: FindOptionsRelations<Classificacao>): Promise<{ data: Classificacao[]; total: number }> {
+            const skip = (pagina - 1) * limite;
+            const [data, total] = await repo.findAndCount({
+                relations,
+                where,
+                skip,
+                take: limite,
+                order: { id: 'ASC' }
+            });
+            return { data, total };
         },
         async criar(data: Partial<Classificacao>): Promise<Classificacao> {
             const classificacao = repo.create(data);
             return repo.save(classificacao);
         },
         async atualizar(id: number, data: Partial<Classificacao>): Promise<Classificacao | null> {
-            await repo.update({ id }, data);
+            const classificacao = await repo.findOne({ where: { id } });
+            if (!classificacao) return null;
+            repo.merge(classificacao, data as any);
+            await repo.save(classificacao);
             return this.obterPorId(id);
         },
         async deletar(id: number): Promise<boolean> {

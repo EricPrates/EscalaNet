@@ -11,8 +11,16 @@ import { FindOptionsRelations } from "typeorm";
 
 export function fazerEventoJogoService(eventoRepo: IEventoJogoRepository): IEventoJogoService {
     return {
+
         async listar(pagina: number, limite: number, where: FiltrosEventoJogoDTO, relations?: FindOptionsRelations<any>) {
             const { data, total } = await eventoRepo.listar(pagina, limite, where, relations);
+            return SchemaRespostaPaginada(SchemaEventoJogoRespostaDetalhada).parse({
+                data: data,
+                meta: montarPaginacao(pagina, limite, total),
+            });
+        },
+        async obterPorFiltros(pagina: number, limite: number, where: FiltrosEventoJogoDTO, relations?: FindOptionsRelations<any>) {
+            const { data, total } = await eventoRepo.obterPorFiltros(pagina, limite, where, relations);
             return SchemaRespostaPaginada(SchemaEventoJogoRespostaDetalhada).parse({
                 data: data,
                 meta: montarPaginacao(pagina, limite, total),

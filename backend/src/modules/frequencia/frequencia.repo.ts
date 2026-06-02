@@ -16,13 +16,23 @@ export function fazerFrequenciaRepo(dataSource: DataSource): IFrequenciaReposito
             });
             return { data, total };
         },
+        async obterPorFiltros(pagina: number, limite: number, where: FindOptionsWhere<Frequencia>, relations?: FindOptionsRelations<any>) {
+            const skip = (pagina - 1) * limite;
+            const [data, total] = await repo.findAndCount({
+                where,
+                relations,
+                skip,
+                take: limite,
+                order: { id: 'ASC' },
+            });
+            return { data, total };
+        },
 
         async listarPorJogador(pagina = 1, limite = 10, jogadorId: number) {
             const skip = (pagina - 1) * limite;
             const [data, total] = await repo.findAndCount({
                 where: { jogador: { id: jogadorId } },
                 skip, take: limite, order: { id: 'DESC' },
-                relations: ['jogador', 'treino', 'jogo'],
             });
             return { data, total };
         },
@@ -30,7 +40,7 @@ export function fazerFrequenciaRepo(dataSource: DataSource): IFrequenciaReposito
         async obterPorId(id: number) {
             return await repo.findOne({
                 where: { id },
-                relations: ['jogador', 'treino', 'jogo'],
+    
             }) || null;
         },
 

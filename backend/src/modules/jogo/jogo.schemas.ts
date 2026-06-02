@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
-import { SchemaRefCategoria, SchemaRefNucleo, SchemaRefUsuario } from '../../shared/utils/ref.schemas';
+import { SchemaRefCategoria, SchemaRefNucleo, SchemaRefUsuario, SchemaRefChamada, SchemaRefEvento } from '../../shared/utils/ref.schemas';
+import { FindOptionsWhere, ILike } from 'typeorm';
+import { Jogo } from './Jogo.model';
+import { criarIncludesSchema } from '../../shared/utils/query.schema';
 
 export const SchemaBaseJogo = z.object({
     nome: z.string().min(1, "O nome do jogo é obrigatório"),
@@ -9,8 +12,7 @@ export const SchemaBaseJogo = z.object({
     timeB: z.object({ id: z.number().int().positive() }),
     arbitro: z.object({ id: z.number().int().positive() }).nullable().optional(),
     categoria: z.object({ id: z.number().int().positive() }).nullable().optional(),
-    golsTimeA: z.number().int().nonnegative().default(0),
-    golsTimeB: z.number().int().nonnegative().default(0),
+
 });
 
 export const SchemaJogoResposta = z.object({
@@ -23,7 +25,31 @@ export const SchemaJogoResposta = z.object({
     categoria: SchemaRefCategoria.nullable().optional(),
     golsTimeA: z.number(),
     golsTimeB: z.number(),
+    chamada: SchemaRefChamada.optional(),
+    eventos: z.array(SchemaRefEvento).optional(),
+    evento: SchemaRefEvento.optional(),
 });
+export const SchemaFiltrosJogo = SchemaJogoResposta.partial().extend({
+    id: z.coerce.number().int().positive().optional(),
+}).transform(filtros => {
+    const where: FindOptionsWhere<Jogo> = {};
+
+    if (filtros.id) where.id = filtros.id;
+    if (filtros.nome) where.nome = ILike(`%${filtros.nome}%`);
+    if (filtros.timeA) where.timeA = { id: filtros.timeA.id };
+    if (filtros.timeB) where.timeB = { id: filtros.timeB.id };
+    if (filtros.arbitro) where.arbitro = { id: filtros.arbitro.id };
+    if (filtros.categoria) where.categoria = { id: filtros.categoria.id };
+    if (filtros.golsTimeA !== undefined) where.golsTimeA = filtros.golsTimeA;
+    if (filtros.golsTimeB !== undefined) where.golsTimeB = filtros.golsTimeB;
+    if (filtros.data) where.data = filtros.data;
+    if (filtros.chamada) where.chamadas = { id: filtros.chamada.id };
+    if(filtros.evento) where.eventos = { id: filtros.evento.id };
+    return where;
+});
+
+export const RELACOES_JOGO = ['timeA', 'timeB', 'arbitro', 'categoria'] as const;
+export const QueryIncludesJogo = criarIncludesSchema(RELACOES_JOGO);
 
 export const SchemaAtualizarJogo = SchemaBaseJogo.partial();
 export const SchemaJogosPaginados = SchemaRespostaPaginada(SchemaJogoResposta);

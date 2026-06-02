@@ -8,18 +8,20 @@ import { Material } from './Material';
 export const SchemaBaseMaterial = z.object({
     quantidade: z.coerce.number().int().nonnegative('A quantidade deve ser um número inteiro não negativo'),
     observacao: z.string().nullable().optional(),
-    tipoMaterial: z.string().max(255).nullable().optional(),
+    tipoMaterial: z.string().max(255).optional(),
     nucleo: z.object({
         id: z.coerce.number().int().positive('ID do núcleo é obrigatório'),
     }),
+    dataRecebimento: z.coerce.date({ message: "Data de recebimento deve ser uma data válida" }),
+    
 });
 
 export const SchemaMaterialResposta = z.object({
     id: z.coerce.number().int().positive(),
     quantidade: z.coerce.number().int().nonnegative(),
     dataRecebimento: z.coerce.date(),
-    observacao: z.string().nullable().optional(),
-    tipoMaterial: z.string().nullable().optional(),
+    observacao: z.string().optional(),
+    tipoMaterial: z.string().optional(),
     nucleo: SchemaRefNucleo,
     createdAt: z.coerce.date().optional(),
     updatedAt: z.coerce.date().optional(),

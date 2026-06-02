@@ -2,21 +2,28 @@ import { AppError } from "../../shared/utils/AppError";
 import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
 import { montarPaginacao } from "../../shared/utils/montarPaginacao";
 import { FindOptionsRelations, FindOptionsWhere } from "typeorm";
-import { IMaterialNucleoRepository, IMaterialNucleoService } from "./materialNucleo.interfaces";
+import { IMaterialRepository, IMaterialService } from "./material.interfaces";
+
 import { Material } from "./Material";
-import { AtualizarMaterialDTO, CriarMaterialDTO, FiltrosMaterialDTO, RespostaMaterialDTO, SchemaMaterialResposta } from "./materialNucleo.schemas";
+import { AtualizarMaterialDTO, CriarMaterialDTO, RespostaMaterialDTO, SchemaMaterialResposta } from "./material.schemas";
 
 
-export function fazerMaterialNucleoService(materialRepo: IMaterialNucleoRepository): IMaterialNucleoService {
+export function fazerMaterialNucleoService(materialRepo: IMaterialRepository): IMaterialService {
     return {
-        async listar(pagina: number, limite: number, where?: FiltrosMaterialDTO, relations?: FindOptionsRelations<Material>) {
-            const { data, total } = await materialRepo.listar(pagina, limite, where as FindOptionsWhere<Material> | undefined, relations);
+        async listar(pagina: number, limite: number, where?: FindOptionsWhere<Material>, relations?: FindOptionsRelations<Material>) {
+            const { data, total } = await materialRepo.listar(pagina, limite, where, relations);
             return SchemaRespostaPaginada(SchemaMaterialResposta).parse({
                 data: data,
                 meta: montarPaginacao(pagina, limite, total),
             });
         },
-
+        async obterPorFiltros(pagina: number, limite: number, where: FindOptionsWhere<Material>, relations?: FindOptionsRelations<Material>) {
+            const { data, total } = await materialRepo.obterPorFiltros(pagina, limite, where, relations);
+            return SchemaRespostaPaginada(SchemaMaterialResposta).parse({
+                data: data,
+                meta: montarPaginacao(pagina, limite, total),
+            });
+        },
         async obterPorId(id: number, relations?: FindOptionsRelations<Material>): Promise<RespostaMaterialDTO> {
             const material = await materialRepo.obterPorId(id, relations);
             if (!material) throw new AppError(404, 'Material não encontrado');

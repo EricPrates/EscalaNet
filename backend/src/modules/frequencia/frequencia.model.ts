@@ -1,7 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Index, OneToOne } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { Jogador } from '../jogador/jogador.model';
 import { Chamada } from '../chamada/chamada.model';
-import { Treino } from '../treino/Treino.model';
 
 @Entity({ name: "frequencia" })
 export class Frequencia {
@@ -22,6 +21,4 @@ export class Frequencia {
     @ManyToOne(() => Chamada, (chamada) => chamada.frequencias)
     chamada!: Chamada;
 
-    @OneToOne(() => Treino, (treino) => treino.frequencias)
-    treino!: Treino[];
 }

@@ -43,7 +43,7 @@ export function fazerEventoJogoController(service: IEventoJogoService) {
         async deletarEvento(req: Request, res: Response) {
             const { id } = SchemaBuscarPorIdCategoria.parse(req.params);
             await service.deletar(id);
-            return res.status(204).send();
+            return res.status(204).json(montarRespostaSucesso('Evento deletado com sucesso'));
         },
     };
 }

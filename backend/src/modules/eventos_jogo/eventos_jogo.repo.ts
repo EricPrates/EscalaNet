@@ -20,7 +20,17 @@ export function fazerEventoJogoRepo(dataSource: DataSource): IEventoJogoReposito
             return { data, total };
         },
 
-
+        async listarPorFiltros(pagina = 1, limite = 10, filtro: FindOptionsWhere<EventosJogo>, relations?: FindOptionsRelations<EventosJogo>, select?: FindOptionsSelect<EventosJogo>) {
+            const skip = (pagina - 1) * limite;
+            const [data, total] = await repo.findAndCount({
+                where: filtro,
+                relations,
+                select,
+                skip,
+                take: limite,
+            });
+            return { data, total };
+        },
         async obterPorId(id: number, relations?: FindOptionsRelations<EventosJogo>, select?: FindOptionsSelect<EventosJogo>) {
             return await repo.findOne({
                 where: { id },

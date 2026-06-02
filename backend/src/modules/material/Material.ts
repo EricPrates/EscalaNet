@@ -21,13 +21,13 @@ export class Material {
     dataRecebimento!: Date; 
 
     @Column({ type: "text", nullable: true })
-    observacao?: string;
+    observacao?: string | null;
 
     @Column({ type: "varchar", length: 255, nullable: true })
     tipoMaterial?: string;
     
     @CreateDateColumn({ name: "created_at" })
-        createdAt!: Date;
+    createdAt!: Date;
     
     @UpdateDateColumn({ name: "updated_at" })
     updatedAt!: Date;

@@ -12,8 +12,14 @@ export const SchemaBaseTime = z.object({
     treinadorId: z.coerce.number().int().positive().optional(),
 });
 
-export const SchemaCriarTime = SchemaBaseTime.omit({ id: true });
-export const SchemaAtualizarTime = SchemaCriarTime.partial();
+export const SchemaCriarTime = z.object({
+    nome: z.string().min(1, 'O nome do time é obrigatório'),
+    nucleoId: z.coerce.number().int().positive().optional(),
+    categoriaId: z.coerce.number().int().positive().optional(),
+    treinadorId: z.coerce.number().int().positive().optional(),
+});
+
+export const SchemaAtualizarTime = SchemaBaseTime.partial();
 
 export const SchemaBuscarPorIdTime = z.object({
     id: z.coerce.number().int().positive('ID do time deve ser um número inteiro positivo'),

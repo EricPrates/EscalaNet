@@ -54,9 +54,10 @@ import {fazerCompeticaoService} from "../../modules/competicao/competicao.servic
 import {fazerCompeticaoRepo} from "../../modules/competicao/competicao.repo";
 
 //Material Núcleo
-import { fazerMaterialNucleoController } from "../../modules/materialNucleo/materialNucleo.controller";
-import { fazerMaterialNucleoService } from "../../modules/materialNucleo/materialNucleo.service";
-import { fazerMaterialNucleoRepo } from "../../modules/materialNucleo/materialNucleo.repo";
+import { fazerMaterialNucleoController } from "../../modules/material/material.controller";
+import { fazerMaterialNucleoService } from "../../modules/material/material.service";
+import { fazerMaterialNucleoRepo } from "../../modules/material/material.repo";
+
 
 //Time
 import { fazerTimeController } from "../../modules/time/time.controller";

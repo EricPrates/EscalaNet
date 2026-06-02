@@ -24,6 +24,15 @@ export const fazerNucleoService = (nucleoRepo: INucleoRepository): INucleoServic
                 }
             });
         },
+        async obterPorFiltros(pagina: number, limite: number, where: any) {
+            const { data, total } = await nucleoRepo.obterPorFiltros(pagina, limite, where);
+            const dataValidada = SchemaNucleoResposta.array().parse(data);
+            const totalPaginas = Math.ceil(total / limite);
+            return SchemaRespostaPaginada(SchemaNucleoResposta).parse({
+                data: dataValidada,
+                meta: { pagina, limite, total, totalPaginas },
+            });
+        },
         //só admin pode obter nucleo por nome
         async obterPorNome(nome: string): Promise<RespostaNucleoDTO> {
 

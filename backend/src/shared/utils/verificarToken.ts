@@ -10,13 +10,13 @@ const SchemaAuthContext = z.object({
     id: z.number().int().positive(),
     nome: z.string().min(1),
     email: z.email(),
-    permissao: z.enum(['coordenador', 'admin', 'professor', 'arbitro', 'auxiliar']),
+    permissao: z.enum(['admin', 'professor', 'arbitro', 'auxiliar']),
     nucleoVinculadoId: z.number().int().positive().nullable().optional(),
 });
 
 export function verificarToken (token: string): AuthContext {
     try {
-        const decoded = jsonwebtoken.verify(token, process.env.JWT_SECRET || 'default_secret');
+        const decoded = jsonwebtoken.verify(token, process.env.JWT_SECRET!);
         return SchemaAuthContext.parse(decoded);
     } catch (error) {
         if (error instanceof jsonwebtoken.TokenExpiredError) {

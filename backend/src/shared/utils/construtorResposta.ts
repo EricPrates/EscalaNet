@@ -26,7 +26,7 @@ export const montarRespostaSucesso = (message: string, data?: any, token?: strin
 }
 
 export const montarRespostaPaginada = <T>(
-    message: string,
+    message: string | 'Sucesso na requisição',
     data: T[],
     meta: { total: number; totalPaginas: number; pagina: number; limite: number }
 ): MontarRespostaPaginada<T> => {

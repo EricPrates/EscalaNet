@@ -56,7 +56,7 @@ export function fazerJogadorController(service: IJogadorService) {
         async deletarJogador(req: Request, res: Response) {
             const { id } = SchemaBuscarPorIdJogador.parse(req.params);
             await service.deletar(Number(id));
-            return res.status(204).send();
+            return res.status(204).json(montarRespostaSucesso('Jogador deletado com sucesso'));
         },
     };
 }

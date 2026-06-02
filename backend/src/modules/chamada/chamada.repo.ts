@@ -24,8 +24,16 @@ export function fazerChamadaRepo(dataSource: DataSource): IChamadaRepository {
             return await repo.findOne({ where: { id }, relations }) || null;
         },
 
-        async obterPorFiltro(data: FindOptionsWhere<Chamada>, relations?: FindOptionsRelations<Chamada>) {
-            return await repo.findOne({ where: data, relations }) || null;
+        async obterPorFiltros( pagina: number, limite: number, filtro: FindOptionsWhere<Chamada>, relations?: FindOptionsRelations<Chamada>) {
+            const skip = (pagina - 1) * limite;
+            const [data, total] = await repo.findAndCount({
+                relations,
+                where: filtro,
+                skip,
+                take: limite,
+                order: { id: 'ASC' }
+            });
+            return { data, total };
         },
 
         async criar(data: CriarChamadaDTO) {
@@ -34,7 +42,10 @@ export function fazerChamadaRepo(dataSource: DataSource): IChamadaRepository {
         },
 
         async atualizar(id: number, data: Partial<CriarChamadaDTO>) {
-            await repo.update({ id }, data);
+            const chamada = await repo.findOne({ where: { id } });
+            if (!chamada) return null;
+            repo.merge(chamada, data as any);
+            await repo.save(chamada);
             return this.obterPorId(id);
         },
 
@@ -42,5 +53,8 @@ export function fazerChamadaRepo(dataSource: DataSource): IChamadaRepository {
             const result = await repo.delete({ id });
             return (result.affected ?? 0) > 0;
         },
+        async obterPorData(data: Date, relations?: FindOptionsRelations<Chamada>) {
+            return await repo.findOne({ where: { data }, relations }) || null;  
+         },
     };
 }

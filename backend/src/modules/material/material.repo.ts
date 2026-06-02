@@ -1,13 +1,25 @@
 import { DataSource, FindOptionsRelations, FindOptionsSelect, FindOptionsWhere } from "typeorm";
 import { Material } from "./Material";
-import { CriarMaterialDTO } from "./materialNucleo.schemas";
-import { IMaterialNucleoRepository } from "./materialNucleo.interfaces";
+import { CriarMaterialDTO, AtualizarMaterialDTO } from './material.schemas';
+import {IMaterialRepository } from "./material.interfaces";
 
-export function fazerMaterialNucleoRepo(dataSource: DataSource): IMaterialNucleoRepository {
+export function fazerMaterialNucleoRepo(dataSource: DataSource): IMaterialRepository {
     const repo = dataSource.getRepository(Material);
 
     return {
         async listar(pagina: number, limite: number, where?: FindOptionsWhere<Material>, relations?: FindOptionsRelations<Material>, select?: FindOptionsSelect<Material>) {
+            const skip = (pagina - 1) * limite;
+            const [data, total] = await repo.findAndCount({
+                where,
+                relations,
+                select,
+                skip,
+                take: limite,
+                order: { dataRecebimento: 'DESC' },
+            });
+            return { data, total };
+        },
+        async obterPorFiltros(pagina: number, limite: number, where: FindOptionsWhere<Material>, relations?: FindOptionsRelations<Material>, select?: FindOptionsSelect<Material>) {
             const skip = (pagina - 1) * limite;
             const [data, total] = await repo.findAndCount({
                 where,
@@ -28,12 +40,12 @@ export function fazerMaterialNucleoRepo(dataSource: DataSource): IMaterialNucleo
             }) || null;
         },
 
-        async criar(data: CriarMaterialDTO) {
-            const material = repo.create(data);
-            return repo.save(material);
+        async criar(data: CriarMaterialDTO): Promise<Material> {
+            const jogo = repo.create(data);
+            return repo.save(jogo);
         },
 
-        async atualizar(id: number, data: Partial<CriarMaterialDTO>) {
+        async atualizar(id: number, data: AtualizarMaterialDTO): Promise<Material | null> {
             const material = await repo.findOne({ where: { id } });
             if (!material) return null;
             repo.merge(material, data);
@@ -41,7 +53,7 @@ export function fazerMaterialNucleoRepo(dataSource: DataSource): IMaterialNucleo
             return this.obterPorId(id);
         },
 
-        async deletar(id: number) {
+        async deletar(id: number): Promise<boolean> {
             const result = await repo.delete({ id });
             return (result.affected ?? 0) > 0;
         },

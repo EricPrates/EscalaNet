@@ -27,15 +27,8 @@ export function fazerClassificacaoService(classificacaoRepo: IClassificacaoRepos
             if (!classificacao) throw new AppError(404, 'Classificação não encontrada');
             return SchemaBaseClassificacao.parse(classificacao);
         },
-        async obterPorFiltro(filtro: FindOptionsWhere<Classificacao>, relations?: FindOptionsRelations<Classificacao>): Promise<RespostaClassificacaoDTO> {
-            const classificacao = await classificacaoRepo.obterPorFiltro(filtro, relations);
-            if (!classificacao) throw new AppError(404, 'Classificação não encontrada');
-            return SchemaBaseClassificacao.parse(classificacao);
-        },
-
+        
         async criar(data: CriarClassificacaoDTO): Promise<RespostaClassificacaoDTO> {
-            const existente = await this.obterPorFiltro(data );
-            if (existente) throw new AppError(409, 'Classificação já cadastrada');
             const classificacao = await classificacaoRepo.criar(data);
             return SchemaBaseClassificacao.parse(classificacao);
         },
@@ -51,6 +44,13 @@ export function fazerClassificacaoService(classificacaoRepo: IClassificacaoRepos
             if (!deletado) throw new AppError(404, 'Classificação não encontrada');
             return deletado;
         },
+        async obterPorFiltros(pagina: number, limite: number, where: FindOptionsWhere<Classificacao>, relations?: FindOptionsRelations<Classificacao>): Promise<{ data: RespostaClassificacaoDTO[]; meta: { total: number; totalPaginas: number; pagina: number; limite: number } }> {
+            const { data, total } = await classificacaoRepo.obterPorFiltros(pagina, limite, where, relations);
+            return SchemaRespostaPaginada(SchemaBaseClassificacao).parse({
+                data: data,
+                meta: montarPaginacao(pagina, limite, total),
+            });
+        }
        
     };
 }

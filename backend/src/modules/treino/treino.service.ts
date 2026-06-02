@@ -4,16 +4,17 @@ import { getContext } from "../../shared/utils/authStorage";
 import { ITreinoRepository, ITreinoService } from "./treino.interfaces";
 import { CriarTreinoDTO, RespostaTreinoDTO, SchemaTreinoResposta } from "./treino.schemas";
 
-function mapearTreino(treino: any): RespostaTreinoDTO {
-    return SchemaTreinoResposta.parse({
-        id: treino.id,
-        data: treino.data,
-        nucleo: treino.nucleo ? { id: treino.nucleo.id, nome: treino.nucleo.nome } : undefined,
-    });
-}
 
 export function fazerTreinoService(treinoRepo: ITreinoRepository): ITreinoService {
     return {
+        async listarPorNucleo(pagina: number, limite: number, nucleoId: number) {
+            const { data, total } = await treinoRepo.listarPorNucleo(pagina, limite, nucleoId);
+            const totalPaginas = Math.ceil(total / limite);
+            return SchemaRespostaPaginada(SchemaTreinoResposta).parse({
+                data: data,
+                meta: { pagina, limite, total, totalPaginas },
+            });
+        },
         async listar(pagina: number, limite: number) {
             const ctx = getContext();
             if (ctx?.permissao !== 'admin' && ctx?.nucleoVinculadoId) {
@@ -22,16 +23,19 @@ export function fazerTreinoService(treinoRepo: ITreinoRepository): ITreinoServic
             const { data, total } = await treinoRepo.listar(pagina, limite);
             const totalPaginas = Math.ceil(total / limite);
             return SchemaRespostaPaginada(SchemaTreinoResposta).parse({
-                data: data.map(mapearTreino),
+                data: data,
                 meta: { pagina, limite, total, totalPaginas },
             });
         },
-
-        async listarPorNucleo(pagina: number, limite: number, nucleoId: number) {
-            const { data, total } = await treinoRepo.listarPorNucleo(pagina, limite, nucleoId);
+        async obterPorFiltros(pagina: number, limite: number, where: any) {
+            const ctx = getContext();
+            if (ctx?.permissao !== 'admin' && ctx?.nucleoVinculadoId) {
+                return this.listarPorNucleo(pagina, limite, ctx.nucleoVinculadoId);
+            }
+            const { data, total } = await treinoRepo.obterPorFiltros(pagina, limite, where);
             const totalPaginas = Math.ceil(total / limite);
             return SchemaRespostaPaginada(SchemaTreinoResposta).parse({
-                data: data.map(mapearTreino),
+                data: data,
                 meta: { pagina, limite, total, totalPaginas },
             });
         },
@@ -39,18 +43,18 @@ export function fazerTreinoService(treinoRepo: ITreinoRepository): ITreinoServic
         async obterPorId(id: number): Promise<RespostaTreinoDTO> {
             const treino = await treinoRepo.obterPorId(id);
             if (!treino) throw new AppError(404, 'Treino não encontrado');
-            return mapearTreino(treino);
+            return SchemaTreinoResposta.parse(treino);
         },
 
         async criar(data: CriarTreinoDTO): Promise<RespostaTreinoDTO> {
             const treino = await treinoRepo.criar(data);
-            return mapearTreino(treino);
+            return SchemaTreinoResposta.parse(treino);
         },
 
-        async atualizar(id: number, data: Partial<CriarTreinoDTO>): Promise<RespostaTreinoDTO> {
+        async atualizar(id: number, data: CriarTreinoDTO): Promise<RespostaTreinoDTO> {
             const treino = await treinoRepo.atualizar(id, data);
             if (!treino) throw new AppError(404, 'Treino não encontrado');
-            return mapearTreino(treino);
+            return SchemaTreinoResposta.parse(treino);
         },
 
         async deletar(id: number): Promise<boolean> {

@@ -38,5 +38,12 @@ export function fazerCompeticaoService(competicaoRepo: ICompeticaoRepository): I
             if (!deletado) throw new AppError(404, 'Competição não encontrada');
             return deletado;
         },
+        async obterPorFiltros(pagina: number, limite: number, where: FiltrosCompeticaoDTO, relations?: FindOptionsRelations<Competicao>): Promise<{ data: RespostaCompeticaoDTO[]; meta: { total: number; totalPaginas: number; pagina: number; limite: number } }> {
+            const { data, total } = await competicaoRepo.obterPorFiltros(pagina, limite, where as FindOptionsWhere<Competicao>, relations);
+            return SchemaRespostaPaginada(SchemaBaseCompeticao).parse({
+                data: data,
+                meta: montarPaginacao(pagina, limite, total),
+            });
+        }
     };
 }

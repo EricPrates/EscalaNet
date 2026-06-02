@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
+import { montarRespostaPaginada,  montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { IChamadaService } from "./chamada.interfaces";
-import { SchemaCriarChamada, SchemaFiltrosChamada, SchemaBuscarPorIdChamada, SchemaAtualizarChamada, QueryIncludesChamada } from './chamada.schemas';
+import { SchemaCriarChamada, SchemaFiltrosChamada, SchemaBuscarPorIdChamada, SchemaAtualizarChamada, QueryIncludesChamada, SchemaChamadaData } from './chamada.schemas';
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
 
 export function fazerChamadaController(service: IChamadaService) {
@@ -25,10 +25,11 @@ export function fazerChamadaController(service: IChamadaService) {
         },
         async obterChamadaPorFiltro(req: Request, res: Response) {
             const filtro = SchemaFiltrosChamada.parse(req.query);
+            const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
             const { includes } = QueryIncludesChamada.parse(req.query);
             const includesRelations = transformarIncludesEmRelations(includes);
-            const chamada = await service.obterPorFiltro(filtro, includesRelations);
-            return res.status(200).json(montarRespostaSucesso('Chamada obtida com sucesso', chamada));
+            const { data, meta } = await service.obterPorFiltros(pagina, limite, filtro, includesRelations);
+            return res.status(200).json(montarRespostaPaginada('Chamadas listadas com sucesso', data, meta));
         },
         async criarChamada(req: Request, res: Response) {
             const data = SchemaCriarChamada.parse(req.body)
@@ -43,15 +44,16 @@ export function fazerChamadaController(service: IChamadaService) {
             return res.status(200).json(montarRespostaSucesso('Chamada atualizada com sucesso', chamada));
         },
         async obterChamadaPorData(req: Request, res: Response) {
-            const filtro = SchemaFiltrosChamada.parse(req.query);
-            const chamada = await service.obterPorData( filtro );
+            const data = SchemaChamadaData.parse(req.query);
+            const chamada = await service.obterPorData( data);
             return res.status(200).json(montarRespostaSucesso('Chamada obtida com sucesso', chamada));
         },
         
         async deletarChamada(req: Request, res: Response) {
             const { id } = SchemaBuscarPorIdChamada.parse(req.params);
             await service.deletar(id);
-            return res.status(204).send();
+            return res.status(204).json(montarRespostaSucesso('Chamada deletada com sucesso'));
         },
+    
     };
 }

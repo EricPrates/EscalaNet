@@ -1,9 +1,10 @@
 import { IUsuarioService } from "./usuario.interfaces";
 import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
-import {  AtualizarUsuarioDTO, CriarUsuarioDTO, LoginUsuarioDTO, SchemaBaseUsuario, SchemaLoginUsuario, SchemaAtualizarUsuario, SchemaBuscarPorIdUsuario } from "./usuario.schemas";
+import {  SchemaBaseUsuario, SchemaLoginUsuario, SchemaAtualizarUsuario, SchemaBuscarPorIdUsuario, QueryIncludesUsuario, SchemaFiltrosUsuario } from "./usuario.schemas";
 import gerarToken from "../../shared/utils/gerarToken";
 import { SchemaPaginacaoQuery } from '../../shared/utils/listas.schema';
+import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
 
 
 
@@ -11,12 +12,17 @@ export function fazerUsuarioController(service: IUsuarioService) {
     return {
         async listarUsuarios(req: Request, res: Response) {
             const {limite, pagina} = SchemaPaginacaoQuery.parse(req.query);
-            const { data, meta } = await service.listar(pagina, limite);
+            const {includes} = QueryIncludesUsuario.parse(req.query);
+            const filtros = SchemaFiltrosUsuario.parse(req.query);
+            const includesRelations = transformarIncludesEmRelations(includes);
+            const { data, meta } = await service.listar(pagina, limite, filtros, includesRelations);
             return res.status(200).json(montarRespostaPaginada('Usuários listados com sucesso', data, meta));
         },
         async listarPornucleoVinculado (req: Request, res: Response) {
             const {limite, pagina} = SchemaPaginacaoQuery.parse(req.query);
-            const { data, meta } = await service.listarPornucleoVinculado(pagina, limite);
+            const {includes} = QueryIncludesUsuario.parse(req.query);
+            const includesRelations = transformarIncludesEmRelations(includes);
+            const { data, meta } = await service.listarPornucleoVinculado(pagina, limite, includesRelations);
             return res.status(200).json(montarRespostaPaginada('Usuários listados com sucesso', data, meta));
         },
         async obterUsuarioPorId(req: Request, res: Response) {
@@ -50,7 +56,15 @@ export function fazerUsuarioController(service: IUsuarioService) {
         async deletarUsuario(req: Request, res: Response) {
             const { id } = SchemaBuscarPorIdUsuario.parse(req.params);
             await service.deletar(id);
-            return res.status(204).send();
-         }
+            return res.status(204).json(montarRespostaSucesso('Usuário deletado com sucesso'));
+         },
+         obterPorFiltros: async (req: Request, res: Response) => {
+            const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
+            const { includes } = QueryIncludesUsuario.parse(req.query);
+            const filtros = SchemaFiltrosUsuario.parse(req.query);
+            const includesRelations = transformarIncludesEmRelations(includes);
+            const usuario = await service.obterPorFiltros(pagina, limite, filtros, includesRelations);
+            return res.status(200).json(montarRespostaSucesso('Usuário obtido com sucesso', usuario));
+        }
     }
 }

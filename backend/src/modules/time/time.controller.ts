@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { ITimeService } from "./time.interfaces";
-import { QueryIncludesTime, SchemaAtualizarTime, SchemaBuscarPorIdTime, SchemaCriarTime, SchemaFiltrosTime } from './time.schemas';
+import { QueryIncludesTime, SchemaAtualizarTime,  SchemaBuscarPorIdTime, SchemaCriarTime, SchemaFiltrosTime } from './time.schemas';
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
 
 export function fazerTimeController(service: ITimeService) {
@@ -40,7 +40,7 @@ export function fazerTimeController(service: ITimeService) {
         async deletarTime(req: Request, res: Response) {
             const { id } = SchemaBuscarPorIdTime.parse(req.params);
             await service.deletar(id);
-            return res.status(204).send();
+            return res.status(204).json(montarRespostaSucesso('Time deletado com sucesso'));
         },
     };
 }

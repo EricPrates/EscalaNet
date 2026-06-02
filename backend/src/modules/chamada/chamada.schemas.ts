@@ -30,11 +30,11 @@ export const SchemaFiltrosChamada = z.object({
     treinoId: z.coerce.number().int().positive({ message: "ID do treino deve ser um número inteiro positivo" }).optional(),
 }).transform(filtros => {
     const where: FindOptionsWhere<Chamada> = {};
-
     if (filtros.data) where.data = filtros.data;
 
     return where;
 });
+export const SchemaChamadaData = z.coerce.date({ message: "Data deve ser uma data válida" })
 
 
 export const SchemaBuscarPorIdChamada = z.object({

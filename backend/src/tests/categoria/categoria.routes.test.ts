@@ -1,5 +1,5 @@
 // src/modules/categoria/__tests__/categoria.service.test.ts
-import { fazerCategoriaService } from '../modules/categoria/categoria.service';  // ← caminho corrigido
+import { fazerCategoriaService } from '../../modules/categoria/categoria.service';  // ← caminho corrigido
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
 describe('CategoriaService', () => {

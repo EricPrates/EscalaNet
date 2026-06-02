@@ -3,7 +3,7 @@ import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
 import { montarPaginacao } from "../../shared/utils/montarPaginacao";
 import { ITimeRepository, ITimeService } from "./time.interfaces";
 import { Time } from "./time.model";
-import { CriarTimeDTO, RespostaTimeDTO, SchemaBaseTime, AtualizarTimeDTO, FiltrosTimeDTO } from "./time.schemas";
+import { CriarTimeDTO, SchemaBaseTime, AtualizarTimeDTO, FiltrosTimeDTO } from "./time.schemas";
 import { FindOptionsRelations, FindOptionsWhere } from "typeorm";
 
 export function fazerTimeService(timeRepo: ITimeRepository): ITimeService {
@@ -15,7 +15,13 @@ export function fazerTimeService(timeRepo: ITimeRepository): ITimeService {
                 meta: montarPaginacao(pagina, limite, total),
             });
         },
-
+        async obterPorFiltros(pagina: number, limite: number, where: FiltrosTimeDTO, relations?: FindOptionsRelations<Time>) {
+            const { data, total } = await timeRepo.obterPorFiltros(pagina, limite, where as FindOptionsWhere<Time>, relations);
+            return SchemaRespostaPaginada(SchemaBaseTime).parse({
+                data,
+                meta: montarPaginacao(pagina, limite, total),
+            });
+        },
         async obterPorId(id: number, relations?: FindOptionsRelations<Time>) {
             const time = await timeRepo.obterPorId(id, relations);
             if (!time) throw new AppError(404, 'Time não encontrado');

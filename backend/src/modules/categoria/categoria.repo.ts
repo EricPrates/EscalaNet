@@ -18,15 +18,15 @@ export function fazerCategoriaRepo(dataSource: DataSource): ICategoriaRepository
             });
             return { data, total };
         },
-        async buscarPorIdadeMaxima(idadeMaxima: number) {
-            return await repo.findOne({ where: { idadeMaxima } }) || null;
+        async buscarPorIdadeMaxima(idadeMaxima: number, relations?: FindOptionsRelations<Categoria>) {
+            return await repo.findOne({ where: { idadeMaxima }, relations }) || null;
         },
-        async obterPorId(id: number) {
-            return await repo.findOne({ where: { id }}) || null;
+        async obterPorId(id: number, relations?: FindOptionsRelations<Categoria>) {
+            return await repo.findOne({ where: { id }, relations }) || null;
         },
 
-        async obterPorNome(nome: string) {
-            return await repo.findOne({ where: { nome }}) || null;
+        async obterPorNome(nome: string, relations?: FindOptionsRelations<Categoria>) {
+            return await repo.findOne({ where: { nome }, relations }) || null;
         },
 
         async criar(data: CriarCategoriaDTO) {
@@ -35,7 +35,10 @@ export function fazerCategoriaRepo(dataSource: DataSource): ICategoriaRepository
         },
 
         async atualizar(id: number, data: Partial<CriarCategoriaDTO>) {
-            await repo.update({ id }, data);
+            const categoria = await repo.findOne({ where: { id } });
+            if (!categoria) return null;
+            repo.merge(categoria, data as any);
+            await repo.save(categoria);
             return this.obterPorId(id);
         },
 
@@ -43,5 +46,16 @@ export function fazerCategoriaRepo(dataSource: DataSource): ICategoriaRepository
             const result = await repo.delete({ id });
             return (result.affected ?? 0) > 0;
         },
-    };
-}
+        async obterPorFiltros(pagina: number = 1, limite: number = 10, where: FindOptionsWhere<Categoria>, relations?: FindOptionsRelations<Categoria>) {
+            const skip = (pagina - 1) * limite;
+            const [data, total] = await repo.findAndCount({
+                where,
+                relations,
+                skip,
+                take: limite,
+                order: { id: 'ASC' }
+            });
+            return { data, total };
+        },
+    }
+};

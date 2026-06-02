@@ -1,4 +1,4 @@
-
+import {z} from 'zod';
 export interface MontarResposta {
     status: number;
     message: string;
@@ -25,7 +25,7 @@ export interface AuthContext {
     id: number;
     nome: string;
     email: string;
-    permissao: 'coordenador' | 'admin' | 'professor' | 'arbitro' | 'auxiliar';
+    permissao: 'admin' | 'professor' | 'arbitro' | 'auxiliar';
     nucleoVinculadoId?: number | null;
 
 }
@@ -47,3 +47,6 @@ export const HTTP_STATUS_ERRORS: { [key: number]: string } = {
     504: 'Gateway timeout',
 
 } ;
+
+export const SchemaId = z.coerce.number().int().positive({ message: "ID deve ser um número inteiro positivo" });
+ 

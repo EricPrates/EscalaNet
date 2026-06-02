@@ -38,10 +38,11 @@ export function fazerClassificacaoController(service: IClassificacaoService) {
             return res.status(200).json(montarRespostaSucesso('Classificação obtida com sucesso', classificacao));
         },
         async obterClassificacaoPorFiltro(req: Request, res: Response) {
+            const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
             const filtro = SchemaFiltrosClassificacao.parse(req.query);
             const { includes } = QueryIncludesClassificacao.parse(req.query);
             const includesRelations = transformarIncludesEmRelations(includes);
-            const classificacao = await service.obterPorFiltro(filtro, includesRelations);
+            const classificacao = await service.obterPorFiltros(pagina, limite, filtro, includesRelations);
             return res.status(200).json(montarRespostaSucesso('Classificação obtida com sucesso', classificacao));
         },
         async criarClassificacao(req: Request, res: Response) {
@@ -61,7 +62,7 @@ export function fazerClassificacaoController(service: IClassificacaoService) {
         async deletarClassificacao(req: Request, res: Response) {
             const { id } = SchemaBuscarPorIdClassificacao.parse(req.params);
             await service.deletar(id);
-            return res.status(204).send();
+            return res.status(204).json(montarRespostaSucesso('Classificação deletada com sucesso'));
         },
     };
 

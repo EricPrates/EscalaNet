@@ -16,6 +16,13 @@ export function fazerFrequenciaService(frequenciaRepo: IFrequenciaRepository): I
                 meta: montarPaginacao(pagina, limite, total),
             });
         },
+        async obterPorFiltros(pagina: number, limite: number, where: FiltrosFrequenciaDTO, relations?: FindOptionsRelations<RespostaFrequenciaDTO>) {
+            const { data, total } = await frequenciaRepo.obterPorFiltros(pagina, limite, where, relations);
+            return SchemaRespostaPaginada(SchemaFrequenciaResposta).parse({
+                data: data,
+                meta: montarPaginacao(pagina, limite, total),
+            });
+        },
         async listarPorJogador(pagina: number, limite: number, jogadorId: number) {
             const { data, total } = await frequenciaRepo.listarPorJogador(pagina, limite, jogadorId);
             return SchemaRespostaPaginada(SchemaFrequenciaResposta).parse({

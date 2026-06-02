@@ -7,6 +7,5 @@ export interface IJogoRepository extends IBaseRepository<Jogo, CriarJogoDTO> {
 
 }
 
-export interface IJogoService extends IBaseService<RespostaJogoDTO, FiltrosJogadorDTO, CriarJogoDTO, number> {
-	
+export interface IJogoService extends IBaseService<RespostaJogoDTO, FiltrosJogadorDTO, CriarJogoDTO> {
 }

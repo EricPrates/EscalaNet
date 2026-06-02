@@ -32,7 +32,6 @@ export const SchemaFiltroFrequencia = z.object({
     
     if (filtros.presente !== undefined) where.presente = filtros.presente;
     if (filtros.jogadorId) where.jogador = { id: filtros.jogadorId };
-    if (filtros.jogadorId) where.jogador = { id: filtros.jogadorId };
     if (filtros.chamadaId) where.chamada = { id: filtros.chamadaId };
     if (filtros.justificativa) where.justificativa = filtros.justificativa;
     return where;

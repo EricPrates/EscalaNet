@@ -15,13 +15,19 @@ export function fazerJogadorService(jogadorRepo: IJogadorRepository): IJogadorSe
            
             const { data, total } = await jogadorRepo.listar(pagina, limite, where, relations);
             const totalPaginas = Math.ceil(total / limite);
-            const dataValidada: RespostaJogadorDetalhadoDTO[] = SchemaJogadorDetalhado.array().parse(data);
             return SchemaRespostaPaginada(SchemaJogadorDetalhado).parse({
-                data: dataValidada,
+                data: data,
                 meta: { pagina, limite, total, totalPaginas },
             });
         },
-
+        async obterPorFiltros(pagina: number, limite: number, where: FiltrosJogadorDTO, relations?: FindOptionsRelations<RespostaJogadorDetalhadoDTO>): Promise<{ data: RespostaJogadorDetalhadoDTO[]; meta: { total: number; totalPaginas: number; pagina: number; limite: number } }> {
+            const { data, total } = await jogadorRepo.obterPorFiltros(pagina, limite, where, relations);
+            const totalPaginas = Math.ceil(total / limite);
+            return SchemaRespostaPaginada(SchemaJogadorDetalhado).parse({
+                data: data,
+                meta: { pagina, limite, total, totalPaginas },
+            });
+        },
         async obterPorId(id: number, relations?: FindOptionsRelations<RespostaJogadorDetalhadoDTO>): Promise<RespostaResumidaJogadorDTO> {
             const jogador = await jogadorRepo.obterPorId(id, relations);
             if (!jogador) throw new AppError(404, 'Jogador não encontrado');

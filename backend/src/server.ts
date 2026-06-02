@@ -16,6 +16,10 @@ import jogadorRoutes from "./modules/jogador/jogador.routes";
 import jogoRoutes from "./modules/jogo/jogo.routes";
 import eventosJogoRoutes from "./modules/eventos_jogo/eventos_jogo.routes";
 import classificacaoRoutes from "./modules/classificacao/classificacao.routes";
+import competicaoRoutes from "./modules/competicao/competicao.routes";
+import frequenciaRoutes from "./modules/frequencia/frequencia.routes";
+import materialRoutes from "./modules/material/material.routes";
+import chamadaRoutes from "./modules/chamada/chamada.routes";
 
 dotenv.config();
 
@@ -50,6 +54,12 @@ jogadorRoutes(app);
 jogoRoutes(app);
 eventosJogoRoutes(app);
 classificacaoRoutes(app);
+competicaoRoutes(app);
+materialRoutes(app);
+frequenciaRoutes(app);
+chamadaRoutes(app);
+
+
 
 
 app.use(errorHandler);

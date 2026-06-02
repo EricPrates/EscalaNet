@@ -13,7 +13,7 @@ export function fazerCategoriaService(categoriaRepo: ICategoriaRepository): ICat
         async listar(pagina: number, limite: number, where?: FindOptionsWhere<Categoria>, relations?: FindOptionsRelations<Categoria>): Promise<{ data: RespostaCategoriaDTO[]; meta: { total: number; totalPaginas: number; pagina: number; limite: number } }> {
             const { data, total } = await categoriaRepo.listar(pagina, limite, where, relations);
             return SchemaCategoriasPaginadas.parse({
-                data: data,
+                data: data || [],
                 meta: montarPaginacao(pagina, limite, total),
             });
         },
@@ -26,6 +26,13 @@ export function fazerCategoriaService(categoriaRepo: ICategoriaRepository): ICat
             const categoria = await categoriaRepo.obterPorId(id );
             if (!categoria) throw new AppError(404, 'Categoria não encontrada');
             return SchemaBaseCategoria.parse(categoria);
+        },
+        async obterPorFiltros(pagina: number, limite: number, filtros: FindOptionsWhere<Categoria>, relations?: FindOptionsRelations<Categoria>): Promise<{ data: RespostaCategoriaDTO[]; meta: { total: number; totalPaginas: number; pagina: number; limite: number } }> {
+            const { data, total } = await categoriaRepo.obterPorFiltros(pagina, limite, filtros, relations);
+            return SchemaCategoriasPaginadas.parse({
+                data: data || [],
+                meta: montarPaginacao(pagina, limite, total),
+            });
         },
 
         async obterPorNome(nome: string): Promise<RespostaCategoriaDTO> {
@@ -43,7 +50,7 @@ export function fazerCategoriaService(categoriaRepo: ICategoriaRepository): ICat
 
         async atualizar(id: number, data: Partial<CriarCategoriaDTO>): Promise<RespostaCategoriaDTO> {
             const categoria = await categoriaRepo.atualizar(id, data);
-            if (!categoria) throw new AppError(404, 'Categoria não encontrada');
+            if (!categoria || categoria === null) throw new AppError(404, 'Categoria não encontrada');
             return SchemaBaseCategoria.parse(categoria);
         },
 

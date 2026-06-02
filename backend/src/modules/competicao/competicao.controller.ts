@@ -40,7 +40,7 @@ export function fazerCompeticaoController(service: ICompeticaoService) {
         async deletarCompeticao(req: Request, res: Response) {
             const { id } = SchemaBuscarPorIdCompeticao.parse(req.params);
             await service.deletar(id);
-            return res.status(204).send();
+            return res.status(204).json(montarRespostaSucesso('Competição deletada com sucesso'));
         },
     };
 }

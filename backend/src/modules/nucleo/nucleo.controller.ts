@@ -36,7 +36,7 @@ export function fazerNucleoController(service: IBaseService<RespostaNucleoDTO, C
         async deletarNucleo(req: Request, res: Response) {
             const { id } = SchemaIdNUcleo.parse(req.params);
             await service.deletar(id);
-            return res.status(204).send();
+            return res.status(204).json(montarRespostaSucesso('Núcleo deletado com sucesso'));
         },
 
        

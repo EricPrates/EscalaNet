@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
-import { IMaterialNucleoService } from "./materialNucleo.interfaces";
-import { QueryIncludesMaterial, SchemaAtualizarMaterial, SchemaBuscarPorIdMaterial, SchemaFiltrosMaterial, SchemaBaseMaterial } from "./materialNucleo.schemas";
+import {  IMaterialService } from "./material.interfaces";
+import { QueryIncludesMaterial, SchemaAtualizarMaterial, SchemaBuscarPorIdMaterial, SchemaFiltrosMaterial, SchemaBaseMaterial } from "./material.schemas";
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
 
-export function fazerMaterialNucleoController(service: IMaterialNucleoService) {
+export function fazerMaterialNucleoController(service: IMaterialService) {
     return {
         async listarMateriais(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);

@@ -1,10 +1,10 @@
+// categoria.schemas.ts
 import { z } from 'zod';
 import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
 import { FindOptionsWhere, ILike } from 'typeorm';
 import { Categoria } from './Categoria.model';
 import { criarIncludesSchema } from '../../shared/utils/query.schema';
-
-
+import { SchemaRefJogo, SchemaRefTime } from '../../shared/utils/ref.schemas';
 
 export const SchemaCriarCategoria = z.object({
     nome: z.string().min(1, "O nome da categoria é obrigatório"),
@@ -13,18 +13,20 @@ export const SchemaCriarCategoria = z.object({
 });
 
 
-
 export const SchemaBaseCategoria = z.object({
     id: z.number().int().positive(),
     nome: z.string(),
-    idadeMaxima: z.coerce.number().int().positive(),
+    idadeMaxima: z.number().int().positive(),
     ativa: z.boolean(),
+    times: z.array(SchemaRefTime).optional(),
+    jogos: z.array(SchemaRefJogo).optional(),
 });
+
 export const SchemaFiltrosCategoria = z.object({
-    id: z.coerce.number().int().positive("ID da categoria deve ser um número inteiro positivo").optional(),
+    id: z.coerce.number().int().positive().optional(),
     nome: z.string().optional(),
     ativa: z.coerce.boolean().optional(),
-    idadeMaxima: z.coerce.number().int().positive("Idade máxima deve ser um número inteiro positivo").optional(),
+    idadeMaxima: z.coerce.number().int().positive().optional(),
 }).transform(filtros => {
     const where: FindOptionsWhere<Categoria> = {};
 
@@ -35,17 +37,23 @@ export const SchemaFiltrosCategoria = z.object({
 
     return where;
 });
+
 export const SchemaBuscarPorIdCategoria = z.object({
     id: z.coerce.number().int().positive("ID da categoria deve ser um número inteiro positivo"),
 });
+
 export const SchemaBuscarPorNomeCategoria = z.object({
-    nome: z.string().trim().min(1, "O nome da categoria é obrigatório"),
+    nome: z.string().trim().min(1, "O nome da categoria é obrigatório").optional(),
+    idadeMaxima: z.coerce.number().int().positive("Idade máxima deve ser > 0").optional(),
+    ativa: z.coerce.boolean().optional(),
 });
+
 export const FILTROS_PERMITIDOS_CATEGORIA = ['id', 'nome', 'ativa', 'idadeMaxima'] as const;
-export const RELACOES_CATEGORIA = [] as const;
+export const RELACOES_CATEGORIA = ['times', 'jogos'] as const; 
 export const QueryIncludesCategoria = criarIncludesSchema(RELACOES_CATEGORIA);
 export const SchemaAtualizarCategoria = SchemaCriarCategoria.partial();
 export const SchemaCategoriasPaginadas = SchemaRespostaPaginada(SchemaBaseCategoria);
+
 export type FiltrosCategoriaDTO = z.infer<typeof SchemaFiltrosCategoria>;
 export type CriarCategoriaDTO = z.infer<typeof SchemaCriarCategoria>;
 export type RespostaCategoriaDTO = z.infer<typeof SchemaBaseCategoria>;

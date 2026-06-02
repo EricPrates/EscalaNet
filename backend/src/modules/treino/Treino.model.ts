@@ -1,8 +1,8 @@
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Nucleo } from "../nucleo/Nucleo.model";
 import { Jogador } from "../jogador/jogador.model";
 import { Usuario } from "../usuario/Usuario.model";
-import { Frequencia } from "../frequencia/frequencia.model";
+
 
 @Entity({ name: "treinos" })
 export class Treino {
@@ -26,7 +26,4 @@ export class Treino {
 
     @ManyToMany(() => Usuario, (usuario) => usuario.treinos)
     usuarios!: Usuario[];
-
-    @OneToOne(() => Frequencia, (frequencia) => frequencia.treino)
-    frequencias!: Frequencia[];
 }
