@@ -24,7 +24,7 @@ export function fazerJogoController(service: IJogoService) {
             const includesRelations = transformarIncludesEmRelations(includes);
             const { data, meta } = await service.obterPorFiltros(pagina, limite, filtros, includesRelations);
             return res.status(200).json(montarRespostaPaginada('Jogos listados com sucesso', data, meta));
-        }
+        },
         async obterJogoPorId(req: Request, res: Response) {
             const { includes } = QueryIncludesJogo.parse(req.query);
             const includesRelations = transformarIncludesEmRelations(includes);

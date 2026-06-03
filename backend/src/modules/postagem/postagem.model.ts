@@ -1,4 +1,3 @@
-
 import { 
     Entity, 
     PrimaryGeneratedColumn, 
@@ -18,16 +17,16 @@ export class Postagem {
     titulo!: string;
 
     @Column({ type: 'text' })
-    conteudo!: string; // Pode ser HTML ou markdown
+    conteudo!: string;
 
     @Column({ nullable: true })
-    imagemUrl?: string; // URL da imagem de destaque
+    imagemUrl?: string;
 
     @Column({ nullable: true })
-    resumo?: string; // Resumo curto para listagens
+    resumo?: string;
 
     @Column({ default: 'rascunho' })
-    status!: 'rascunho' | 'publicado'; // Controle de exibição
+    status!: 'rascunho' | 'publicado';
 
     @CreateDateColumn({ name: 'created_at' })
     createdAt!: Date;
@@ -36,5 +35,5 @@ export class Postagem {
     updatedAt!: Date;
 
     @Column({ nullable: true })
-    publicadoEm?: Date; // Data de publicação (pode ser futura)
+    publicadoEm?: Date;
 }

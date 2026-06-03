@@ -11,5 +11,5 @@ router.delete('/:id', frequenciaController.deletarFrequencia);
 
 
 export default (app: express.Application) => {
-  app.use('/frequencia', router);
+  app.use('/frequencias', router);
 };

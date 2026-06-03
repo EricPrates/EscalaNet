@@ -45,5 +45,9 @@ export function fazerCompeticaoRepo(dataSource: DataSource): ICompeticaoReposito
             const result = await repo.delete({ id });
             return (result.affected ?? 0) > 0;
         },
+
+        async obterPorFiltros(pagina: number, limite: number, where?: FindOptionsWhere<Competicao>, relations?: FindOptionsRelations<Competicao>, select?: FindOptionsSelect<Competicao>) {
+            return this.listar(pagina, limite, where, relations, select);
+        },
     };
 }

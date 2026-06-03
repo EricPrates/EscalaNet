@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import { middlewareTokenContexto } from "./shared/Middlewares/middlewareTokenContexto";
 import { errorHandler } from "./shared/Middlewares/erroHandler";
-import { usuarioController } from "./shared/factory/container";
+import { usuarioController } from './shared/factory/container';
 import { validate } from "./shared/Middlewares/validadorSchema";
 import { SchemaBaseUsuario, SchemaLoginUsuario } from "./modules/usuario/usuario.schemas";
 import nucleoRoutes from "./modules/nucleo/nucleo.routes";
@@ -20,7 +20,9 @@ import competicaoRoutes from "./modules/competicao/competicao.routes";
 import frequenciaRoutes from "./modules/frequencia/frequencia.routes";
 import materialRoutes from "./modules/material/material.routes";
 import chamadaRoutes from "./modules/chamada/chamada.routes";
-
+import treinoRoutes from "./modules/treino/treino.routes";
+import postagemRoutes from "./modules/postagem/postagem.routes";
+import uploadRoutes from "./modules/upload/upload.routes";
 dotenv.config();
 
 const app: express.Application = express();
@@ -42,7 +44,8 @@ app.get('/', (_req: Request, res: Response) => {
 app.post('/login', validate(SchemaLoginUsuario, 'body'), usuarioController.login);
 app.post('/usuario', validate(SchemaBaseUsuario, 'body'), usuarioController.criarUsuario);
 
-
+postagemRoutes(app);   // público — antes do token
+uploadRoutes(app);     // público — retorna URL após upload
 app.use(middlewareTokenContexto);
 
 
@@ -58,7 +61,7 @@ competicaoRoutes(app);
 materialRoutes(app);
 frequenciaRoutes(app);
 chamadaRoutes(app);
-
+treinoRoutes(app);
 
 
 

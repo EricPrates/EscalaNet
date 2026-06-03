@@ -49,5 +49,9 @@ export function fazerJogadorRepo(dataSource: DataSource): IJogadorRepository {
             const result = await repo.delete({ id });
             return (result.affected ?? 0) > 0;
         },
+
+        async obterPorFiltros(pagina: number, limite: number, where?: FindOptionsWhere<Jogador>, relations?: FindOptionsRelations<Jogador>, _select?: FindOptionsSelect<Jogador>) {
+            return this.listar(pagina, limite, where, relations);
+        },
     };
 }

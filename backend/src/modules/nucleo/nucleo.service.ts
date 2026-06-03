@@ -4,7 +4,7 @@ import { getContext } from "../../shared/utils/authStorage";
 import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
 import { INucleoRepository, INucleoService } from "./nucleo.interfaces";
 import { Nucleo } from "./Nucleo.model";
-import { RespostaNucleoDTO, SchemaNucleoResposta, CriarNucleoDTO, FiltrosNucleoDTO } from './nucleo.schemas';
+import { RespostaNucleoDTO, SchemaNucleoResposta, CriarNucleoDTO } from './nucleo.schemas';
 import { FindOptionsRelations, FindOptionsWhere } from 'typeorm';
 
 export const fazerNucleoService = (nucleoRepo: INucleoRepository): INucleoService => {
