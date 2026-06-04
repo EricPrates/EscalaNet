@@ -4,7 +4,7 @@ import { getContext } from "../../shared/utils/authStorage";
 import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
 import { INucleoRepository, INucleoService } from "./nucleo.interfaces";
 import { Nucleo } from "./Nucleo.model";
-import { RespostaNucleoDTO, SchemaNucleoResposta, CriarNucleoDTO } from './nucleo.schemas';
+import { RespostaNucleoDTO, SchemaNucleoResposta, CriarNucleoDTO, DashboardNucleoDTO, SchemaDashboardNucleo } from './nucleo.schemas';
 import { FindOptionsRelations, FindOptionsWhere } from 'typeorm';
 
 export const fazerNucleoService = (nucleoRepo: INucleoRepository): INucleoService => {
@@ -85,6 +85,24 @@ export const fazerNucleoService = (nucleoRepo: INucleoRepository): INucleoServic
                 throw new AppError(404, 'Núcleo não encontrado');
             }
             return deletado;
-        }
+        },
+
+        async obterDashboard(nucleoId: number): Promise<DashboardNucleoDTO> {
+            const permissao = getContext()?.permissao;
+            if (permissao !== 'admin') {
+                const nucleoVinculadoId = getContext()?.nucleoVinculadoId;
+                if (!nucleoVinculadoId) {
+                    throw new AppError(403, 'Acesso negado: usuário sem núcleo vinculado');
+                }
+                if (nucleoVinculadoId !== nucleoId) {
+                    throw new AppError(403, 'Acesso negado: só é permitido acessar o dashboard do seu núcleo');
+                }
+            }
+            const nucleo = await nucleoRepo.obterPorId(nucleoId);
+            if (!nucleo) throw new AppError(404, 'Núcleo não encontrado');
+
+            const dashboard = await nucleoRepo.obterDashboard(nucleoId);
+            return SchemaDashboardNucleo.parse(dashboard);
+        },
     }
 }

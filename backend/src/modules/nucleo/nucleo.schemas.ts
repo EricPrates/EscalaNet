@@ -7,17 +7,14 @@ import { criarIncludesSchema } from '../../shared/utils/query.schema';
 
 
 export const SchemaDashboardNucleo = z.object({
-
     totalJogadores: z.number().default(0),
     totalProfessores: z.number().default(0),
     totalJogos: z.number().default(0),
     totalTreinos: z.number().default(0),
-
+    totalTimes: z.number().default(0),
     totalCategorias: z.number().default(0),
     totalNucleos: z.number().default(0),
-    
-  
-    crescimentoJogadores: z.number().optional(), // percentual
+    crescimentoJogadores: z.number().optional(),
     jogosRealizados: z.number().optional(),
     jogosFuturos: z.number().optional(),
 });

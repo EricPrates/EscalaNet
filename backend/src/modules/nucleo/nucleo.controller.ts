@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
-import { CriarNucleoDTO, RespostaNucleoDTO, SchemaBaseNucleo, SchemaIdNUcleo, SchemaAtualizarNucleo, SchemaFiltrosNucleo, QueryIncludesNucleo } from "./nucleo.schemas";
+import { SchemaBaseNucleo, SchemaIdNUcleo, SchemaAtualizarNucleo, SchemaFiltrosNucleo, QueryIncludesNucleo } from "./nucleo.schemas";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
-import { IBaseService } from "../../shared/factory/BaseInterfaces";
+import { INucleoService } from "./nucleo.interfaces";
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
 
 
 
-export function fazerNucleoController(service: IBaseService<RespostaNucleoDTO, CriarNucleoDTO, CriarNucleoDTO>) {
+export function fazerNucleoController(service: INucleoService) {
     return {
         async listarNucleos(req: Request, res: Response) {
             const {limite, pagina} = SchemaPaginacaoQuery.parse(req.query);
@@ -50,6 +50,10 @@ export function fazerNucleoController(service: IBaseService<RespostaNucleoDTO, C
             return res.status(204).json(montarRespostaSucesso('Núcleo deletado com sucesso'));
         },
 
-       
+        async obterDashboardNucleo(req: Request, res: Response) {
+            const { id } = SchemaIdNUcleo.parse(req.params);
+            const dashboard = await service.obterDashboard(id);
+            return res.status(200).json(montarRespostaSucesso('Dashboard do núcleo obtido com sucesso', dashboard));
+        },
     };
 }
