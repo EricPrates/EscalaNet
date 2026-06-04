@@ -23,6 +23,7 @@ import chamadaRoutes from "./modules/chamada/chamada.routes";
 import treinoRoutes from "./modules/treino/treino.routes";
 import postagemRoutes from "./modules/postagem/postagem.routes";
 import uploadRoutes from "./modules/upload/upload.routes";
+import relatorioRoutes from "./modules/relatorio/relatorio.routes";
 dotenv.config();
 
 const app: express.Application = express();
@@ -62,6 +63,7 @@ materialRoutes(app);
 frequenciaRoutes(app);
 chamadaRoutes(app);
 treinoRoutes(app);
+relatorioRoutes(app);
 
 
 
