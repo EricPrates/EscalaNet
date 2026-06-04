@@ -20,10 +20,10 @@ export function fazerEventoJogoRepo(dataSource: DataSource): IEventoJogoReposito
             return { data, total };
         },
 
-        async obterPorFiltros(pagina = 1, limite = 10, where?: FindOptionsWhere<EventosJogo>, relations?: FindOptionsRelations<EventosJogo>, select?: FindOptionsSelect<EventosJogo>) {
+        async obterPorFiltros(pagina = 1, limite = 10, filtro: FindOptionsWhere<EventosJogo>, relations?: FindOptionsRelations<EventosJogo>, select?: FindOptionsSelect<EventosJogo>) {
             const skip = (pagina - 1) * limite;
             const [data, total] = await repo.findAndCount({
-                where,
+                where: filtro,
                 relations,
                 select,
                 skip,

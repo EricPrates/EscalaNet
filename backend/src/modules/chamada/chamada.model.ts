@@ -15,9 +15,11 @@ export class Chamada {
     data!: Date;
 
     @ManyToOne(() => Treino, { nullable: true })
+    @JoinColumn({ name: "treino_id" })
     treino?: Treino;
 
     @ManyToOne(() => Jogo, { nullable: true })
+    @JoinColumn({ name: "jogo_id" })
     jogo?: Jogo;
 
     @ManyToOne(() => Time, (time) => time.chamadas, { nullable: false })

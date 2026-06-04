@@ -43,13 +43,11 @@ export const SchemaBuscarPorIdJogador = z.object({
 
 export type FiltrosJogadorDTO = z.infer<typeof SchemaFiltrosJogador>;
 export const SchemaAtualizarJogador = z.object({
-    nome: z.string().optional(),
+    nome: z.string('Nome é obrigatório').optional(),
     dataNascimento: z.coerce.date({ error: "Data de nascimento inválida" }).optional(),
-    ativo: z.boolean().optional(),
-    telefone: z.string().max(20).optional(),
-    time: z.object({
-        id: z.number().int().positive("ID do time é obrigatório")
-    }).optional(),
+    ativo: z.boolean('Ativo deve ser um valor booleano').optional(),
+    telefone: z.string('Telefone deve ter no máximo 20 caracteres').max(20).optional(),
+    time:SchemaRefTime.partial().optional(),
 }).partial();
 export const SchemaJogadoresPaginados = SchemaRespostaPaginada(SchemaJogadorResumido);
 

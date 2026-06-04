@@ -5,18 +5,18 @@ import { FindOptionsWhere, ILike } from 'typeorm';
 import { Time } from './time.model';
 
 export const SchemaBaseTime = z.object({
-    id: z.coerce.number().int().positive(),
+    id: z.coerce.number().int().positive("ID do time inválido"),
     nome: z.string().min(1, 'O nome do time é obrigatório'),
-    nucleoId: z.coerce.number().int().positive().optional(),
-    categoriaId: z.coerce.number().int().positive().optional(),
-    treinadorId: z.coerce.number().int().positive().optional(),
+    nucleoId: z.coerce.number().int().positive("ID do núcleo deve ser um número inteiro positivo").optional(),
+    categoriaId: z.coerce.number().int().positive("ID da categoria deve ser um número inteiro positivo").optional(),
+    treinadorId: z.coerce.number().int().positive("ID do treinador deve ser um número inteiro positivo").optional(),
 });
 
 export const SchemaCriarTime = z.object({
     nome: z.string().min(1, 'O nome do time é obrigatório'),
-    nucleoId: z.coerce.number().int().positive().optional(),
-    categoriaId: z.coerce.number().int().positive().optional(),
-    treinadorId: z.coerce.number().int().positive().optional(),
+    nucleoId: z.coerce.number().int().positive("ID do núcleo deve ser um número inteiro positivo").optional(),
+    categoriaId: z.coerce.number().int().positive("ID da categoria deve ser um número inteiro positivo").optional(),
+    treinadorId: z.coerce.number().int().positive("ID do treinador deve ser um número inteiro positivo").optional(),
 });
 
 export const SchemaAtualizarTime = SchemaBaseTime.partial();
@@ -26,11 +26,11 @@ export const SchemaBuscarPorIdTime = z.object({
 });
 
 export const SchemaFiltrosTime = z.object({
-    id: z.coerce.number().int().positive().optional(),
-    nome: z.string().optional(),
-    nucleoId: z.coerce.number().int().positive().optional(),
-    categoriaId: z.coerce.number().int().positive().optional(),
-    treinadorId: z.coerce.number().int().positive().optional(),
+    id: z.coerce.number().int().positive('ID do time deve ser um número inteiro positivo').optional(),
+    nome: z.string('Nome do time é uma string').optional(),
+    nucleoId: z.coerce.number().int().positive('ID do núcleo deve ser um número inteiro positivo').optional(),
+    categoriaId: z.coerce.number().int().positive('ID da categoria deve ser um número inteiro positivo').optional(),
+    treinadorId: z.coerce.number().int().positive('ID do treinador deve ser um número inteiro positivo').optional(),
 }).transform(filtros => {
     const where: FindOptionsWhere<Time> = {} as any;
     if (filtros.id) where.id = filtros.id;

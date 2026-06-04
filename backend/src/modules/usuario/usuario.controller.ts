@@ -1,7 +1,7 @@
 import { IUsuarioService } from "./usuario.interfaces";
 import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
-import {  SchemaBaseUsuario, SchemaLoginUsuario, SchemaAtualizarUsuario, SchemaBuscarPorIdUsuario, QueryIncludesUsuario, SchemaFiltrosUsuario } from "./usuario.schemas";
+import {  SchemaBaseUsuario, SchemaBuscarPorIdUsuario, QueryIncludesUsuario, SchemaFiltrosUsuario, SchemaLoginUsuario, SchemaAtualizarUsuario } from "./usuario.schemas";
 import gerarToken from "../../shared/utils/gerarToken";
 import { SchemaPaginacaoQuery } from '../../shared/utils/listas.schema';
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";

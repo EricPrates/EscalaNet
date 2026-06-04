@@ -30,12 +30,12 @@ export const SchemaBuscarPorIdTreino = z.object({
     id: z.coerce.number().int().positive('ID do treino deve ser um número inteiro positivo'),
 });
 export const SchemaFiltrosTreino = z.object({
-    id: z.coerce.number().int().positive().optional(),
+    id: z.coerce.number().int().positive('ID do treino deve ser um número inteiro positivo').optional(),
     data: z.coerce.date({ error: "Data do treino inválida" }).optional(),
-    nome: z.string().optional(),
-    nucleoId: z.coerce.number().int().positive().optional(),
-    jogadorId: z.coerce.number().int().positive().optional(),
-    usuarioId: z.coerce.number().int().positive().optional(),
+    nome: z.string('Nome do treino é uma string').optional(),
+    nucleoId: z.coerce.number().int().positive('ID do núcleo deve ser um número inteiro positivo').optional(),
+    jogadorId: z.coerce.number().int().positive('ID do jogador deve ser um número inteiro positivo').optional(),
+    usuarioId: z.coerce.number().int().positive('ID do usuário deve ser um número inteiro positivo').optional(),
 }).transform(filtros => {
     const where: FindOptionsWhere<Treino> = {};
     if (filtros.id) where.id = filtros.id;

@@ -30,7 +30,17 @@ export const SchemaJogoResposta = z.object({
     evento: SchemaRefEvento.optional(),
 });
 export const SchemaFiltrosJogo = SchemaJogoResposta.partial().extend({
-    id: z.coerce.number().int().positive().optional(),
+    id: z.coerce.number().int().positive('ID do jogo deve ser um número inteiro positivo').optional(),
+    nome: z.string('Nome do jogo é obrigatório').optional(),
+    timeA: z.object({ id: z.coerce.number().int().positive('ID do time A deve ser um número inteiro positivo') }).optional(),
+    timeB: z.object({ id: z.coerce.number().int().positive('ID do time B deve ser um número inteiro positivo') }).optional(),
+    arbitro: z.object({ id: z.coerce.number().int().positive('ID do árbitro deve ser um número inteiro positivo') }).optional(),
+    categoria: z.object({ id: z.coerce.number().int().positive('ID da categoria deve ser um número inteiro positivo') }).optional(),
+    golsTimeA: z.coerce.number().int().nonnegative('Gols do time A deve ser um número inteiro não negativo').optional(),
+    golsTimeB: z.coerce.number().int().nonnegative('Gols do time B deve ser um número inteiro não negativo').optional(),
+    data: z.coerce.date('Data do jogo deve ser uma data válida').optional(),
+    chamada: z.object({ id: z.coerce.number().int().positive('ID da chamada deve ser um número inteiro positivo') }).optional(),
+    evento: z.object({ id: z.coerce.number().int().positive('ID do evento deve ser um número inteiro positivo') }).optional(),
 }).transform(filtros => {
     const where: FindOptionsWhere<Jogo> = {};
 

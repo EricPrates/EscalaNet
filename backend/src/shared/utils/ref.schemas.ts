@@ -1,10 +1,10 @@
 import { z } from 'zod';
-import { TipoEvento } from '../../modules/eventos_jogo/TipoEvento';
+
 
 
 export const SchemaRefEvento = z.object({
     id: z.number().int().positive(),
-    tipo: z.enum(TipoEvento),
+    tipo: z.enum(["gol", "falta", "cartao_amarelo", "cartao_vermelho", "escanteio", "substituicao"]),
     descricao: z.string().nullable().optional(),
     minuto: z.number().int().nonnegative().optional(),
     jogo: z.object({ id: z.number().int().positive(), nome: z.string(), data: z.coerce.date() }).optional(),

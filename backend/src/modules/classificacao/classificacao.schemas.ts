@@ -5,38 +5,38 @@ import { FindOptionsWhere, ILike } from 'typeorm';
 import { Classificacao } from './Classificacao.model';
 
 export const SchemaBaseClassificacao = z.object({
-    id: z.coerce.number().int().positive(),
+    id: z.coerce.number().int().positive( 'ID deve ser um número inteiro positivo'),
     competicao: z.object({
-        id: z.coerce.number().int().positive(),
+        id: z.coerce.number().int().positive( 'ID da competição deve ser um número inteiro positivo'),
         nome: z.string().optional(),
     }).optional(),
     time: z.object({
-        id: z.coerce.number().int().positive(),
+        id: z.coerce.number().int().positive( 'ID do time deve ser um número inteiro positivo'),
         nome: z.string().min(1, 'Nome do time é obrigatório'),
     }),
-    pontos: z.coerce.number().int().nonnegative(),
-    jogos: z.coerce.number().int().nonnegative(),
-    vitorias: z.coerce.number().int().nonnegative(),
-    empates: z.coerce.number().int().nonnegative(),
-    derrotas: z.coerce.number().int().nonnegative(),
-    golsPro: z.coerce.number().int().nonnegative(),
-    golsContra: z.coerce.number().int().nonnegative(),
-    saldoGols: z.coerce.number().int(),
-    aproveitamento: z.coerce.number().nonnegative(),
+    pontos: z.coerce.number().int().nonnegative( 'Pontos deve ser um número inteiro não negativo'),
+    jogos: z.coerce.number().int().nonnegative( 'Jogos deve ser um número inteiro não negativo'),
+    vitorias: z.coerce.number().int().nonnegative( 'Vitórias deve ser um número inteiro não negativo'),
+    empates: z.coerce.number().int().nonnegative( 'Empates deve ser um número inteiro não negativo'),
+    derrotas: z.coerce.number().int().nonnegative( 'Derrotas deve ser um número inteiro não negativo'),
+    golsPro: z.coerce.number().int().nonnegative( 'Gols pró deve ser um número inteiro não negativo'),
+    golsContra: z.coerce.number().int().nonnegative( 'Gols contra deve ser um número inteiro não negativo'),
+    saldoGols: z.coerce.number().int( 'Saldo de gols deve ser um número inteiro'),
+    aproveitamento: z.coerce.number().nonnegative( 'Aproveitamento deve ser um número não negativo'),
 });
 
 export const SchemaCriarClassificacao = z.object({
-    competicaoId: z.coerce.number().int().positive(),
-    timeId: z.coerce.number().int().positive(),
-    pontos: z.coerce.number().int().nonnegative().optional(),
-    jogos: z.coerce.number().int().nonnegative().optional(),
-    vitorias: z.coerce.number().int().nonnegative().optional(),
-    empates: z.coerce.number().int().nonnegative().optional(),
-    derrotas: z.coerce.number().int().nonnegative().optional(),
-    golsPro: z.coerce.number().int().nonnegative().optional(),
-    golsContra: z.coerce.number().int().nonnegative().optional(),
-    saldoGols: z.coerce.number().int().optional(),
-    aproveitamento: z.coerce.number().nonnegative().optional(),
+    competicaoId: z.coerce.number().int().positive( 'ID da competição deve ser um número inteiro positivo'),
+    timeId: z.coerce.number().int().positive( 'ID do time deve ser um número inteiro positivo'),
+    pontos: z.coerce.number().int().nonnegative( 'Pontos deve ser um número inteiro não negativo').optional(),
+    jogos: z.coerce.number().int().nonnegative( 'Jogos deve ser um número inteiro não negativo').optional(),
+    vitorias: z.coerce.number().int().nonnegative( 'Vitórias deve ser um número inteiro não negativo').optional(),
+    empates: z.coerce.number().int().nonnegative( 'Empates deve ser um número inteiro não negativo').optional(),
+    derrotas: z.coerce.number().int().nonnegative( 'Derrotas deve ser um número inteiro não negativo').optional(),
+    golsPro: z.coerce.number().int().nonnegative( 'Gols pró deve ser um número inteiro não negativo').optional(),
+    golsContra: z.coerce.number().int().nonnegative( 'Gols contra deve ser um número inteiro não negativo').optional(),
+    saldoGols: z.coerce.number().int( 'Saldo de gols deve ser um número inteiro').optional(),
+    aproveitamento: z.coerce.number().nonnegative( 'Aproveitamento deve ser um número não negativo').optional(),
 });
 
 export const SchemaAtualizarClassificacao = SchemaCriarClassificacao.partial();
@@ -46,17 +46,17 @@ export const SchemaBuscarPorIdClassificacao = z.object({
 });
 
 export const SchemaFiltrosClassificacao = z.object({
-    id: z.coerce.number().int().positive().optional(),
-    competicaoId: z.coerce.number().int().positive().optional(),
-    timeId: z.coerce.number().int().positive().optional(),
+    id: z.coerce.number().int().positive( 'ID deve ser um número inteiro positivo').optional(),
+    competicaoId: z.coerce.number().int().positive( 'ID da competição deve ser um número inteiro positivo').optional(),
+    timeId: z.coerce.number().int().positive( 'ID do time deve ser um número inteiro positivo').optional(),
     timeNome: z.string().optional(),
 }).transform(filtros => {
-    const where: FindOptionsWhere<Classificacao> = {} as any;
+    const where: FindOptionsWhere<Classificacao> = {};
 
     if (filtros.id) where.id = filtros.id;
-    if (filtros.competicaoId) where.competicao = { id: filtros.competicaoId } as any;
-    if (filtros.timeId) where.time = { id: filtros.timeId } as any;
-    if (filtros.timeNome) where.time = { nome: ILike(`%${filtros.timeNome}%`) } as any;
+    if (filtros.competicaoId) where.competicao = { id: filtros.competicaoId };
+    if (filtros.timeId) where.time = { id: filtros.timeId };
+    if (filtros.timeNome) where.time = { nome: ILike(`%${filtros.timeNome}%`) };
 
     return where;
 });

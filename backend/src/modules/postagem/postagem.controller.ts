@@ -7,18 +7,15 @@ import {
     SchemaAtualizarPostagem, 
     SchemaBuscarPorIdPostagem,
     SchemaFiltrosPostagem,
-    QueryIncludesPostagem 
 } from "./postagem.schemas";
-import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
+
 
 export function fazerPostagemController(service: IPostagemService) {
     return {
         async listarPostagens(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
             const filtros = SchemaFiltrosPostagem.parse(req.query);
-            const { includes } = QueryIncludesPostagem.parse(req.query);
-            const relations = transformarIncludesEmRelations(includes);
-            const { data, meta } = await service.listar(pagina, limite, filtros, relations);
+            const { data, meta } = await service.listar(pagina, limite, filtros);
             return res.status(200).json(montarRespostaPaginada('Postagens listadas com sucesso', data, meta));
         },
 
@@ -30,9 +27,7 @@ export function fazerPostagemController(service: IPostagemService) {
 
         async obterPostagem(req: Request, res: Response) {
             const { id } = SchemaBuscarPorIdPostagem.parse(req.params);
-            const { includes } = QueryIncludesPostagem.parse(req.query);
-            const relations = transformarIncludesEmRelations(includes);
-            const postagem = await service.obterPorId(id, relations);
+            const postagem = await service.obterPorId(id);
             return res.status(200).json(montarRespostaSucesso('Postagem obtida com sucesso', postagem));
         },
 

@@ -7,8 +7,8 @@ import { Material } from './Material';
 
 export const SchemaBaseMaterial = z.object({
     quantidade: z.coerce.number().int().nonnegative('A quantidade deve ser um número inteiro não negativo'),
-    observacao: z.string().nullable().optional(),
-    tipoMaterial: z.string().max(255).optional(),
+    observacao: z.string('Observação deve ser uma string').nullable().optional(),
+    tipoMaterial: z.string('Tipo de material é uma string').max(255).optional(),
     nucleo: z.object({
         id: z.coerce.number().int().positive('ID do núcleo é obrigatório'),
     }),
@@ -34,11 +34,11 @@ export const SchemaBuscarPorIdMaterial = z.object({
 });
 
 export const SchemaFiltrosMaterial = z.object({
-    id: z.coerce.number().int().positive().optional(),
-    quantidade: z.coerce.number().int().nonnegative().optional(),
-    tipoMaterial: z.string().optional(),
-    nucleoId: z.coerce.number().int().positive().optional(),
-    dataRecebimento: z.coerce.date().optional(),
+    id: z.coerce.number().int().positive('ID do material deve ser um número inteiro positivo').optional(),
+    quantidade: z.coerce.number().int().nonnegative('A quantidade deve ser um número inteiro não negativo').optional(),
+    tipoMaterial: z.string('Tipo de material é uma string').optional(),
+    nucleoId: z.coerce.number().int().positive('ID do núcleo é obrigatório').optional(),
+    dataRecebimento: z.coerce.date('Data de recebimento deve ser uma data válida').optional(),
 }).transform(filtros => {
     const where: FindOptionsWhere<Material> = {};
 

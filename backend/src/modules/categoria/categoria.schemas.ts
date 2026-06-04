@@ -1,7 +1,7 @@
 // categoria.schemas.ts
 import { z } from 'zod';
 import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
-import { FindOptionsWhere, ILike } from 'typeorm';
+import { Between, FindOptionsWhere, ILike } from 'typeorm';
 import { Categoria } from './Categoria.model';
 import { criarIncludesSchema } from '../../shared/utils/query.schema';
 import { SchemaRefJogo, SchemaRefTime } from '../../shared/utils/ref.schemas';
@@ -23,10 +23,12 @@ export const SchemaBaseCategoria = z.object({
 });
 
 export const SchemaFiltrosCategoria = z.object({
-    id: z.coerce.number().int().positive().optional(),
-    nome: z.string().optional(),
-    ativa: z.coerce.boolean().optional(),
-    idadeMaxima: z.coerce.number().int().positive().optional(),
+    id: z.coerce.number().int().positive('ID da categoria deve ser um número inteiro positivo').optional(),
+    nome: z.string('O nome da categoria deve ser uma string').optional(),
+    ativa: z.coerce.boolean('O status da categoria deve ser um booleano').optional(),
+    idadeMaxima: z.coerce.number().int().positive('Idade máxima deve ser um número inteiro positivo').optional(),
+    buscaDataInicio: z.coerce.date('A data de início da busca deve ser uma data válida').optional(),
+    buscaDataFim: z.coerce.date('A data de fim da busca deve ser uma data válida').optional(),
 }).transform(filtros => {
     const where: FindOptionsWhere<Categoria> = {};
 
@@ -34,6 +36,9 @@ export const SchemaFiltrosCategoria = z.object({
     if (filtros.ativa !== undefined) where.ativa = filtros.ativa;
     if (filtros.nome) where.nome = ILike(`%${filtros.nome}%`);
     if (filtros.idadeMaxima) where.idadeMaxima = filtros.idadeMaxima;
+    if (filtros.buscaDataInicio && filtros.buscaDataFim) {
+        where.createdAt = Between(filtros.buscaDataInicio, filtros.buscaDataFim);
+    }
 
     return where;
 });
@@ -44,8 +49,7 @@ export const SchemaBuscarPorIdCategoria = z.object({
 
 export const SchemaBuscarPorNomeCategoria = z.object({
     nome: z.string().trim().min(1, "O nome da categoria é obrigatório").optional(),
-    idadeMaxima: z.coerce.number().int().positive("Idade máxima deve ser > 0").optional(),
-    ativa: z.coerce.boolean().optional(),
+
 });
 
 export const FILTROS_PERMITIDOS_CATEGORIA = ['id', 'nome', 'ativa', 'idadeMaxima'] as const;

@@ -7,12 +7,12 @@ import { FindOptionsWhere, ILike } from 'typeorm';
 
 
 export const SchemaBaseUsuario = z.object({
-    nome: z.string().min(1),
-    email: z.email(),
+    nome: z.string().min(1, "O nome do usuário é obrigatório"),
+    email: z.email("Informe um e-mail válido"),
     permissao: z.enum(['admin', 'professor', 'arbitro', 'auxiliar']),
     senha: z.string().min(6, "A senha deve conter no mínimo 6 caracteres"),
     nucleoVinculado: z.object({
-        id: z.number().int().positive(),
+        id: z.number().int().positive("ID do núcleo deve ser um número inteiro positivo"),
     }).nullable().optional(),
 
 });
@@ -23,11 +23,13 @@ export const SchemaLoginUsuario = z.object({
 });
 
 export const SchemaUsuarioResumido = z.object({
-    id: z.number(),
-    nome: z.string(),
-    email: z.email(),
-    permissao: z.enum(['admin', 'professor', 'arbitro', 'auxiliar']),
-    nucleoVinculadoId: z.number().int().positive().nullable().optional(),
+    id: z.number().int().positive("ID do usuário inválido"),
+    nome: z.string().min(1, "O nome do usuário é obrigatório"),
+    email: z.email("Informe um e-mail válido"),
+    permissao: z.enum(['admin', 'professor', 'arbitro', 'auxiliar'], {
+        error: "Permissão inválida. Use: admin, professor, arbitro ou auxiliar",
+    }),
+    nucleoVinculadoId: z.number().int().positive("ID do núcleo deve ser um número inteiro positivo").nullable().optional(),
 
 });
 
@@ -36,7 +38,7 @@ export const SchemaUsuarioDetalhado = SchemaUsuarioResumido.extend({
 });
 
 
-export const SchemaUsuarioRelacionamento = SchemaBaseUsuario.omit({ senha: true });
+
 export const SchemaAtualizarUsuario = SchemaBaseUsuario.partial();
 
 export const SchemaBuscarPorIdUsuario = z.object({
@@ -67,5 +69,4 @@ export type AtualizarUsuarioDTO = z.infer<typeof SchemaAtualizarUsuario>;
 export type CriarUsuarioDTO = z.infer<typeof SchemaBaseUsuario>;
 export type LoginUsuarioDTO = z.infer<typeof SchemaLoginUsuario>;
 export type RespostaUsuarioDTO = z.infer<typeof SchemaUsuarioResumido>;
-export type UsuarioRelacionamentoDTO = z.infer<typeof SchemaUsuarioRelacionamento>;
 export type FiltrosUsuarioDTO = z.infer<typeof SchemaFiltrosUsuario>;

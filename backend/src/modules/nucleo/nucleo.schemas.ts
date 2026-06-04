@@ -23,11 +23,11 @@ export const SchemaDashboardNucleo = z.object({
 });
 
 export const SchemaFiltrosNucleo = z.object({
-    id: z.coerce.number().int().positive().optional(),
-    nome: z.string().optional(),
-    endereco: z.string().optional(),
-    updateAt: z.coerce.date().optional(),
-    createdAt: z.coerce.date().optional(),
+    id: z.coerce.number().int().positive('ID do núcleo deve ser um número inteiro positivo').optional(),
+    nome: z.string('Nome do núcleo é uma string').optional(),
+    endereco: z.string('Endereço do núcleo é uma string').optional(),
+    updateAt: z.coerce.date('Data de atualização deve ser uma data válida').optional(),
+    createdAt: z.coerce.date('Data de criação deve ser uma data válida').optional(),
 }).transform(filtros => {
     const where: FindOptionsWhere<Nucleo> = {};
     filtros.id !== undefined && (where.id = filtros.id);
@@ -35,6 +35,10 @@ export const SchemaFiltrosNucleo = z.object({
     if (filtros.endereco) where.endereco = ILike(`%${filtros.endereco}%`);
     if (filtros.updateAt) where.updatedAt = filtros.updateAt;
     if (filtros.createdAt) where.createdAt = filtros.createdAt;
+    if (filtros.createdAt && filtros.updateAt) {
+        where.createdAt = filtros.createdAt;
+        where.updatedAt = filtros.updateAt;
+    }
     return where;
 });
 
@@ -49,7 +53,7 @@ export const SchemaNucleoResposta = SchemaBaseNucleo.extend({
     id: z.coerce.number().int().positive(),
 });
 
-export const RELACOES_NUCLEO = ['materiais', 'times', 'treinos', 'usuariosVinculados'] as const;
+export const RELACOES_NUCLEO = ['materiais', 'times', 'treinos'] as const;
 export const SchemaNucleosPaginados = SchemaRespostaPaginada(SchemaNucleoResposta);
 
 export const SchemaAtualizarNucleo = SchemaBaseNucleo.partial();
