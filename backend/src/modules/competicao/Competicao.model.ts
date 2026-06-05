@@ -14,4 +14,10 @@ export class Competicao {
     times?: Time[] | null;
     @Column({ type: "varchar", length: 255, nullable: false })
     tipo!: 'Copa' | 'Liga';
+
+    @Column({type:"number", nullable: true})
+    intervaloDias?: number;
+
+    @Column({type:"boolean", nullable: true})
+    duplaVolta?: boolean;
 }
