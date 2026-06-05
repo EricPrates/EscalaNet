@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { ICompeticaoService } from "./competicao.interfaces";
-import { QueryIncludesCompeticao, SchemaAtualizarCompeticao, SchemaBuscarPorIdCompeticao, SchemaCriarCompeticao, SchemaFiltrosCompeticao } from './competicao.schemas';
+import { QueryIncludesCompeticao, SchemaAtualizarCompeticao, SchemaBuscarPorIdCompeticao, SchemaCriarCompeticao, SchemaFiltrosCompeticao, SchemaGerarJogosCompeticao, SchemaVincularTimesCompeticao } from './competicao.schemas';
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
 
 export function fazerCompeticaoController(service: ICompeticaoService) {
@@ -41,6 +41,26 @@ export function fazerCompeticaoController(service: ICompeticaoService) {
             const { id } = SchemaBuscarPorIdCompeticao.parse(req.params);
             await service.deletar(id);
             return res.status(204).json(montarRespostaSucesso('Competição deletada com sucesso'));
+        },
+
+        async gerarJogosCompeticao(req: Request, res: Response) {
+            const { id } = SchemaBuscarPorIdCompeticao.parse(req.params);
+            const { dataInicio } = SchemaGerarJogosCompeticao.parse(req.body);
+            const jogos = await service.gerarJogos(id, dataInicio);
+            return res.status(201).json(montarRespostaSucesso('Jogos gerados com sucesso', jogos));
+        },
+
+        async vincularTimesCompeticao(req: Request, res: Response) {
+            const { id } = SchemaBuscarPorIdCompeticao.parse(req.params);
+            const { timeIds } = SchemaVincularTimesCompeticao.parse(req.body);
+            const competicao = await service.vincularTimes(id, timeIds);
+            return res.status(200).json(montarRespostaSucesso('Times vinculados com sucesso', competicao));
+        },
+
+        async recalcularClassificacao(req: Request, res: Response) {
+            const { id } = SchemaBuscarPorIdCompeticao.parse(req.params);
+            await service.recalcularClassificacao(id);
+            return res.status(200).json(montarRespostaSucesso('Classificação recalculada com sucesso'));
         },
     };
 }

@@ -1,4 +1,4 @@
-import { Column, ManyToOne, OneToMany, PrimaryGeneratedColumn, Entity, Index, JoinColumn } from 'typeorm';
+import { Column, ManyToOne, ManyToMany, OneToMany, PrimaryGeneratedColumn, Entity, Index, JoinColumn } from 'typeorm';
 import { Nucleo } from "../nucleo/Nucleo.model";
 import { Jogador } from "../jogador/jogador.model";
 import { Categoria } from '../categoria/Categoria.model';
@@ -43,7 +43,7 @@ export class Time {
     @OneToMany(() => EventosJogo, (evento) => evento.time)
     eventos!: EventosJogo[];
 
-    @OneToMany(() => Competicao, (competicao) => competicao.times)
+    @ManyToMany(() => Competicao, (competicao) => competicao.times)
     competicoes!: Competicao[];
 
     @OneToMany(() => Chamada, (chamada) => chamada.time)

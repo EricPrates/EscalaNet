@@ -8,6 +8,8 @@ export const SchemaBaseCompeticao = z.object({
     id: z.coerce.number().int().positive(),
     nome: z.string().min(1, 'O nome da competição é obrigatório'),
     tipo: z.enum(['Copa', 'Liga']),
+    intervaloDias: z.coerce.number().int().positive().optional(),
+    duplaVolta: z.boolean().optional(),
 });
 
 export const SchemaCriarCompeticao = SchemaBaseCompeticao.omit({ id: true });
@@ -39,3 +41,14 @@ export type FiltrosCompeticaoDTO = z.infer<typeof SchemaFiltrosCompeticao>;
 export type CriarCompeticaoDTO = z.infer<typeof SchemaCriarCompeticao>;
 export type RespostaCompeticaoDTO = z.infer<typeof SchemaBaseCompeticao>;
 export type AtualizarCompeticaoDTO = z.infer<typeof SchemaAtualizarCompeticao>;
+
+export const SchemaGerarJogosCompeticao = z.object({
+    dataInicio: z.coerce.date({ error: 'Data de início inválida' }),
+});
+
+export const SchemaVincularTimesCompeticao = z.object({
+    timeIds: z.array(z.coerce.number().int().positive()).min(1, 'Informe pelo menos um time'),
+});
+
+export type GerarJogosCompeticaoDTO = z.infer<typeof SchemaGerarJogosCompeticao>;
+export type VincularTimesCompeticaoDTO = z.infer<typeof SchemaVincularTimesCompeticao>;

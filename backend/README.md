@@ -1,17 +1,19 @@
 # EscalaNet — API Backend
 
 API REST do sistema de gestão esportiva do **Programa Bom de Bola** (SEL/PJF).  
-Gerencia núcleos, times, jogadores, treinos, jogos, competições, frequência e publicações da landing page.
+Gerencia núcleos, times, jogadores, treinos, jogos, competições, frequência, relatórios e publicações da landing page.
+
+**Base URL:** `http://localhost:3000` (ou a URL do ambiente configurado)
 
 ---
 
 ## Sumário
 
 - [Como rodar](#como-rodar)
+- [Banco de dados e migrations](#banco-de-dados-e-migrations)
 - [Autenticação](#autenticação)
 - [Formato das respostas](#formato-das-respostas)
-- [Paginação e filtros](#paginação-e-filtros)
-- [Includes (relações)](#includes-relações)
+- [Paginação, filtros e includes](#paginação-filtros-e-includes)
 - [Rotas públicas](#rotas-públicas)
 - [Rotas protegidas](#rotas-protegidas)
   - [Usuários](#usuários)
@@ -27,26 +29,27 @@ Gerencia núcleos, times, jogadores, treinos, jogos, competições, frequência 
   - [Competições](#competições)
   - [Classificação](#classificação)
   - [Material de Núcleo](#material-de-núcleo)
-  - [Postagens (admin)](#postagens-admin)
+  - [Relatórios](#relatórios)
 - [Upload de arquivos](#upload-de-arquivos)
+- [Referência rápida](#referência-rápida)
 
 ---
 
 ## Como rodar
 
 ```bash
-# instalar dependências
+# Instalar dependências
 npm install
 
-# desenvolvimento (hot reload)
+# Desenvolvimento (hot reload)
 npm run dev
 
-# produção
+# Produção
 npm run build
 npm start
 ```
 
-Variáveis de ambiente necessárias no `.env`:
+### Variáveis de ambiente (`.env`)
 
 ```env
 PORT=3000
@@ -66,13 +69,40 @@ CLOUDINARY_API_SECRET=
 
 ---
 
+## Banco de dados e migrations
+
+O projeto usa **TypeORM** com `synchronize: false`. O schema é controlado por migrations.
+
+```bash
+# Gerar migration a partir dos models (banco deve estar vazio ou sem diff)
+npm run migrate:generate -- src/migrations/NomeDaMigration
+
+# Aplicar migrations pendentes
+npm run migrate:run
+
+# Reverter última migration
+npm run migrate:revert
+
+# Limpar todas as tabelas (cuidado: apaga tudo)
+npm run typeorm -- schema:drop -d src/data-source.ts
+```
+
+**Primeira configuração (banco vazio, sem dados):**
+
+```bash
+npm run typeorm -- schema:drop -d src/data-source.ts
+npm run migrate:run
+```
+
+---
+
 ## Autenticação
 
 A API usa **JWT Bearer Token**.
 
 ### Login
 
-```
+```http
 POST /login
 Content-Type: application/json
 ```
@@ -84,441 +114,603 @@ Content-Type: application/json
 }
 ```
 
-**Resposta:**
+**Resposta (200):**
+
 ```json
 {
   "message": "Login realizado com sucesso",
+  "data": {
+    "id": 1,
+    "nome": "Admin",
+    "email": "admin@escalanet.com",
+    "permissao": "admin",
+    "nucleoVinculadoId": null
+  },
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
 
-Todas as rotas protegidas exigem o token no header:
+O token também é retornado no header `Authorization: Bearer <token>`.
 
-```
+### Rotas protegidas
+
+Envie o token em todas as rotas registradas **após** o middleware de autenticação:
+
+```http
 Authorization: Bearer <token>
 ```
 
-O token expira em **1 hora**.
+Sem token ou token inválido → `401 Unauthorized`.
+
+### Permissões
+
+| Permissão | Descrição |
+|-----------|-----------|
+| `admin` | Acesso total; obrigatório para criar/editar/deletar categorias |
+| `professor` | Padrão no cadastro |
+| `arbitro` | Árbitro de jogos |
+| `auxiliar` | Auxiliar |
 
 ---
 
 ## Formato das respostas
 
-**Sucesso simples:**
+### Sucesso (item único)
+
 ```json
 {
-  "message": "Recurso obtido com sucesso",
-  "data": { ... }
+  "message": "Mensagem descritiva",
+  "data": { }
 }
 ```
 
-**Lista paginada:**
+### Sucesso (lista paginada)
+
 ```json
 {
-  "message": "Recursos listados com sucesso",
-  "data": [ ... ],
+  "message": "Listagem realizada com sucesso",
+  "data": [ ],
   "meta": {
-    "total": 42,
-    "totalPaginas": 5,
     "pagina": 1,
-    "limite": 10
+    "limite": 10,
+    "total": 42,
+    "totalPaginas": 5
   }
 }
 ```
 
-**Erro:**
+### Erro
+
 ```json
 {
   "status": 400,
-  "message": "Dados de entrada inválidos",
-  "detalhes": "nome: Required; email: Invalid email"
+  "message": "Descrição do erro",
+  "detalhes": "Detalhes opcionais"
 }
 ```
 
----
+### Códigos HTTP comuns
 
-## Paginação e filtros
-
-Todas as rotas de listagem aceitam:
-
-| Query param | Tipo | Padrão | Descrição |
-|---|---|---|---|
-| `pagina` | number | 1 | Página atual |
-| `limite` | number | 10 | Itens por página |
-
-Filtros específicos de cada módulo são passados também como query params. Exemplos:
-
-```
-GET /jogadores?nome=carlos&ativo=true&timeId=3
-GET /jogos?categoriaId=2&pagina=2&limite=5
-GET /postagens?status=publicado&busca=campeonato
-```
+| Código | Significado |
+|--------|-------------|
+| `200` | Sucesso |
+| `201` | Criado |
+| `204` | Removido (sem corpo) |
+| `400` | Dados inválidos |
+| `401` | Não autenticado |
+| `403` | Sem permissão |
+| `404` | Não encontrado |
+| `409` | Conflito (ex.: jogos já gerados) |
 
 ---
 
-## Includes (relações)
+## Paginação, filtros e includes
 
-Para carregar relações junto com o recurso, use o parâmetro `includes` com os nomes separados por vírgula:
+### Paginação
 
+Disponível em todas as listagens (`GET` com coleção). Query params:
+
+| Param | Tipo | Padrão | Regra |
+|-------|------|--------|-------|
+| `pagina` | `number` | `1` | Inteiro positivo |
+| `limite` | `number` | `10` | Inteiro positivo, máx. `100` |
+
+**Exemplo:**
+
+```http
+GET /times?pagina=1&limite=20&nome=sub-15
+Authorization: Bearer <token>
 ```
-GET /times/1?includes=nucleo,categoria,jogadores
-GET /jogos?includes=timeA,timeB,arbitro
+
+### Filtros
+
+Cada módulo aceita filtros específicos via query string (documentados em cada seção). Buscas de texto (`nome`, `busca`) usam correspondência parcial (ILIKE).
+
+### Includes (relações)
+
+Para carregar entidades relacionadas, use o parâmetro `includes` com valores separados por vírgula:
+
+```http
+GET /competicoes/1?includes=times,jogos
+Authorization: Bearer <token>
 ```
 
-Cada módulo tem suas relações disponíveis documentadas abaixo.
+Os valores permitidos variam por módulo (listados em cada seção).
+
+### Datas
+
+Envie datas em formato ISO 8601: `"2026-06-10"` ou `"2026-06-10T14:00:00.000Z"`.
+
+### Referências por ID
+
+Campos de relação são enviados como objeto com `id`:
+
+```json
+{ "timeA": { "id": 1 }, "timeB": { "id": 2 } }
+```
 
 ---
 
 ## Rotas públicas
 
-Estas rotas **não exigem token**. Destinadas à landing page.
+Não exigem token.
 
-### Postagens publicadas
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| `GET` | `/` | Status da API |
+| `POST` | `/login` | Autenticação |
+| `POST` | `/usuario` | Cadastro de usuário |
+| `GET` | `/postagens/publicadas` | Postagens publicadas (landing) |
+| `GET` | `/postagens/:id` | Detalhe de postagem |
+| `GET` | `/postagens` | Listagem admin de postagens |
+| `POST` | `/postagens` | Criar postagem |
+| `PUT` | `/postagens/:id` | Atualizar postagem |
+| `DELETE` | `/postagens/:id` | Remover postagem |
+| `POST` | `/upload/imagem` | Upload de imagem |
+| `POST` | `/upload/documento` | Upload de documento |
+| `POST` | `/upload/video` | Upload de vídeo |
 
-```
-GET /postagens/publicadas
-GET /postagens/publicadas?pagina=1&limite=6
-```
-
-Retorna apenas postagens com `status = "publicado"` e `publicadoEm <= hoje`, ordenadas da mais recente para a mais antiga.
-
-```
-GET /postagens/:id
-```
-
-Retorna uma postagem específica (pública ou rascunho — validar no front se necessário).
-
-### Upload de arquivos
-
-```
-POST /upload/imagem
-POST /upload/documento
-POST /upload/video
-```
-
-Ver seção [Upload de arquivos](#upload-de-arquivos).
+> **Nota:** O módulo de postagens está montado antes do middleware de autenticação — todas as rotas de `/postagens` são públicas no estado atual do servidor.
 
 ---
 
 ## Rotas protegidas
 
-> Todas as rotas abaixo exigem `Authorization: Bearer <token>`.
+Todas exigem `Authorization: Bearer <token>`.
 
 ---
 
 ### Usuários
 
-```
-POST   /usuario          → criar usuário (público — cadastro)
-GET    /usuarios         → listar
-GET    /usuarios/:id     → buscar por ID
-PUT    /usuarios/:id     → atualizar
-DELETE /usuarios/:id     → deletar
-```
+**Base:** `/usuarios`
 
-**Campos para criar/atualizar:**
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| `GET` | `/usuarios` | Listar |
+| `GET` | `/usuarios/:id` | Buscar por ID |
+| `POST` | `/usuarios` | Criar |
+| `PUT` | `/usuarios/:id` | Atualizar |
+| `DELETE` | `/usuarios/:id` | Remover |
+
+> Cadastro público alternativo: `POST /usuario` (mesmo body).
+
+**Criar / atualizar (body):**
+
 ```json
 {
   "nome": "João Silva",
   "email": "joao@email.com",
   "senha": "senha123",
   "permissao": "professor",
-  "nucleoVinculado": { "id": 2 }
+  "nucleoVinculado": { "id": 1 }
 }
 ```
 
-Permissões disponíveis: `admin` | `professor` | `arbitro` | `auxiliar`
+| Campo | Tipo | Obrigatório |
+|-------|------|-------------|
+| `nome` | `string` | sim (criar) |
+| `email` | `string` (email) | sim (criar) |
+| `senha` | `string` (min 6) | sim (criar) |
+| `permissao` | `admin` \| `professor` \| `arbitro` \| `auxiliar` | sim (criar) |
+| `nucleoVinculado` | `{ id: number }` | não |
 
-**Includes disponíveis:** `nucleoVinculado`, `jogos`, `treinos`, `eventos`
+**Filtros (query):** `id`, `nome`, `email`, `permissao`, `nucleoVinculadoId`
+
+**Includes:** `nucleoVinculado`, `jogos`, `treinos`, `eventos`
 
 ---
 
 ### Núcleos
 
-```
-GET    /nucleos       → listar
-GET    /nucleos/:id   → buscar por ID
-POST   /nucleos       → criar
-PUT    /nucleos/:id   → atualizar
-DELETE /nucleos/:id   → deletar
-```
+**Base:** `/nucleos`
 
-**Campos para criar/atualizar:**
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| `GET` | `/nucleos` | Listar |
+| `GET` | `/nucleos/:id` | Buscar por ID |
+| `GET` | `/nucleos/:id/dashboard` | Métricas do núcleo |
+| `POST` | `/nucleos` | Criar |
+| `PUT` | `/nucleos/:id` | Atualizar |
+| `DELETE` | `/nucleos/:id` | Remover |
+
+**Criar (body):**
+
 ```json
 {
   "nome": "Núcleo Centro",
-  "endereco": "Rua XV de Novembro, 123"
+  "endereco": "Rua das Flores, 100"
 }
 ```
 
-**Filtros:** `nome`, `endereco`
+**Dashboard (`GET /nucleos/:id/dashboard`)** retorna totais de jogadores, professores, jogos, treinos, times, categorias, etc.
 
-**Includes disponíveis:** `materiais`, `times`, `treinos`, `usuariosVinculados`
+**Filtros:** `id`, `nome`, `endereco`, `createdAt`, `updateAt`
+
+**Includes:** `materiais`, `times`, `treinos`
 
 ---
 
 ### Categorias
 
-```
-GET    /categorias       → listar
-GET    /categorias/:id   → buscar por ID
-POST   /categorias       → criar
-PUT    /categorias/:id   → atualizar
-DELETE /categorias/:id   → deletar
-```
+**Base:** `/categorias`
 
-**Campos para criar/atualizar:**
+| Método | Rota | Permissão |
+|--------|------|-----------|
+| `GET` | `/categorias` | Qualquer autenticado |
+| `GET` | `/categorias/:id` | Qualquer autenticado |
+| `POST` | `/categorias` | **admin** |
+| `PUT` | `/categorias/:id` | **admin** |
+| `DELETE` | `/categorias/:id` | **admin** |
+
+**Criar (body):**
+
 ```json
 {
-  "nome": "Sub-13",
-  "idadeMaxima": 13,
+  "nome": "Sub-15",
+  "idadeMaxima": 15,
   "ativa": true
 }
 ```
 
-**Filtros:** `nome`, `idadeMaxima`, `ativa`
+**Filtros:** `id`, `nome`, `ativa`, `idadeMaxima`, `buscaDataInicio`, `buscaDataFim`
 
-**Includes disponíveis:** `times`, `jogos`
+**Includes:** `times`, `jogos`
 
 ---
 
 ### Times
 
-```
-GET    /times       → listar
-GET    /times/:id   → buscar por ID
-POST   /times       → criar
-PUT    /times/:id   → atualizar
-DELETE /times/:id   → deletar
-```
+**Base:** `/times`
 
-**Campos para criar:**
+| Método | Rota |
+|--------|------|
+| `GET` | `/times` |
+| `GET` | `/times/:id` |
+| `POST` | `/times` |
+| `PUT` | `/times/:id` |
+| `DELETE` | `/times/:id` |
+
+**Criar (body):**
+
 ```json
 {
-  "nome": "Sub-13 A",
+  "nome": "Time Sub-15 A",
   "nucleoId": 1,
   "categoriaId": 2,
-  "treinadorId": 5
+  "treinadorId": 3
 }
 ```
 
-**Filtros:** `nome`, `nucleoId`, `categoriaId`, `treinadorId`
+**Filtros:** `id`, `nome`, `nucleoId`, `categoriaId`, `treinadorId`
 
-**Includes disponíveis:** `nucleo`, `categoria`, `treinador`, `jogadores`, `jogosComoTimeA`, `jogosComoTimeB`, `eventos`, `competicoes`, `chamadas`
+**Includes:** `nucleo`, `categoria`, `treinador`, `jogadores`, `jogosComoTimeA`, `jogosComoTimeB`, `eventos`, `competicoes`, `chamadas`
 
 ---
 
 ### Jogadores
 
-```
-GET    /jogadores       → listar
-GET    /jogadores/:id   → buscar por ID
-POST   /jogadores       → criar
-PUT    /jogadores/:id   → atualizar
-DELETE /jogadores/:id   → deletar
-```
+**Base:** `/jogadores`
 
-**Campos para criar:**
+| Método | Rota |
+|--------|------|
+| `GET` | `/jogadores` |
+| `GET` | `/jogadores/:id` |
+| `POST` | `/jogadores` |
+| `PUT` | `/jogadores/:id` |
+| `DELETE` | `/jogadores/:id` |
+
+**Criar (body):**
+
 ```json
 {
-  "nome": "Carlos Silva",
+  "nome": "Pedro Santos",
   "dataNascimento": "2011-03-15",
   "ativo": true,
-  "telefone": "(32) 99999-9999",
-  "time": { "id": 3 }
+  "telefone": "11999999999",
+  "time": { "id": 1 }
 }
 ```
 
-**Filtros:** `nome`, `timeId`, `nucleoId`, `categoriaId`, `treinadorId`, `ativo`, `dataNascimento`
+**Filtros:** `id`, `nome`, `timeId`, `treinadorId`, `ativo`, `dataNascimento`, `nucleoId`, `categoriaId`
 
-**Includes disponíveis:** `time`
+**Includes:** `time`
 
 ---
 
 ### Treinos
 
-```
-GET    /treinos       → listar
-GET    /treinos/:id   → buscar por ID
-POST   /treinos       → criar
-PUT    /treinos/:id   → atualizar
-DELETE /treinos/:id   → deletar
-```
+**Base:** `/treinos`
 
-**Campos para criar:**
+| Método | Rota |
+|--------|------|
+| `GET` | `/treinos` |
+| `GET` | `/treinos/:id` |
+| `POST` | `/treinos` |
+| `PUT` | `/treinos/:id` |
+| `DELETE` | `/treinos/:id` |
+
+**Criar (body):**
+
 ```json
 {
   "data": "2026-06-10",
   "nucleo": { "id": 1 },
-  "jogadores": [{ "id": 5 }, { "id": 8 }],
-  "usuarios": [{ "id": 2 }]
+  "jogadores": [{ "id": 1 }, { "id": 2 }],
+  "usuarios": [{ "id": 3 }]
 }
 ```
 
-> Usuários sem `nucleoVinculado` (admin) veem todos os treinos.  
-> Usuários com núcleo vinculado veem apenas treinos do seu núcleo.
+**Filtros:** `id`, `data`, `nome`, `nucleoId`, `jogadorId`, `usuarioId`
 
-**Filtros:** `nucleoId`, `data`, `jogadorId`, `usuarioId`
-
-**Includes disponíveis:** `nucleo`, `jogadores`, `usuarios`
+**Includes:** `nucleo`, `jogadores`, `usuarios`
 
 ---
 
 ### Jogos
 
-```
-GET    /jogo       → listar
-GET    /jogo/:id   → buscar por ID
-POST   /jogo       → criar
-PUT    /jogo/:id   → atualizar
-DELETE /jogo/:id   → deletar
-```
+**Base:** `/jogo`
 
-**Campos para criar:**
+| Método | Rota |
+|--------|------|
+| `GET` | `/jogo` |
+| `GET` | `/jogo/:id` |
+| `POST` | `/jogo` |
+| `PUT` | `/jogo/:id` |
+| `DELETE` | `/jogo/:id` |
+
+**Criar (body):**
+
 ```json
 {
-  "nome": "Final Sub-13",
-  "data": "2026-07-20",
-  "timeA": { "id": 3 },
-  "timeB": { "id": 7 },
-  "arbitro": { "id": 4 },
-  "categoria": { "id": 2 }
+  "nome": "Time A x Time B",
+  "data": "2026-06-15",
+  "timeA": { "id": 1 },
+  "timeB": { "id": 2 },
+  "arbitro": { "id": 3 },
+  "categoria": { "id": 1 }
 }
 ```
 
-**Filtros:** `nome`, `timeA`, `timeB`, `arbitro`, `categoriaId`, `data`, `golsTimeA`, `golsTimeB`
+**Atualizar placar (body):**
 
-**Includes disponíveis:** `timeA`, `timeB`, `arbitro`, `categoria`
+```json
+{
+  "golsTimeA": 2,
+  "golsTimeB": 1,
+  "finalizado": true
+}
+```
+
+| Campo extra (update) | Descrição |
+|---------------------|-----------|
+| `golsTimeA` | Gols do time A |
+| `golsTimeB` | Gols do time B |
+| `finalizado` | `true` quando o jogo foi disputado |
+
+> Ao marcar `finalizado: true` em jogo de competição do tipo **Liga**, a classificação é recalculada automaticamente.
+
+**Filtros:** `id`, `nome`, `data`, `timeA`, `timeB`, `arbitro`, `categoria`, `golsTimeA`, `golsTimeB`, `chamada`, `evento`
+
+**Includes:** `timeA`, `timeB`, `arbitro`, `categoria`, `competicao`
 
 ---
 
 ### Eventos de Jogo
 
-```
-GET    /eventos       → listar
-GET    /eventos/:id   → buscar por ID
-POST   /eventos       → criar
-PUT    /eventos/:id   → atualizar
-DELETE /eventos/:id   → deletar
-```
+**Base:** `/eventos`
 
-**Campos para criar:**
+| Método | Rota |
+|--------|------|
+| `GET` | `/eventos` |
+| `GET` | `/eventos/:id` |
+| `POST` | `/eventos` |
+| `PUT` | `/eventos/:id` |
+| `DELETE` | `/eventos/:id` |
+
+**Criar (body):**
+
 ```json
 {
   "tipo": "gol",
-  "minuto": 35,
-  "descricao": "Gol de cabeça",
-  "jogo": { "id": 12 },
-  "usuario": { "id": 4 },
+  "descricao": "Gol de falta",
+  "minuto": 23,
+  "jogo": { "id": 1 },
+  "usuario": { "id": 3 },
   "nucleo": { "id": 1 },
-  "jogadorEnvolvido": { "id": 9 }
+  "jogadorEnvolvido": { "id": 5 }
 }
 ```
 
-**Tipos de evento:** `gol` | `falta` | `cartao_amarelo` | `cartao_vermelho` | `escanteio` | `substituicao`
+**Tipos de evento (`tipo`):**
 
-**Filtros:** `tipo`, `jogoId`, `usuarioId`, `nucleoId`, `jogadorEnvolvidoId`, `minuto`
+`gol` · `falta` · `cartao_amarelo` · `cartao_vermelho` · `escanteio` · `substituicao`
 
-**Includes disponíveis:** `jogo`, `treino`, `jogadorEnvolvido`, `usuario`
+**Filtros:** `tipo`, `minuto`, `jogoId`, `usuarioId`, `nucleoId`, `jogadorEnvolvidoId`, `descricao`, `acrescimo`
+
+**Includes:** `time`, `jogo`, `jogadorEnvolvido`, `usuario`
 
 ---
 
 ### Chamadas
 
-```
-GET    /chamadas       → listar
-GET    /chamadas/:id   → buscar por ID
-POST   /chamadas       → criar
-PUT    /chamadas/:id   → atualizar
-DELETE /chamadas/:id   → deletar
-```
+**Base:** `/chamadas`
 
-Uma chamada é o registro de presença de um **time** em um treino ou jogo específico.  
-Depois de criar a chamada, registre a frequência individual de cada jogador via `/frequencia`.
+| Método | Rota |
+|--------|------|
+| `GET` | `/chamadas` |
+| `GET` | `/chamadas/:id` |
+| `POST` | `/chamadas` |
+| `PUT` | `/chamadas/:id` |
+| `DELETE` | `/chamadas/:id` |
 
-**Campos para criar:**
+**Criar (body):**
+
 ```json
 {
   "data": "2026-06-10",
-  "timeId": 3,
-  "treinoId": 8,
+  "timeId": 1,
+  "treinoId": 5,
   "jogoId": null
 }
 ```
 
-> `treinoId` ou `jogoId` — preencha apenas um dos dois.
+Informe `treinoId` **ou** `jogoId` (o outro como `null`).
 
-**Filtros:** `data`, `timeId`, `treinoId`, `jogoId`
+**Filtros:** `dataInicio`, `dataFim`, `timeId`, `jogoId`, `treinoId`
 
-**Includes disponíveis:** `time`, `jogo`, `treino`
+**Includes:** `time`, `jogo`, `treino`
 
 ---
 
 ### Frequência
 
-```
-GET    /frequencia       → listar
-GET    /frequencia/:id   → buscar por ID
-POST   /frequencia       → criar
-PUT    /frequencia/:id   → atualizar
-DELETE /frequencia/:id   → deletar
-```
+**Base:** `/frequencias`
 
-Registra a presença/ausência de um **jogador** em uma chamada.
+| Método | Rota |
+|--------|------|
+| `GET` | `/frequencias` |
+| `GET` | `/frequencias/:id` |
+| `POST` | `/frequencias` |
+| `PUT` | `/frequencias/:id` |
+| `DELETE` | `/frequencias/:id` |
 
-**Campos para criar:**
+**Criar (body):**
+
 ```json
 {
+  "data": "2026-06-10",
   "presente": true,
-  "jogadorId": 9,
-  "chamadaId": 14,
-  "justificativa": null
+  "jogadorId": 1,
+  "treinoId": 5,
+  "jogoId": null
 }
 ```
 
-**Filtros:** `chamadaId`, `jogadorId`, `presente`
+**Filtros:** `chamadaId`, `presente`, `jogadorId`, `justificativa`
 
-**Includes disponíveis:** `jogador`, `treino`, `jogo`
+**Includes:** `jogador`, `treino`, `jogo`
 
 ---
 
 ### Competições
 
-```
-GET    /competicoes       → listar
-GET    /competicoes/:id   → buscar por ID
-POST   /competicoes       → criar
-PUT    /competicoes/:id   → atualizar
-DELETE /competicoes/:id   → deletar
-```
+**Base:** `/competicoes`
 
-**Campos para criar:**
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| `GET` | `/competicoes` | Listar |
+| `GET` | `/competicoes/:id` | Buscar por ID |
+| `POST` | `/competicoes` | Criar |
+| `PUT` | `/competicoes/:id` | Atualizar |
+| `DELETE` | `/competicoes/:id` | Remover |
+| `PUT` | `/competicoes/:id/times` | Vincular times |
+| `POST` | `/competicoes/:id/gerar-jogos` | Gerar jogos automaticamente |
+| `POST` | `/competicoes/:id/recalcular-classificacao` | Recalcular tabela |
+
+**Criar (body):**
+
 ```json
 {
-  "nome": "Copa Bom de Bola 2026",
-  "tipo": "Copa"
+  "nome": "Liga Bom de Bola 2026",
+  "tipo": "Liga",
+  "intervaloDias": 7,
+  "duplaVolta": true
 }
 ```
 
-**Tipos:** `Copa` | `Liga`
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `nome` | `string` | Nome da competição |
+| `tipo` | `Copa` \| `Liga` | Formato |
+| `intervaloDias` | `number` | Dias entre rodadas (padrão: 7) |
+| `duplaVolta` | `boolean` | Dois turnos (só Liga; padrão: false) |
 
-**Filtros:** `nome`, `tipo`
+**Vincular times (`PUT /competicoes/:id/times`):**
 
-**Includes disponíveis:** `jogos`, `times`
+```json
+{
+  "timeIds": [1, 2, 3, 4]
+}
+```
+
+**Gerar jogos (`POST /competicoes/:id/gerar-jogos`):**
+
+```json
+{
+  "dataInicio": "2026-06-10"
+}
+```
+
+- **Liga:** gera round-robin (todos contra todos); com `duplaVolta: true` inverte o mando no segundo turno.
+- **Copa:** gera apenas a primeira rodada do mata-mata.
+- Requer pelo menos 2 times vinculados.
+- Não gera novamente se já existirem jogos (retorna `409`).
+
+**Filtros:** `id`, `nome`, `tipo`
+
+**Includes:** `jogos`, `times`
+
+#### Fluxo completo de uma competição Liga
+
+```bash
+# 1. Criar competição
+POST /competicoes
+{ "nome": "Liga 2026", "tipo": "Liga", "intervaloDias": 7, "duplaVolta": true }
+
+# 2. Vincular times
+PUT /competicoes/1/times
+{ "timeIds": [1, 2, 3, 4] }
+
+# 3. Gerar jogos
+POST /competicoes/1/gerar-jogos
+{ "dataInicio": "2026-06-10" }
+
+# 4. Registrar placar (marca jogo como finalizado)
+PUT /jogo/5
+{ "golsTimeA": 2, "golsTimeB": 1, "finalizado": true }
+
+# 5. Consultar classificação
+GET /classificacoes?competicaoId=1&includes=time,competicao
+```
 
 ---
 
 ### Classificação
 
-```
-GET    /classificacoes       → listar
-GET    /classificacoes/:id   → buscar por ID
-POST   /classificacoes       → criar
-PUT    /classificacoes/:id   → atualizar
-DELETE /classificacoes/:id   → deletar
-```
+**Base:** `/classificacoes`
 
-**Campos para criar:**
+| Método | Rota |
+|--------|------|
+| `GET` | `/classificacoes` |
+| `GET` | `/classificacoes/:id` |
+| `POST` | `/classificacoes` |
+| `PUT` | `/classificacoes/:id` |
+| `DELETE` | `/classificacoes/:id` |
+
+Em competições **Liga**, a tabela é criada ao gerar jogos e atualizada automaticamente quando um jogo é finalizado. O endpoint manual de recálculo fica em `POST /competicoes/:id/recalcular-classificacao`.
+
+**Criar manualmente (body):**
+
 ```json
 {
   "competicaoId": 1,
@@ -535,177 +727,171 @@ DELETE /classificacoes/:id   → deletar
 }
 ```
 
-**Filtros:** `competicaoId`, `timeId`, `timeNome`
+**Filtros:** `id`, `competicaoId`, `timeId`, `timeNome`
 
-**Includes disponíveis:** `competicao`, `time`
+**Includes:** `competicao`, `time`
+
+**Critérios de ordenação:** pontos → saldo de gols → gols pró.
 
 ---
 
 ### Material de Núcleo
 
-```
-GET    /material-nucleo       → listar
-GET    /material-nucleo/:id   → buscar por ID
-POST   /material-nucleo       → criar
-PUT    /material-nucleo/:id   → atualizar
-DELETE /material-nucleo/:id   → deletar
-```
+**Base:** `/material-nucleo`
 
-**Campos para criar:**
+| Método | Rota |
+|--------|------|
+| `GET` | `/material-nucleo` |
+| `GET` | `/material-nucleo/:id` |
+| `POST` | `/material-nucleo` |
+| `PUT` | `/material-nucleo/:id` |
+| `DELETE` | `/material-nucleo/:id` |
+
+**Criar (body):**
+
 ```json
 {
-  "tipoMaterial": "Bola oficial",
   "quantidade": 10,
-  "dataRecebimento": "2026-05-01",
-  "observacao": "Bolas para treino",
-  "nucleo": { "id": 2 }
+  "tipoMaterial": "Bola",
+  "observacao": "Bolas novas",
+  "nucleo": { "id": 1 },
+  "dataRecebimento": "2026-01-15"
 }
 ```
 
-**Filtros:** `tipoMaterial`, `nucleoId`, `quantidade`, `dataRecebimento`
+**Filtros:** `id`, `quantidade`, `tipoMaterial`, `nucleoId`, `dataRecebimento`
 
-**Includes disponíveis:** `nucleo`
+**Includes:** `nucleo`
 
 ---
 
-### Postagens (admin)
+### Relatórios
 
-```
-GET    /postagens       → listar todas (com filtros de status)
-GET    /postagens/:id   → buscar por ID
-POST   /postagens       → criar
-PUT    /postagens/:id   → atualizar
-DELETE /postagens/:id   → deletar
-```
+**Base:** `/relatorios`
 
-**Campos para criar:**
-```json
-{
-  "titulo": "Campeonato Municipal começa em julho",
-  "conteudo": "Texto completo da notícia em HTML ou markdown...",
-  "resumo": "Breve descrição exibida na listagem",
-  "imagemUrl": "https://res.cloudinary.com/...",
-  "status": "publicado",
-  "publicadoEm": "2026-07-01T10:00:00"
-}
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| `GET` | `/relatorios/frequencia` | Presença por jogador |
+| `GET` | `/relatorios/desempenho` | Estatísticas de jogo por jogador |
+
+#### Frequência
+
+```http
+GET /relatorios/frequencia?nucleoId=1&timeId=2&dataInicio=2026-01-01&dataFim=2026-06-30&tipo=todos
 ```
 
-| Campo | Obrigatório | Descrição |
-|---|---|---|
-| `titulo` | ✅ | Mínimo 3 caracteres |
-| `conteudo` | ✅ | HTML ou texto livre |
-| `resumo` | ❌ | Máximo 300 caracteres |
-| `imagemUrl` | ❌ | URL do Cloudinary (use `/upload/imagem` primeiro) |
-| `status` | ❌ | `"rascunho"` (padrão) ou `"publicado"` |
-| `publicadoEm` | ❌ | Data/hora de publicação (pode ser futura) |
+| Filtro | Tipo | Padrão |
+|--------|------|--------|
+| `nucleoId` | `number` | — |
+| `timeId` | `number` | — |
+| `jogadorId` | `number` | — |
+| `dataInicio` | `date` | — |
+| `dataFim` | `date` | — |
+| `tipo` | `treino` \| `jogo` \| `todos` | `todos` |
 
-**Filtros:** `status`, `busca` (pesquisa em título e resumo), `dataInicio`, `dataFim`
+#### Desempenho
 
+```http
+GET /relatorios/desempenho?competicaoId=1&timeId=2&dataInicio=2026-01-01&dataFim=2026-06-30
 ```
-GET /postagens?status=publicado
-GET /postagens?busca=campeonato
-GET /postagens?dataInicio=2026-06-01&dataFim=2026-06-30
-```
+
+| Filtro | Tipo |
+|--------|------|
+| `nucleoId` | `number` |
+| `timeId` | `number` |
+| `jogadorId` | `number` |
+| `jogoId` | `number` |
+| `competicaoId` | `number` |
+| `dataInicio` | `date` |
+| `dataFim` | `date` |
 
 ---
 
 ## Upload de arquivos
 
-O upload é feito em **dois passos**: primeiro envia o arquivo, depois usa a URL retornada ao criar/atualizar o recurso.
+**Base:** `/upload` (público)  
+**Content-Type:** `multipart/form-data`
 
-As rotas de upload são **públicas** (não exigem token).
+| Método | Rota | Campo do form | Tipos aceitos | Tamanho máx. |
+|--------|------|---------------|---------------|--------------|
+| `POST` | `/upload/imagem` | `imagem` | jpeg, png, webp, gif | 5 MB |
+| `POST` | `/upload/documento` | `documento` | pdf, doc, docx | 10 MB |
+| `POST` | `/upload/video` | `video` | mp4, mov, avi, webm | 100 MB |
 
-### Upload de imagem
+**Resposta (201):**
 
-```
-POST /upload/imagem
-Content-Type: multipart/form-data
-```
-
-| Campo do form | Tipo aceito | Tamanho máximo |
-|---|---|---|
-| `imagem` | JPEG, PNG, WebP, GIF | 5 MB |
-
-**Resposta:**
 ```json
 {
   "message": "Imagem enviada com sucesso",
   "data": {
-    "url": "https://res.cloudinary.com/escalanet/imagens/abc123.webp",
-    "publicId": "escalanet/imagens/abc123",
-    "tipo": "imagem",
-    "formato": "webp",
-    "tamanhoBytes": 84320
+    "url": "https://res.cloudinary.com/...",
+    "publicId": "imagens/abc123",
+    "formato": "jpg",
+    "tamanhoBytes": 245000
   }
 }
 ```
 
-### Upload de documento
-
-```
-POST /upload/documento
-Content-Type: multipart/form-data
-```
-
-| Campo do form | Tipo aceito | Tamanho máximo |
-|---|---|---|
-| `documento` | PDF, Word (.doc, .docx) | 10 MB |
-
-### Upload de vídeo
-
-```
-POST /upload/video
-Content-Type: multipart/form-data
-```
-
-| Campo do form | Tipo aceito | Tamanho máximo |
-|---|---|---|
-| `video` | MP4, MOV, AVI, WebM | 100 MB |
-
-### Como usar no front (exemplo com fetch)
-
-```javascript
-// 1. Faz o upload da imagem
-const formData = new FormData();
-formData.append('imagem', arquivoSelecionado);
-
-const uploadRes = await fetch('http://localhost:3000/upload/imagem', {
-  method: 'POST',
-  body: formData,
-});
-const { data } = await uploadRes.json();
-const imagemUrl = data.url;
-
-// 2. Cria a postagem com a URL da imagem
-await fetch('http://localhost:3000/postagens', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
-  },
-  body: JSON.stringify({
-    titulo: 'Nova notícia',
-    conteudo: 'Texto da notícia...',
-    imagemUrl,
-    status: 'publicado',
-  }),
-});
-```
+Use a `url` retornada em campos como `imagemUrl` ao criar postagens.
 
 ---
 
-## Fluxo de chamada e frequência
+## Postagens (landing page)
 
-Para registrar presença em um treino:
+**Base:** `/postagens` (público)
 
+| Método | Rota | Uso |
+|--------|------|-----|
+| `GET` | `/postagens/publicadas` | Landing — só `status: publicado` |
+| `GET` | `/postagens/:id` | Detalhe |
+| `GET` | `/postagens` | Listagem admin |
+| `POST` | `/postagens` | Criar |
+| `PUT` | `/postagens/:id` | Atualizar |
+| `DELETE` | `/postagens/:id` | Remover |
+
+**Criar (body):**
+
+```json
+{
+  "titulo": "Campeonato 2026",
+  "conteudo": "Texto completo da notícia...",
+  "resumo": "Resumo curto",
+  "imagemUrl": "https://res.cloudinary.com/...",
+  "status": "publicado",
+  "publicadoEm": "2026-06-01"
+}
 ```
-1. POST /chamadas
-   → { data, timeId, treinoId }
-   → retorna { id: 14, ... }
 
-2. Para cada jogador do time:
-   POST /frequencia
-   → { presente: true/false, jogadorId, chamadaId: 14, justificativa: null }
+**Filtros (admin):** `status`, `busca`, `dataInicio`, `dataFim`
+
+---
+
+## Referência rápida
+
+| Módulo | Base | Auth |
+|--------|------|------|
+| Status / Login | `/`, `/login`, `/usuario` | Público |
+| Postagens | `/postagens` | Público |
+| Upload | `/upload` | Público |
+| Usuários | `/usuarios` | Token |
+| Núcleos | `/nucleos` | Token |
+| Categorias | `/categorias` | Token (+ admin para mutações) |
+| Times | `/times` | Token |
+| Jogadores | `/jogadores` | Token |
+| Treinos | `/treinos` | Token |
+| Jogos | `/jogo` | Token |
+| Eventos | `/eventos` | Token |
+| Chamadas | `/chamadas` | Token |
+| Frequências | `/frequencias` | Token |
+| Competições | `/competicoes` | Token |
+| Classificações | `/classificacoes` | Token |
+| Material | `/material-nucleo` | Token |
+| Relatórios | `/relatorios` | Token |
+
+---
+
+## Testes
+
+```bash
+npm test
 ```
-
-Para registrar presença em um jogo, mesmo fluxo mas com `jogoId` no lugar de `treinoId`.

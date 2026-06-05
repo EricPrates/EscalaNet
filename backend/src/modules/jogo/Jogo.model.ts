@@ -50,6 +50,9 @@ export class Jogo {
     @Column({ type: "int", nullable: true, default:0 })
     golsTimeB!: number;
 
+    @Column({ type: "boolean", default: false })
+    finalizado!: boolean;
+
     @OneToMany(() => Chamada, (chamada) => chamada.jogo)
     chamadas!: Chamada[];
 

@@ -4,13 +4,11 @@ import { Time } from '../time/time.model';
 
 
 @Entity({ name: "categorias" })
-@Index(['idadeMaxima'])
 export class Categoria {
 
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @Index()
     @Column({ type: "varchar", length: 50, nullable: false, unique: true })
     nome!:  string;
 

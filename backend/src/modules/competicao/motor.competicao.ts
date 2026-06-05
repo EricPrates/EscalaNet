@@ -24,13 +24,6 @@ type Participante = TimeBasico | null | PlaceholderWinner;
 // TimeOuNull é usado no algoritmo round‑robin para permitir folgas (bye)
 type TimeOuNull = Time | null;
 
-// Extensão da entidade Competicao para incluir configurações opcionais
-// que podem existir no objeto JSON, mesmo não estando no modelo oficial
-interface CompeticaoComConfig extends Competicao {
-    intervaloDias?: number;   // dias entre rodadas (padrão 7)
-    duplaVolta?: boolean;     // se verdadeiro, gera dois turnos
-}
-
 // ============================================================
 // FUNÇÃO PRINCIPAL: GERAR JOGOS DA COMPETIÇÃO
 // ============================================================
@@ -76,10 +69,8 @@ export async function gerarJogosCompeticao(
     const times = competicao.times;
     const jogosParaCriar: DeepPartial<Jogo>[] = []; // armazena jogos em memória antes de salvar
 
-    // Configurações extra (intervalo entre rodadas e dupla volta)
-    const config = competicao as CompeticaoComConfig;
-    const intervaloDias = config.intervaloDias ?? 7;   // padrão 7 dias
-    const duplaVolta = !!config.duplaVolta;           // força booleano
+    const intervaloDias = competicao.intervaloDias ?? 7;
+    const duplaVolta = !!competicao.duplaVolta;
 
     // ============================================================
     // LÓGICA PARA COMPETIÇÕES DO TIPO LIGA (ROUND-ROBIN)
@@ -136,6 +127,7 @@ export async function gerarJogosCompeticao(
                     timeB,
                     golsTimeA: 0,
                     golsTimeB: 0,
+                    finalizado: false,
                     competicao,
                     categoria: undefined,
                     arbitro: undefined,
@@ -170,6 +162,7 @@ export async function gerarJogosCompeticao(
                     timeB: b,
                     golsTimeA: 0,
                     golsTimeB: 0,
+                    finalizado: false,
                     competicao,
                     categoria: undefined,
                     arbitro: undefined,
@@ -262,8 +255,10 @@ export async function recalcularClassificacao(
         });
     }
 
-    // Processa cada jogo (apenas os que têm placar definido, gols podem ser zero)
+    // Processa apenas jogos finalizados (evita contar 0x0 de jogos não realizados)
     for (const jogo of jogos) {
+        if (!jogo.finalizado) continue;
+
         const golsA = jogo.golsTimeA ?? 0;
         const golsB = jogo.golsTimeB ?? 0;
         const idA = jogo.timeA?.id;

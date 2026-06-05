@@ -92,7 +92,7 @@ const treinoService = fazerTreinoService(treinoRepo);
 export const treinoController = fazerTreinoController(treinoService);
 
 const jogoRepo = fazerJogoRepo(AppDataSource);
-const jogoService = fazerJogoService(jogoRepo);
+const jogoService = fazerJogoService(jogoRepo, AppDataSource);
 export const jogoController = fazerJogoController(jogoService);
 
 const frequenciaRepo = fazerFrequenciaRepo(AppDataSource);
@@ -112,7 +112,7 @@ const classificacaoService = fazerClassificacaoService(classificacaoRepo);
 export const classificacaoController = fazerClassificacaoController(classificacaoService);
 
 const competicaoRepo = fazerCompeticaoRepo(AppDataSource);
-const competicaoService = fazerCompeticaoService(competicaoRepo);
+const competicaoService = fazerCompeticaoService(competicaoRepo, AppDataSource);
 export const competicaoController = fazerCompeticaoController(competicaoService);
 
 const materialNucleoRepo = fazerMaterialNucleoRepo(AppDataSource);

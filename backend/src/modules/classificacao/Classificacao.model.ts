@@ -1,5 +1,5 @@
 // classificacao.model.ts
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Competicao } from '../competicao/Competicao.model';
 import { Time } from '../time/time.model';
 
@@ -9,9 +9,11 @@ export class Classificacao {
     id!: number;
 
     @ManyToOne(() => Competicao)
+    @JoinColumn({ name: "competicao_id" })
     competicao!: Competicao;
 
     @ManyToOne(() => Time)
+    @JoinColumn({ name: "time_id" })
     time!: Time;
 
     @Column({ default: 0 })

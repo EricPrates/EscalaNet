@@ -50,7 +50,7 @@ export function fazerJogoRepo(dataSource: DataSource): IJogoRepository {
             if (!jogo) return null;
             repo.merge(jogo, data);
             await repo.save(jogo);
-            return this.obterPorId(id);
+            return this.obterPorId(id, { timeA: true, timeB: true, competicao: true });
         },
 
         async deletar(id: number) {

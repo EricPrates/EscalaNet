@@ -25,6 +25,7 @@ export const SchemaJogoResposta = z.object({
     categoria: SchemaRefCategoria.nullable().optional(),
     golsTimeA: z.number(),
     golsTimeB: z.number(),
+    finalizado: z.boolean().optional(),
     chamada: SchemaRefChamada.optional(),
     eventos: z.array(SchemaRefEvento).optional(),
     evento: SchemaRefEvento.optional(),
@@ -58,10 +59,14 @@ export const SchemaFiltrosJogo = SchemaJogoResposta.partial().extend({
     return where;
 });
 
-export const RELACOES_JOGO = ['timeA', 'timeB', 'arbitro', 'categoria'] as const;
+export const RELACOES_JOGO = ['timeA', 'timeB', 'arbitro', 'categoria', 'competicao'] as const;
 export const QueryIncludesJogo = criarIncludesSchema(RELACOES_JOGO);
 
-export const SchemaAtualizarJogo = SchemaBaseJogo.partial();
+export const SchemaAtualizarJogo = SchemaBaseJogo.partial().extend({
+    golsTimeA: z.coerce.number().int().nonnegative().optional(),
+    golsTimeB: z.coerce.number().int().nonnegative().optional(),
+    finalizado: z.boolean().optional(),
+});
 export const SchemaJogosPaginados = SchemaRespostaPaginada(SchemaJogoResposta);
 
 export type CriarJogoDTO = z.infer<typeof SchemaBaseJogo>;

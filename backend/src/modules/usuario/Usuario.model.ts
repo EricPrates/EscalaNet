@@ -15,7 +15,6 @@ export class Usuario {
     @Column({ type: "varchar", length: 255, nullable: false })
     nome!: string;
 
-    @Index()
     @Column({ type: "varchar", length: 255, unique: true, nullable: false })
     email!: string;
 
