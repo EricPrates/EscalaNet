@@ -36,13 +36,14 @@ export function fazerChamadaService(chamadaRepo: IChamadaRepository): IChamadaSe
         },
 
         async criar(data: CriarChamadaDTO): Promise<RespostaChamadaDTO> {
-            const existentes = await this.obterPorData(data.data); 
+            const existentes = await this.obterPorData(data.data);
 
             if (existentes && existentes.length > 0) {
                 for (const chamada of existentes) {
-                    const conflitoJogo = chamada.jogoId === data.jogoId && chamada.timeId === data.timeId && chamada.data.getTime() === data.data.getTime();
-                    const conflitoTreinoTime = chamada.treinoId === data.treinoId &&
-                        chamada.timeId === data.timeId && chamada.data.getTime() === data.data.getTime();
+                    const mesmaData = chamada.data.getTime() === data.data.getTime();
+                    const conflitoJogo = (chamada.jogoId === data.jogoId) && mesmaData;
+                    const conflitoTreinoTime = (chamada.treinoId === data.treinoId &&
+                        chamada.timeId === data.timeId) && mesmaData;
 
                     if (conflitoJogo || conflitoTreinoTime) {
                         throw new AppError(409, 'Chamada duplicada');
