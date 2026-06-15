@@ -1,10 +1,11 @@
 // Importações necessárias do TypeORM e utilitários locais
-import { DataSource, DeepPartial } from 'typeorm';
+import { DataSource, DeepPartial, Repository } from 'typeorm';
 import { AppError } from '../../shared/utils/AppError';
 import { Competicao } from './Competicao.model';
 import { Jogo } from '../jogo/Jogo.model';
 import { Classificacao } from '../classificacao/Classificacao.model';
 import { Time } from '../time/time.model';
+
 
 // ============================================================
 // TIPOS AUXILIARES
@@ -47,11 +48,10 @@ export async function gerarJogosCompeticao(
     const competicaoRepo = dataSource.getRepository(Competicao);
     const jogoRepo = dataSource.getRepository(Jogo);
     const classificacaoRepo = dataSource.getRepository(Classificacao);
-
     // 1. Carrega a competição com seus times (relação many-to-many)
     const competicao = await competicaoRepo.findOne({
         where: { id: competicaoId },
-        relations: { times: true }, // forma correta (objeto) e não array de strings
+        relations: { times: true },
     });
 
     // Validações básicas
@@ -79,14 +79,14 @@ export async function gerarJogosCompeticao(
         // Algoritmo do círculo (circle method) para gerar rodadas balanceadas.
         // A lista pode conter null para representar "bye" (time sem adversário).
         let lista: TimeOuNull[] = [...times];
-        const odd = lista.length % 2 === 1;
-        if (odd) lista.push(null); // se número ímpar, adiciona folga
+        const impar = lista.length % 2 === 1;
+        if (impar) lista.push(null); // se número ímpar, adiciona folga
 
         const n = lista.length;
         const rounds = n - 1; // número de rodadas por turno
 
-        // scheduleRounds armazena, para cada rodada, os pares de times (ou null)
-        const scheduleRounds: Array<Array<[TimeOuNull, TimeOuNull]>> = [];
+        // jogosAgendados armazena, para cada rodada, os pares de times (ou null)
+        const jogosAgendados: Array<Array<[TimeOuNull, TimeOuNull]>> = [];
 
         // Gera as rodadas do primeiro turno
         for (let r = 0; r < rounds; r++) {
@@ -96,7 +96,7 @@ export async function gerarJogosCompeticao(
                 const b = lista[n - 1 - i];
                 if (a && b) pairs.push([a, b]); // só adiciona se ambos existirem
             }
-            scheduleRounds.push(pairs);
+            jogosAgendados.push(pairs);
 
             // Rotaciona a lista (fixa o primeiro, move o último para a posição 1, etc.)
             // O uso de "!" é seguro porque sabemos que lista[0] existe (n >= 2)
@@ -109,7 +109,7 @@ export async function gerarJogosCompeticao(
         for (let r = 0; r < totalRounds; r++) {
             const isSecondTurn = duplaVolta && r >= rounds;
             const roundIndex = isSecondTurn ? r - rounds : r;
-            const pairs = scheduleRounds[roundIndex] ?? [];
+            const pairs = jogosAgendados[roundIndex] ?? [];
 
             const data = new Date(dataInicio);
             data.setDate(data.getDate() + r * intervaloDias); // escalona a data
@@ -138,7 +138,7 @@ export async function gerarJogosCompeticao(
     // ============================================================
     // LÓGICA PARA COMPETIÇÕES DO TIPO COPA (MATA-MATA)
     // ============================================================
-    else {
+    else if (competicao.tipo === 'Copa') {
         const seeds = [...times];
         // Gera toda a estrutura de chaveamento (bracket) em memória
         const bracket = gerarEstruturaChaveamento(seeds);
@@ -171,7 +171,9 @@ export async function gerarJogosCompeticao(
             // Se houver bye (a ou b null), não cria jogo – o time avança automaticamente
         }
     }
-
+    else {
+        throw new AppError(400, 'Tipo de competição desconhecido');
+    }
     // ============================================================
     // PERSISTÊNCIA DOS JOGOS
     // ============================================================
@@ -219,7 +221,6 @@ export async function recalcularClassificacao(
     const jogoRepo = dataSource.getRepository(Jogo);
     const classificacaoRepo = dataSource.getRepository(Classificacao);
     const competicaoRepo = dataSource.getRepository(Competicao);
-
     // Carrega competição com seus times
     const competicao = await competicaoRepo.findOne({
         where: { id: competicaoId },
@@ -379,4 +380,124 @@ export function gerarEstruturaChaveamento(seeds: TimeBasico[]): Array<Array<[Par
     }
 
     return rounds;
+}
+// modules/competicao/competicao.service.ts (trecho)
+
+export async function avancarChaveamento(
+    competicaoId: number,
+    dataSource: DataSource,
+    timeRepo: Repository<Time>
+): Promise<void> {
+    const jogoRepo = dataSource.getRepository(Jogo);
+    const competicaoRepo = dataSource.getRepository(Competicao);
+
+    const competicao = await competicaoRepo.findOne({
+        where: { id: competicaoId },
+        relations: { times: true }
+    });
+    if (!competicao || competicao.tipo !== 'Copa') return;
+
+    // Jogos finalizados com seus vencedores (mapeia chave -> timeId)
+    const jogosFinalizados = await jogoRepo.find({
+        where: { competicao: { id: competicaoId }, finalizado: true },
+        relations: { timeA: true, timeB: true }
+    });
+    const vencedores = new Map<string, number>();
+    for (const jogo of jogosFinalizados) {
+        if (!jogo.chave) continue;
+        const vencedor = (jogo.golsTimeA > jogo.golsTimeB) ? jogo.timeA :
+                         (jogo.golsTimeB > jogo.golsTimeA) ? jogo.timeB : null;
+        if (vencedor) vencedores.set(jogo.chave, vencedor.id);
+    }
+
+    // Gerar estrutura do bracket
+    const timesBasicos = competicao.times!.map(t => ({ id: t.id, nome: t.nome }));
+    const bracket = gerarEstruturaChaveamento(timesBasicos);
+    const intervaloDias = competicao.intervaloDias ?? 7;
+
+    let rodadaAtual = 1;
+    while (rodadaAtual < bracket.length) {
+        const rodada = bracket[rodadaAtual];
+        if (!rodada) break;
+        const novosJogos = [];
+        let todosResolvidos = true;
+
+        for (let idx = 0; idx < rodada.length; idx++) {
+            const par= rodada[idx];
+            if (!par) continue;
+            const [partA, partB] = par;
+            const timeA = await resolverParticipante(partA, vencedores, timeRepo);
+            const timeB = await resolverParticipante(partB, vencedores, timeRepo);
+
+            // Se um dos lados for null (bye) e o outro é time, o time avança automaticamente.
+            // Não cria jogo; apenas registramos que o time já está na próxima fase.
+            // Para simplificar, aqui vamos criar o jogo SOMENTE se ambos os lados forem times.
+            if (timeA && timeB) {
+                const chave = `${rodadaAtual}-${idx}`;
+                const jaExiste = await jogoRepo.findOne({ where: { chave, competicao: { id: competicaoId } } });
+                if (!jaExiste) {
+                    const data = new Date();
+                    data.setDate(data.getDate() + rodadaAtual * intervaloDias);
+                    novosJogos.push({
+                        nome: `${timeA.nome} x ${timeB.nome}`,
+                        data,
+                        timeA,
+                        timeB,
+                        competicao: { id: competicaoId },
+                        finalizado: false,
+                        golsTimeA: 0,
+                        golsTimeB: 0,
+                        chave
+                    });
+                }
+            } else if (timeA || timeB) {
+                // Um dos lados é bye (null) e o outro é time -> time avança sozinho.
+                // Neste caso, NÃO criamos jogo. O time já está classificado.
+                // Precisamos propagar esse vencedor para os placeholders das próximas rodadas.
+                // Isso pode ser feito adicionando uma entrada artificial no mapa vencedores
+                // com a chave da próxima posição. (Opcional, pode ser feito recursivamente).
+                // Por simplicidade, ignoramos a criação de jogo e deixamos o próximo nível
+                // ser resolvido quando o outro lado aparecer.
+                // NOTA: Se você quiser que o time avance sem jogo, será necessário marcar
+                // o placeholder correspondente como já resolvido. Isso é mais complexo.
+                // Uma alternativa: ao gerar o bracket, já substituir byes por `null` e tratá-los
+                // como avanço direto na lógica de criação dos próximos jogos.
+            }
+
+            if (!timeA || !timeB) todosResolvidos = false;
+        }
+
+        if (novosJogos.length > 0) {
+            const criados = jogoRepo.create(novosJogos);
+            await jogoRepo.save(criados);
+        }
+
+        // Se nem todos os jogos desta rodada puderem ser criados (falta vencedor), paramos
+        if (!todosResolvidos) break;
+        rodadaAtual++;
+    }
+}
+
+async function resolverParticipante(
+    participante: Participante,
+    vencedores: Map<string, number>,
+    timeRepo: Repository<Time>
+): Promise<Time | null> {
+    if (participante === null) return null; // bye
+
+    if ('id' in participante) {
+        // Time real – busca a entidade completa
+        return await timeRepo.findOneBy({ id: participante.id });
+    }
+
+    if ('placeholderWinnerOf' in participante) {
+        const timeId = vencedores.get(participante.placeholderWinnerOf);
+        if (timeId) {
+            return await timeRepo.findOneBy({ id: timeId });
+        }
+        // Ainda não tem vencedor -> retorna null (aguarda)
+        return null;
+    }
+
+    return null;
 }

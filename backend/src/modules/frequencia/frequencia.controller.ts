@@ -57,7 +57,7 @@ export function fazerFrequenciaController(service: IFrequenciaService) {
             await service.deletar(id);
             return res.status(204).json(montarRespostaSucesso('Frequência deletada com sucesso'));
         },
-        async obterFrequenciaPrFiltro(req: Request, res: Response) {
+        async obterFrequenciaPorFiltro(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
             const filtros = SchemaFiltroFrequencia.parse(req.query);
             const { includes } = QueryIncludesFrequencia.parse(req.query);

@@ -1,13 +1,12 @@
-import { DataSource, FindOptionsRelations, FindOptionsWhere } from "typeorm";
+import { FindOptionsRelations, FindOptionsWhere } from "typeorm";
 import { AppError } from "../../shared/utils/AppError";
 import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
 import { IJogoRepository, IJogoService } from "./jogo.interfaces";
-import { AtualizarJogoDTO, CriarJogoDTO, RespostaJogoDTO, SchemaJogoResposta } from "./jogo.schemas";
+import { CriarJogoDTO, RespostaJogoDTO, SchemaFiltrosJogo, SchemaJogoResposta } from "./jogo.schemas";
 import { FiltrosJogadorDTO } from "../jogador/jogador.schemas";
 import { Jogo } from "./Jogo.model";
-import { recalcularClassificacao } from "../competicao/motor.competicao";
 
-export function fazerJogoService(jogoRepo: IJogoRepository, dataSource: DataSource): IJogoService {
+export function fazerJogoService(jogoRepo: IJogoRepository): IJogoService {
     return {
         async listar(pagina: number, limite: number, where: FindOptionsWhere<Jogo>, relations?: FindOptionsRelations<Jogo>): Promise<{ data: RespostaJogoDTO[]; meta: { total: number; totalPaginas: number; pagina: number; limite: number } }> {
         
@@ -17,6 +16,10 @@ export function fazerJogoService(jogoRepo: IJogoRepository, dataSource: DataSour
                 data: data,
                 meta: { pagina, limite, total, totalPaginas },
             });
+        },
+        async contar(where?: FindOptionsWhere<Jogo>): Promise<number> {
+            const whereClause = SchemaFiltrosJogo.parse(where);
+            return await jogoRepo.contar(whereClause);
         },
         async obterPorFiltros(pagina: number, limite: number, where: FiltrosJogadorDTO, relations?: FindOptionsRelations<Jogo>): Promise<{ data: RespostaJogoDTO[]; meta: { total: number; totalPaginas: number; pagina: number; limite: number } }> {
             const { data, total } = await jogoRepo.obterPorFiltros(pagina, limite, where, relations);
@@ -39,26 +42,15 @@ export function fazerJogoService(jogoRepo: IJogoRepository, dataSource: DataSour
             return SchemaJogoResposta.parse(jogo);
         },
 
-        async atualizar(id: number, data: AtualizarJogoDTO): Promise<RespostaJogoDTO> {
+        async atualizar(id: number, data: Partial<CriarJogoDTO>,): Promise<RespostaJogoDTO> {
             const jogo = await jogoRepo.atualizar(id, data);
             if (!jogo) throw new AppError(404, 'Jogo não encontrado');
-
-            if (jogo.finalizado && jogo.competicao?.tipo === 'Liga') {
-                await recalcularClassificacao(jogo.competicao.id, dataSource);
-            }
-
             return SchemaJogoResposta.parse(jogo);
         },
 
         async deletar(id: number): Promise<boolean> {
-            const jogo = await jogoRepo.obterPorId(id, { competicao: true });
             const deletado = await jogoRepo.deletar(id);
             if (!deletado) throw new AppError(404, 'Jogo não encontrado');
-
-            if (jogo?.finalizado && jogo.competicao?.tipo === 'Liga') {
-                await recalcularClassificacao(jogo.competicao.id, dataSource);
-            }
-
             return deletado;
         },
     };

@@ -3,7 +3,7 @@ import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
 import { SchemaRefNucleo } from '../../shared/utils/ref.schemas';
 import { criarIncludesSchema } from '../../shared/utils/query.schema';
 import { FindOptionsWhere, ILike } from 'typeorm';
-import { Material } from './Material';
+import { Material } from './material.model';
 
 export const SchemaBaseMaterial = z.object({
     quantidade: z.coerce.number().int().nonnegative('A quantidade deve ser um número inteiro não negativo'),

@@ -1,5 +1,5 @@
 import { DataSource, FindOptionsRelations, FindOptionsSelect, FindOptionsWhere } from "typeorm";
-import { Material } from "./Material";
+import { Material } from "./material.model";
 import { CriarMaterialDTO, AtualizarMaterialDTO } from './material.schemas';
 import {IMaterialRepository } from "./material.interfaces";
 

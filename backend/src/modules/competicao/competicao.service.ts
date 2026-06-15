@@ -54,7 +54,7 @@ export function fazerCompeticaoService(competicaoRepo: ICompeticaoRepository, da
             const competicao = await competicaoRepo.obterPorId(id);
             if (!competicao) throw new AppError(404, 'Competição não encontrada');
 
-            const jogos = await gerarJogosCompeticao(id, dataInicio, dataSource);
+            const jogos = await gerarJogosCompeticao(id, dataInicio, dataSource );
             return jogos.map(jogo => SchemaJogoResposta.parse(jogo));
         },
 

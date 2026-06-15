@@ -10,6 +10,10 @@ export const SchemaBaseCompeticao = z.object({
     tipo: z.enum(['Copa', 'Liga']),
     intervaloDias: z.coerce.number().int().positive().optional(),
     duplaVolta: z.boolean().optional(),
+    times: z.array(z.object({
+        id: z.coerce.number().int().positive(),
+        nome: z.string(),
+    })).optional(),
 });
 
 export const SchemaCriarCompeticao = SchemaBaseCompeticao.omit({ id: true });

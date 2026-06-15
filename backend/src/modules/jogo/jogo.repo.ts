@@ -1,4 +1,4 @@
-import { DataSource, FindOptionsRelations, FindOptionsSelect, FindOptionsWhere } from "typeorm";
+import { DataSource,  FindOptionsRelations, FindOptionsSelect, FindOptionsWhere } from "typeorm";
 import { Jogo } from "./Jogo.model";
 import { CriarJogoDTO } from "./jogo.schemas";
 import { IJogoRepository } from "./jogo.interfaces";
@@ -19,6 +19,9 @@ export function fazerJogoRepo(dataSource: DataSource): IJogoRepository {
                 order: { data: 'DESC' },
             });
             return { data, total };
+        },
+        async contar(where?: FindOptionsWhere<Jogo>): Promise<number> {
+            return await repo.count({ where });
         },
 
         async obterPorFiltros(pagina: number, limite: number, where: FindOptionsWhere<Jogo>, relations?: FindOptionsRelations<Jogo>) {

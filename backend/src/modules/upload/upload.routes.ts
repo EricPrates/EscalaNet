@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { uploadImagem, uploadDocumento, uploadVideo } from '../../shared/Middlewares/upload.middleware';
-import { uploadParaCloudinary } from '../../shared/servicos/uploadCloudinary.service';
+import { uploadParaCloudinary } from '../../shared/servicosExternos/uploadCloudinary.service';
 import { montarRespostaSucesso } from '../../shared/utils/construtorResposta';
 import { AppError } from '../../shared/utils/AppError';
 

@@ -30,7 +30,7 @@ export const SchemaJogoResposta = z.object({
     eventos: z.array(SchemaRefEvento).optional(),
     evento: SchemaRefEvento.optional(),
 });
-export const SchemaFiltrosJogo = SchemaJogoResposta.partial().extend({
+export const SchemaFiltrosJogo = SchemaBaseJogo.partial().extend({
     id: z.coerce.number().int().positive('ID do jogo deve ser um número inteiro positivo').optional(),
     nome: z.string('Nome do jogo é obrigatório').optional(),
     timeA: z.object({ id: z.coerce.number().int().positive('ID do time A deve ser um número inteiro positivo') }).optional(),

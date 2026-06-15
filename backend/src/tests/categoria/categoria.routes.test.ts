@@ -5,7 +5,7 @@ import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 describe('CategoriaService', () => {
     let service: ReturnType<typeof fazerCategoriaService>;
     
-    // ✅ Mock repository com as any
+    // Mock repository com as any
     const mockRepo = {
         listar: jest.fn(),
         obterPorId: jest.fn(),

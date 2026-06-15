@@ -92,7 +92,7 @@ const treinoService = fazerTreinoService(treinoRepo);
 export const treinoController = fazerTreinoController(treinoService);
 
 const jogoRepo = fazerJogoRepo(AppDataSource);
-const jogoService = fazerJogoService(jogoRepo, AppDataSource);
+const jogoService = fazerJogoService(jogoRepo);
 export const jogoController = fazerJogoController(jogoService);
 
 const frequenciaRepo = fazerFrequenciaRepo(AppDataSource);

@@ -4,7 +4,7 @@ import { montarPaginacao } from "../../shared/utils/montarPaginacao";
 import { FindOptionsRelations, FindOptionsWhere } from "typeorm";
 import { IMaterialRepository, IMaterialService } from "./material.interfaces";
 
-import { Material } from "./Material";
+import { Material } from "./material.model";
 import { AtualizarMaterialDTO, CriarMaterialDTO, RespostaMaterialDTO, SchemaMaterialResposta } from "./material.schemas";
 
 

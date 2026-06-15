@@ -66,5 +66,11 @@ export function fazerCompeticaoRepo(dataSource: DataSource): ICompeticaoReposito
             competicao.times = times;
             return repo.save(competicao);
         },
-    };
+        async obterPorIdComTimes(id: number) {
+            return await repo.findOne({
+                where: { id },
+                relations: { times: true },
+            }) || null;
+        }
+    }
 }

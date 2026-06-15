@@ -53,8 +53,8 @@ export function fazerChamadaRepo(dataSource: DataSource): IChamadaRepository {
             const result = await repo.delete({ id });
             return (result.affected ?? 0) > 0;
         },
-        async obterPorData(data: Date, relations?: FindOptionsRelations<Chamada>) {
-            return await repo.findOne({ where: { data }, relations }) || null;  
+        async obterPorData(data: Date, relations?: FindOptionsRelations<Chamada >): Promise<Chamada [] | null> {
+            return await repo.find({ where: { data }, relations }) || null;  
          },
     };
 }

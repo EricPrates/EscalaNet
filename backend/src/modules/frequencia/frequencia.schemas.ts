@@ -1,16 +1,17 @@
 import { z } from 'zod';
 import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
-import { SchemaRefJogador, SchemaRefJogo, SchemaRefTreino } from '../../shared/utils/ref.schemas';
+import { SchemaRefChamada, SchemaRefJogador, SchemaRefJogo, SchemaRefTreino } from '../../shared/utils/ref.schemas';
 import { FindOptionsWhere } from 'typeorm';
 import { criarIncludesSchema } from '../../shared/utils/query.schema';
 import { Frequencia } from './frequencia.model';
 
 export const SchemaBaseFrequencia = z.object({
     data: z.coerce.date({ error: "Data inválida" }),
-    presente: z.boolean(),
-    jogadorId : z.number().int().positive(),
-    treinoId: z.number().int().positive().optional(),
-    jogoId: z.number().int().positive().nullable().optional(),
+    presente: z.boolean('Presente deve ser um valor booleano'),
+    jogadorId : z.number().int().positive('ID do jogador deve ser um número inteiro positivo'),
+    treinoId: z.number().int().positive('ID do treino deve ser um número inteiro positivo').optional(),
+    jogoId: z.number().int().positive('ID do jogo deve ser um número inteiro positivo').nullable().optional(),
+    chamadaId: z.number().int().positive('ID da chamada deve ser um número inteiro positivo'),
 });
 
 export const SchemaFrequenciaResposta = z.object({
@@ -20,6 +21,7 @@ export const SchemaFrequenciaResposta = z.object({
     jogador: SchemaRefJogador,
     treino: SchemaRefTreino.optional(),
     jogo: SchemaRefJogo.nullable().optional(),
+    chamada: SchemaRefChamada.optional(),
 });
 
 export const SchemaFiltroFrequencia = z.object({
@@ -41,7 +43,7 @@ export const SchemaFrequenciaId = z.object({
     id: z.coerce.number().int().positive("ID da frequência deve ser um número inteiro positivo"),
 });
 
-export const RELACOES_FREQUENCIA = [ 'jogador', 'treino', 'jogo' ] as const;
+export const RELACOES_FREQUENCIA = [ 'jogador', 'treino', 'jogo', 'chamada' ] as const;
 export const QueryIncludesFrequencia = criarIncludesSchema(RELACOES_FREQUENCIA);
 
 

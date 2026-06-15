@@ -49,9 +49,10 @@ export function fazerCategoriaService(categoriaRepo: ICategoriaRepository): ICat
         },
 
         async atualizar(id: number, data: Partial<CriarCategoriaDTO>): Promise<RespostaCategoriaDTO> {
+            const categoriaExistente = await categoriaRepo.obterPorId(id);
+            if (!categoriaExistente) throw new AppError(404, 'Categoria não encontrada');
             const categoria = await categoriaRepo.atualizar(id, data);
-            if (!categoria || categoria === null) throw new AppError(404, 'Categoria não encontrada');
-            return SchemaBaseCategoria.parse(categoria);
+            return SchemaBaseCategoria.parse(categoria);    
         },
 
         async deletar(id: number): Promise<boolean> {

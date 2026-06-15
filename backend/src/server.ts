@@ -45,11 +45,11 @@ app.get('/', (_req: Request, res: Response) => {
 app.post('/login', validate(SchemaLoginUsuario, 'body'), usuarioController.login);
 app.post('/usuario', validate(SchemaBaseUsuario, 'body'), usuarioController.criarUsuario);
 
-postagemRoutes(app);   // público — antes do token
-uploadRoutes(app);     // público — retorna URL após upload
+postagemRoutes(app); 
 app.use(middlewareTokenContexto);
 
-
+  // público — antes do token
+uploadRoutes(app);   
 categoriaRoutes(app);
 nucleoRoutes(app);
 usuarioRoutes(app);

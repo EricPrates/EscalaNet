@@ -9,7 +9,7 @@ import { FindOptionsWhere, FindOptionsRelations } from "typeorm";
 
 export function fazerChamadaService(chamadaRepo: IChamadaRepository): IChamadaService {
     return {
-        async listar( pagina: number, limite: number, where?: FindOptionsWhere<Chamada>, relations?: FindOptionsRelations<Chamada>): Promise<{ data: RespostaChamadaDTO[]; meta: { total: number; totalPaginas: number; pagina: number; limite: number } }> {
+        async listar(pagina: number, limite: number, where?: FindOptionsWhere<Chamada>, relations?: FindOptionsRelations<Chamada>): Promise<{ data: RespostaChamadaDTO[]; meta: { total: number; totalPaginas: number; pagina: number; limite: number } }> {
             const { data, total } = await chamadaRepo.listar(pagina, limite, where, relations);
             return SchemaRespostaPaginada(SchemaBaseChamada).parse({
                 data: data,
@@ -30,15 +30,26 @@ export function fazerChamadaService(chamadaRepo: IChamadaRepository): IChamadaSe
             });
         },
 
-        async obterPorData(data: Date, relations?: FindOptionsRelations<Chamada>): Promise<RespostaChamadaDTO> {
+        async obterPorData(data: Date, relations?: FindOptionsRelations<Chamada>): Promise<RespostaChamadaDTO[] | null> {
             const chamada = await chamadaRepo.obterPorData(data, relations);
-            if (!chamada) throw new AppError(404, 'Chamada não encontrada');
-            return SchemaBaseChamada.parse(chamada);
+            return chamada ? chamada.map(chamada => SchemaBaseChamada.parse(chamada)) : null;
         },
 
         async criar(data: CriarChamadaDTO): Promise<RespostaChamadaDTO> {
-            const existente = await this.obterPorData(data.data);
-            if (existente) throw new AppError(409, 'Chamada já cadastrada');
+            const existentes = await this.obterPorData(data.data); 
+
+            if (existentes && existentes.length > 0) {
+                for (const chamada of existentes) {
+                    const conflitoJogo = chamada.jogoId === data.jogoId && chamada.timeId === data.timeId && chamada.data.getTime() === data.data.getTime();
+                    const conflitoTreinoTime = chamada.treinoId === data.treinoId &&
+                        chamada.timeId === data.timeId && chamada.data.getTime() === data.data.getTime();
+
+                    if (conflitoJogo || conflitoTreinoTime) {
+                        throw new AppError(409, 'Chamada duplicada');
+                    }
+                }
+            }
+
             const chamada = await chamadaRepo.criar(data);
             return SchemaBaseChamada.parse(chamada);
         },

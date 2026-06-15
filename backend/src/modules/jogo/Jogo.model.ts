@@ -59,4 +59,7 @@ export class Jogo {
     @ManyToOne(() => Competicao, (competicao) => competicao.jogos)
     @JoinColumn({ name: "competicao_id" })
     competicao?: Competicao | null;
+
+    @Column({ type: "varchar", length: 50, nullable: true })
+    chave?: string; // campo para armazenar a posição no chaveamento, ex: "R1-G1" (Rodada 1, Jogo 1)
 }

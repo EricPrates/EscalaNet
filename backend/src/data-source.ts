@@ -16,6 +16,7 @@ const AppDataSource = new DataSource({
     logging: true,
     entities: [__dirname + "/modules/**/*.model.{js,ts}"],
     migrations: ["src/migrations/**/*.ts"],
+    
 });
 
 
