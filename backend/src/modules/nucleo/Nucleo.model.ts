@@ -3,6 +3,10 @@ import { Treino } from '../treino/Treino.model';
 import { Time } from '../time/time.model';
 
 import { Usuario } from '../usuario/Usuario.model';
+import { Chamada } from '../chamada/chamada.model';
+import { EventosJogo } from '../eventos_jogo/EventosJogo.model';
+import { Frequencia } from '../frequencia/frequencia.model';
+import { Jogador } from '../jogador/jogador.model';
 
 
 
@@ -11,9 +15,21 @@ export class Nucleo {
     @PrimaryGeneratedColumn()
     id!: number;
 
+    @OneToMany(() => EventosJogo, (eventosJogo) => eventosJogo.nucleo)
+    eventos!: EventosJogo[];
+
     @Index()
     @Column({ type: "varchar", length: 255, nullable: false })
     nome!: string; 
+
+    @OneToMany(() => Jogador, (jogador) => jogador.nucleos)
+    jogadores!: Jogador[];
+
+    @OneToMany(() => Frequencia, (frequencia) => frequencia.nucleo)
+    frequencias!: Frequencia[];
+
+    @OneToMany(() => Chamada, (chamada) => chamada.nucleo)
+    chamadas!: Chamada[];
 
     @Column({ type: "varchar", length: 1000, nullable: true })
     endereco!: string; 

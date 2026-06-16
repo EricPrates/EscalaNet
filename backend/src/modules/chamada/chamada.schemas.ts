@@ -29,12 +29,14 @@ export const SchemaFiltrosChamada = z.object({
     timeId: z.coerce.number().int().positive({ message: "ID do time deve ser um número inteiro positivo" }).optional(),
     jogoId: z.coerce.number().int().positive({ message: "ID do jogo deve ser um número inteiro positivo" }).optional(),
     treinoId: z.coerce.number().int().positive({ message: "ID do treino deve ser um número inteiro positivo" }).optional(),
+    nucleoId: z.coerce.number().int().positive({ message: "ID do núcleo deve ser um número inteiro positivo" }).optional(),
 }).transform(filtros => {
     const where: FindOptionsWhere<Chamada> = {};
     if (filtros.dataInicio && filtros.dataFim) {
         where.data = Between(filtros.dataInicio, filtros.dataFim);
     }
     if (filtros.timeId) where.time = { id: filtros.timeId };
+    if (filtros.nucleoId) where.nucleo = { id: filtros.nucleoId };
     if (filtros.jogoId) where.jogo = { id: filtros.jogoId };
     if (filtros.treinoId) where.treino = { id: filtros.treinoId };
     return where;
@@ -46,7 +48,7 @@ export const SchemaBuscarPorIdChamada = z.object({
     id: z.coerce.number().int().positive("ID da chamada deve ser um número inteiro positivo"),
 });
 
-export const RELACOES_CHAMADA = ['time', 'jogo', 'treino'] as const;
+export const RELACOES_CHAMADA = ['time', 'jogo', 'treino', 'nucleo'] as const;
 export const QueryIncludesChamada = criarIncludesSchema(RELACOES_CHAMADA);
 export const SchemaAtualizarChamada = SchemaCriarChamada.partial();
 export const SchemaChamadasPaginadas = SchemaRespostaPaginada(SchemaBaseChamada);

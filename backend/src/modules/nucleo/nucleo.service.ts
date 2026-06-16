@@ -1,11 +1,12 @@
 
 import { AppError } from "../../shared/utils/AppError";
-import { getContext } from "../../shared/utils/authStorage";
+import { authStorage, getContext } from "../../shared/utils/authStorage";
 import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
 import { INucleoRepository, INucleoService } from "./nucleo.interfaces";
 import { Nucleo } from "./Nucleo.model";
 import { RespostaNucleoDTO, SchemaNucleoResposta, CriarNucleoDTO, DashboardNucleoDTO, SchemaDashboardNucleo } from './nucleo.schemas';
-import { FindOptionsRelations, FindOptionsWhere } from 'typeorm';
+import { FindOptionsRelations } from 'typeorm';
+
 
 export const fazerNucleoService = (nucleoRepo: INucleoRepository): INucleoService => {
 
@@ -26,15 +27,7 @@ export const fazerNucleoService = (nucleoRepo: INucleoRepository): INucleoServic
                 }
             });
         },
-        async obterPorFiltros(pagina: number, limite: number, where: FindOptionsWhere<Nucleo>, relations: FindOptionsRelations<Nucleo>) {
-            const { data, total } = await nucleoRepo.obterPorFiltros(pagina, limite, where, relations);
-            const totalPaginas = Math.ceil(total / limite);
-            return SchemaRespostaPaginada(SchemaNucleoResposta).parse({
-                data: data,
-                meta: { pagina, limite, total, totalPaginas },
-            });
-        },
-        //só admin pode obter nucleo por nome
+
         async obterPorNome(nome: string): Promise<RespostaNucleoDTO> {
 
             const nucleo = await nucleoRepo.obterPorNome(nome);
@@ -43,23 +36,17 @@ export const fazerNucleoService = (nucleoRepo: INucleoRepository): INucleoServic
             }
             return SchemaNucleoResposta.parse(nucleo);
         },
-        async obterPorId(id: number): Promise<RespostaNucleoDTO> {
-            const permissao = getContext()?.permissao;
-            if (permissao !== 'admin') {
-                const nucleoVinculadoId = getContext()?.nucleoVinculadoId;
-                if (!nucleoVinculadoId) {
-                    throw new AppError(403, 'Acesso negado: usuário sem núcleo vinculado');
-                }
-                if (nucleoVinculadoId !== id) {
-                    throw new AppError(403, 'Acesso negado: só é permitido acessar o núcleo vinculado');
+        async obterPorId(id: number, relations?: FindOptionsRelations<Nucleo>): Promise<RespostaNucleoDTO> {
+               const usuario = authStorage.getStore();
+            if (usuario?.permissao === "professor") {
+                if (!usuario.nucleoVinculadoId) throw new AppError(403, 'Professor sem núcleo');
+                if (id !== usuario.nucleoVinculadoId) {
+                    throw new AppError(403, 'Acesso negado a frequência fora do núcleo vinculado');
                 }
             }
-            const nucleo = await nucleoRepo.obterPorId(id);
-            if (!nucleo) {
-                throw new AppError(404, 'Núcleo não encontrado');
-            }
-
-            return SchemaNucleoResposta.parse(nucleo);
+             const material = await nucleoRepo.obterPorId(id, relations);
+            if (!material) throw new AppError(404, 'Material não encontrado');
+            return SchemaNucleoResposta.parse(material);
         },
 
           async criar(data: CriarNucleoDTO): Promise<RespostaNucleoDTO> {

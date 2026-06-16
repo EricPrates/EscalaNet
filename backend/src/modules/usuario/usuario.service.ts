@@ -4,11 +4,10 @@ import bcrypt from 'bcrypt';
 import { RespostaUsuarioDTO, CriarUsuarioDTO, AtualizarUsuarioDTO, SchemaUsuarioResumido } from './usuario.schemas';
 import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
 import { getContext } from "../../shared/utils/authStorage";
-import { montarRespostaPaginada } from "../../shared/utils/construtorResposta";
+
 import { FindOptionsRelations, FindOptionsWhere } from "typeorm";
 import { Usuario } from "./Usuario.model";
-import { montarPaginacao } from "../../shared/utils/montarPaginacao";
-import { FiltrosTimeDTO } from "../time/time.schemas";
+
 
 
 
@@ -18,24 +17,17 @@ import { FiltrosTimeDTO } from "../time/time.schemas";
 export const fazerUsuarioService = (usuarioRepo: IUsuarioRepository): IUsuarioService => {
 
     return {
-        async obterPorFiltros(pagina: number, limite: number, where: FiltrosTimeDTO, relations?: FindOptionsRelations<Usuario>) {
-            const { data, total } = await usuarioRepo.obterPorFiltros(pagina, limite, where, relations);
-            return SchemaRespostaPaginada(SchemaUsuarioResumido).parse({
-                data,
-                meta: montarPaginacao(pagina, limite, total),
-            });
-        },
+
         async listar(pagina: number, limite: number, where: FindOptionsWhere<Usuario>, relations?: FindOptionsRelations<Usuario>) {
+
             const { data, total } = await usuarioRepo.listar(pagina, limite, where, relations);
-            const dataValidada = SchemaUsuarioResumido.array().parse(data);
             const totalPaginas = Math.ceil(total / limite);
-            return montarRespostaPaginada('Usuários listados com sucesso', dataValidada, {
-                pagina: pagina,
-                limite: limite,
-                total: total,
-                totalPaginas: totalPaginas
+            return SchemaRespostaPaginada(SchemaUsuarioResumido).parse({
+                data: data,
+                meta: { pagina, limite, total, totalPaginas },
             });
         },
+
 
         async obterPorId(id: number): Promise<RespostaUsuarioDTO> {
             const usuario = await usuarioRepo.obterPorId(id);
@@ -47,26 +39,26 @@ export const fazerUsuarioService = (usuarioRepo: IUsuarioRepository): IUsuarioSe
         },
 
         async criar(data: CriarUsuarioDTO): Promise<RespostaUsuarioDTO> {
-                   
+
             const hashSenha = await bcrypt.hash(data.senha, 10);
             const emailExistente = await usuarioRepo.obterPorEmail(data.email);
-        
+
             if (emailExistente) throw new AppError(409, 'Email já cadastrado');
             const usuarioData: CriarUsuarioDTO = {
                 nome: data.nome,
                 email: data.email,
                 senha: hashSenha,
                 permissao: data.permissao,
-                
+
             };
-            if(data.nucleoVinculado) {
+            if (data.nucleoVinculado) {
                 usuarioData.nucleoVinculado = { id: data.nucleoVinculado.id };
             }
             const usuario = await usuarioRepo.criar(usuarioData);
             if (!usuario) throw new AppError(500, 'Erro ao criar usuário');
             return SchemaUsuarioResumido.parse(usuario);
         },
-        async listarPornucleoVinculado(pagina: number, limite: number,  relations?: FindOptionsRelations<Usuario>) {
+        async listarPornucleoVinculado(pagina: number, limite: number, relations?: FindOptionsRelations<Usuario>) {
             const nucleoVinculadoId = getContext()?.nucleoVinculadoId;
             if (!nucleoVinculadoId) {
                 throw new AppError(400, 'Núcleo vinculado não encontrado');
@@ -110,7 +102,7 @@ export const fazerUsuarioService = (usuarioRepo: IUsuarioRepository): IUsuarioSe
                 data.senha = await bcrypt.hash(data.senha, 10);
             }
 
-        
+
             const permissaoFinal = data.permissao ?? usuarioExistente.permissao;
             const nucleoFinal = 'nucleoVinculado' in data ? data.nucleoVinculado : usuarioExistente.nucleoVinculado;
 
@@ -126,7 +118,7 @@ export const fazerUsuarioService = (usuarioRepo: IUsuarioRepository): IUsuarioSe
                 throw new AppError(500, 'Erro ao atualizar usuário');
             }
 
-           
+
             return SchemaUsuarioResumido.parse(usuarioAtualizado);
         },
 

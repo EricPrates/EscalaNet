@@ -10,7 +10,9 @@ export function fazerCategoriaController(service: ICategoriaService) {
         async listarCategorias(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
             const filtros = SchemaFiltrosCategoria.parse(req.query);
-            const { data, meta } = await service.listar(pagina, limite, filtros);
+            const { includes } = QueryIncludesCategoria.parse(req.query);
+            const includesRelations = transformarIncludesEmRelations(includes);
+            const { data, meta } = await service.listar(pagina, limite, filtros, includesRelations);
             return res.status(200).json(montarRespostaPaginada('Categorias listadas com sucesso', data, meta));
         },
 
@@ -25,14 +27,7 @@ export function fazerCategoriaController(service: ICategoriaService) {
             const categoria = await service.criar(data);
             return res.status(201).json(montarRespostaSucesso('Categoria criada com sucesso', categoria));
         },
-        async obterCategoriaPorFiltros(req: Request, res: Response) {
-            const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
-            const filtros = SchemaFiltrosCategoria.parse(req.query);
-            const { includes } = QueryIncludesCategoria.parse(req.query);
-            const includesRelations = transformarIncludesEmRelations(includes);
-            const categoria = await service.obterPorFiltros(pagina, limite, filtros, includesRelations);
-            return res.status(200).json(montarRespostaSucesso('Categoria obtida com sucesso', categoria));
-        },
+      
         async atualizarCategoria(req: Request, res: Response) {
             const { id } = SchemaBuscarPorIdCategoria.parse(req.params);
             const data = SchemaAtualizarCategoria.parse(req.body);

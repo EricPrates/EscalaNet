@@ -54,7 +54,7 @@ export const SchemaFiltroEventoJogo = z.object({
     return where;
 });
 
-export const RELACOES_EVENTOS_JOGO = ['time', 'jogo', 'jogadorEnvolvido', 'usuario'] as const;
+export const RELACOES_EVENTOS_JOGO = ['nucleo', 'jogo', 'jogadorEnvolvido', 'usuario', 'time'] as const;
 export const QueryIncludesEventosJogo = criarIncludesSchema(RELACOES_EVENTOS_JOGO);
 
 export const SchemaAtualizarEventoJogo = SchemaBaseEventoJogo.partial();

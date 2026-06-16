@@ -1,4 +1,5 @@
 import { AppError } from "../../shared/utils/AppError";
+import { authStorage } from "../../shared/utils/authStorage";
 import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
 import { IJogadorRepository, IJogadorService } from "./jogador.interfaces";
 import { CriarJogadorDTO, FiltrosJogadorDTO, RespostaResumidaJogadorDTO, SchemaJogadorDetalhado, SchemaJogadorResumido, RespostaJogadorDetalhadoDTO } from './jogador.schemas';
@@ -12,23 +13,31 @@ export function fazerJogadorService(jogadorRepo: IJogadorRepository): IJogadorSe
     return {
 
         async listar(pagina: number, limite: number, where: FiltrosJogadorDTO, relations?: FindOptionsRelations<RespostaJogadorDetalhadoDTO>): Promise<{ data: RespostaJogadorDetalhadoDTO[]; meta: { total: number; totalPaginas: number; pagina: number; limite: number } }> {
-           
-            const { data, total } = await jogadorRepo.listar(pagina, limite, where, relations);
+            const usuario = authStorage.getStore();
+            let finalWhere = where ? { ...where } : {};
+            if (usuario?.permissao === "professor") {
+                if (!usuario.nucleoVinculadoId) throw new AppError(403, 'Professor sem núcleo');
+                finalWhere = {
+                    ...finalWhere,
+                    nucleos: { id: usuario.nucleoVinculadoId }
+                };
+            }
+            const { data, total } = await jogadorRepo.listar(pagina, limite, finalWhere, relations);
             const totalPaginas = Math.ceil(total / limite);
             return SchemaRespostaPaginada(SchemaJogadorDetalhado).parse({
                 data: data,
                 meta: { pagina, limite, total, totalPaginas },
             });
         },
-        async obterPorFiltros(pagina: number, limite: number, where: FiltrosJogadorDTO, relations?: FindOptionsRelations<RespostaJogadorDetalhadoDTO>): Promise<{ data: RespostaJogadorDetalhadoDTO[]; meta: { total: number; totalPaginas: number; pagina: number; limite: number } }> {
-            const { data, total } = await jogadorRepo.obterPorFiltros(pagina, limite, where, relations);
-            const totalPaginas = Math.ceil(total / limite);
-            return SchemaRespostaPaginada(SchemaJogadorDetalhado).parse({
-                data: data,
-                meta: { pagina, limite, total, totalPaginas },
-            });
-        },
+
         async obterPorId(id: number, relations?: FindOptionsRelations<RespostaJogadorDetalhadoDTO>): Promise<RespostaResumidaJogadorDTO> {
+            const usuario = authStorage.getStore();
+            if (usuario?.permissao === "professor") {
+                if (!usuario.nucleoVinculadoId) throw new AppError(403, 'Professor sem núcleo');
+                if (id !== usuario.nucleoVinculadoId) {
+                    throw new AppError(403, 'Acesso negado a frequência fora do núcleo vinculado');
+                }
+            }
             const jogador = await jogadorRepo.obterPorId(id, relations);
             if (!jogador) throw new AppError(404, 'Jogador não encontrado');
             return SchemaJogadorDetalhado.parse(jogador);

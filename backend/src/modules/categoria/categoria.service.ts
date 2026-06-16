@@ -27,13 +27,7 @@ export function fazerCategoriaService(categoriaRepo: ICategoriaRepository): ICat
             if (!categoria) throw new AppError(404, 'Categoria não encontrada');
             return SchemaBaseCategoria.parse(categoria);
         },
-        async obterPorFiltros(pagina: number, limite: number, filtros: FindOptionsWhere<Categoria>, relations?: FindOptionsRelations<Categoria>): Promise<{ data: RespostaCategoriaDTO[]; meta: { total: number; totalPaginas: number; pagina: number; limite: number } }> {
-            const { data, total } = await categoriaRepo.obterPorFiltros(pagina, limite, filtros, relations);
-            return SchemaCategoriasPaginadas.parse({
-                data: data || [],
-                meta: montarPaginacao(pagina, limite, total),
-            });
-        },
+    
 
         async obterPorNome(nome: string): Promise<RespostaCategoriaDTO> {
             const categoria = await categoriaRepo.obterPorNome(nome);

@@ -10,15 +10,6 @@ export function fazerFrequenciaRepo(dataSource: DataSource): IFrequenciaReposito
         async listar(pagina = 1, limite = 10, where: FindOptionsWhere<Frequencia>, relations?: FindOptionsRelations<any>) {
             const skip = (pagina - 1) * limite;
             const [data, total] = await repo.findAndCount({
-                skip, take: limite, order: { id: 'ASC' },
-                where,
-                relations,
-            });
-            return { data, total };
-        },
-        async obterPorFiltros(pagina: number, limite: number, where: FindOptionsWhere<Frequencia>, relations?: FindOptionsRelations<any>) {
-            const skip = (pagina - 1) * limite;
-            const [data, total] = await repo.findAndCount({
                 where,
                 relations,
                 skip,

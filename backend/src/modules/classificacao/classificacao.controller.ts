@@ -37,14 +37,7 @@ export function fazerClassificacaoController(service: IClassificacaoService) {
             const classificacao = await service.obterPorId(id, includesRelations);
             return res.status(200).json(montarRespostaSucesso('Classificação obtida com sucesso', classificacao));
         },
-        async obterClassificacaoPorFiltro(req: Request, res: Response) {
-            const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
-            const filtro = SchemaFiltrosClassificacao.parse(req.query);
-            const { includes } = QueryIncludesClassificacao.parse(req.query);
-            const includesRelations = transformarIncludesEmRelations(includes);
-            const classificacao = await service.obterPorFiltros(pagina, limite, filtro, includesRelations);
-            return res.status(200).json(montarRespostaSucesso('Classificação obtida com sucesso', classificacao));
-        },
+      
         async criarClassificacao(req: Request, res: Response) {
             const data = SchemaCriarClassificacao.parse(req.body)
             const classificacao = await service.criar(data);

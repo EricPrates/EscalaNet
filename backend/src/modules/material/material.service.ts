@@ -6,25 +6,36 @@ import { IMaterialRepository, IMaterialService } from "./material.interfaces";
 
 import { Material } from "./material.model";
 import { AtualizarMaterialDTO, CriarMaterialDTO, RespostaMaterialDTO, SchemaMaterialResposta } from "./material.schemas";
+import { authStorage } from "../../shared/utils/authStorage";
 
 
 export function fazerMaterialNucleoService(materialRepo: IMaterialRepository): IMaterialService {
     return {
         async listar(pagina: number, limite: number, where?: FindOptionsWhere<Material>, relations?: FindOptionsRelations<Material>) {
-            const { data, total } = await materialRepo.listar(pagina, limite, where, relations);
+            const usuario = authStorage.getStore();
+            let finalWhere = where ? { ...where } : {};
+            if (usuario?.permissao === "professor") {
+                if (!usuario.nucleoVinculadoId) throw new AppError(403, 'Professor sem núcleo');
+                finalWhere = {
+                    ...finalWhere,
+                    nucleo: { id: usuario.nucleoVinculadoId }
+                };
+            }
+            const { data, total } = await materialRepo.listar(pagina, limite, finalWhere, relations);
             return SchemaRespostaPaginada(SchemaMaterialResposta).parse({
                 data: data,
                 meta: montarPaginacao(pagina, limite, total),
             });
         },
-        async obterPorFiltros(pagina: number, limite: number, where: FindOptionsWhere<Material>, relations?: FindOptionsRelations<Material>) {
-            const { data, total } = await materialRepo.obterPorFiltros(pagina, limite, where, relations);
-            return SchemaRespostaPaginada(SchemaMaterialResposta).parse({
-                data: data,
-                meta: montarPaginacao(pagina, limite, total),
-            });
-        },
+
         async obterPorId(id: number, relations?: FindOptionsRelations<Material>): Promise<RespostaMaterialDTO> {
+            const usuario = authStorage.getStore();
+            if (usuario?.permissao === "professor") {
+                if (!usuario.nucleoVinculadoId) throw new AppError(403, 'Professor sem núcleo');
+                if (id !== usuario.nucleoVinculadoId) {
+                    throw new AppError(403, 'Acesso negado a frequência fora do núcleo vinculado');
+                }
+            }
             const material = await materialRepo.obterPorId(id, relations);
             if (!material) throw new AppError(404, 'Material não encontrado');
             return SchemaMaterialResposta.parse(material);

@@ -15,13 +15,7 @@ export function fazerTimeService(timeRepo: ITimeRepository): ITimeService {
                 meta: montarPaginacao(pagina, limite, total),
             });
         },
-        async obterPorFiltros(pagina: number, limite: number, where: FindOptionsWhere<Time>, relations?: FindOptionsRelations<Time>) {
-            const { data, total } = await timeRepo.obterPorFiltros(pagina, limite, where, relations);
-            return SchemaRespostaPaginada(SchemaBaseTime).parse({
-                data,
-                meta: montarPaginacao(pagina, limite, total),
-            });
-        },
+        
         async obterPorId(id: number, relations?: FindOptionsRelations<Time>) {
             const time = await timeRepo.obterPorId(id, relations);
             if (!time) throw new AppError(404, 'Time não encontrado');

@@ -46,16 +46,6 @@ export function fazerCategoriaRepo(dataSource: DataSource): ICategoriaRepository
             const result = await repo.delete({ id });
             return (result.affected ?? 0) > 0;
         },
-        async obterPorFiltros(pagina: number = 1, limite: number = 10, where: FindOptionsWhere<Categoria>, relations?: FindOptionsRelations<Categoria>) {
-            const skip = (pagina - 1) * limite;
-            const [data, total] = await repo.findAndCount({
-                where,
-                relations,
-                skip,
-                take: limite,
-                order: { id: 'ASC' }
-            });
-            return { data, total };
-        },
+        
     }
 };

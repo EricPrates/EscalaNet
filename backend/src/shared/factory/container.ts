@@ -103,10 +103,6 @@ const eventoJogoRepo = fazerEventoJogoRepo(AppDataSource);
 const eventoJogoService = fazerEventoJogoService(eventoJogoRepo);
 export const eventoJogoController = fazerEventoJogoController(eventoJogoService);
 
-const chamadaRepo = fazerChamadaRepo(AppDataSource);
-const chamadaService = fazerChamadaService(chamadaRepo);
-export const chamadasController = fazerChamadaController(chamadaService);
-
 const classificacaoRepo = fazerClassificacaoRepo(AppDataSource);
 const classificacaoService = fazerClassificacaoService(classificacaoRepo);
 export const classificacaoController = fazerClassificacaoController(classificacaoService);
@@ -122,6 +118,11 @@ export const materialNucleoController = fazerMaterialNucleoController(materialNu
 const timeRepo = fazerTimeRepo(AppDataSource);
 const timeService = fazerTimeService(timeRepo);
 export const timeController = fazerTimeController(timeService);
+
+
+const chamadaRepo = fazerChamadaRepo(AppDataSource);
+const chamadaService = fazerChamadaService(chamadaRepo, timeService);
+export const chamadasController = fazerChamadaController(chamadaService);
 
 const postagemRepo = fazerPostagemRepo(AppDataSource);
 const postagemService = fazerPostagemService(postagemRepo);

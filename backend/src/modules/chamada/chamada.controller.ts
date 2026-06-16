@@ -23,14 +23,7 @@ export function fazerChamadaController(service: IChamadaService) {
             const chamada = await service.obterPorId(id, includesRelations);
             return res.status(200).json(montarRespostaSucesso('Chamada obtida com sucesso', chamada));
         },
-        async obterChamadaPorFiltro(req: Request, res: Response) {
-            const filtro = SchemaFiltrosChamada.parse(req.query);
-            const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
-            const { includes } = QueryIncludesChamada.parse(req.query);
-            const includesRelations = transformarIncludesEmRelations(includes);
-            const { data, meta } = await service.obterPorFiltros(pagina, limite, filtro, includesRelations);
-            return res.status(200).json(montarRespostaPaginada('Chamadas listadas com sucesso', data, meta));
-        },
+       
         async criarChamada(req: Request, res: Response) {
             const data = SchemaCriarChamada.parse(req.body)
             const chamada = await service.criar(data);
@@ -45,7 +38,7 @@ export function fazerChamadaController(service: IChamadaService) {
         },
         async obterChamadaPorData(req: Request, res: Response) {
             const data = SchemaChamadaData.parse(req.query);
-            const chamada = await service.obterPorData( data);
+            const chamada = await service.obterPorData(data);
             return res.status(200).json(montarRespostaSucesso('Chamada obtida com sucesso', chamada));
         },
         

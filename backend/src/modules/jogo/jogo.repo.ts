@@ -24,17 +24,6 @@ export function fazerJogoRepo(dataSource: DataSource): IJogoRepository {
             return await repo.count({ where });
         },
 
-        async obterPorFiltros(pagina: number, limite: number, where: FindOptionsWhere<Jogo>, relations?: FindOptionsRelations<Jogo>) {
-            const skip = (pagina - 1) * limite;
-            const [data, total] = await repo.findAndCount({
-                where,
-                relations,
-                skip,
-                take: limite,
-                order: { data: 'DESC' },
-            });
-            return { data, total };
-        },
         async obterPorId(id: number, relations?: FindOptionsRelations<Jogo>, select?: FindOptionsSelect<Jogo>) {
             return await repo.findOne({
                 where: { id },

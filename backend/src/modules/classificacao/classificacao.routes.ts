@@ -1,13 +1,14 @@
 import express from 'express';
 import { classificacaoController } from '../../shared/factory/container';
+import { verificarPermissao } from '../../shared/Middlewares/verificarPermissao';
 
 const router = express.Router();
 
-router.get('/', classificacaoController.listarClassificacoes);
-router.get('/:id', classificacaoController.obterClassificacaoPorId);
-router.post('/', classificacaoController.criarClassificacao);
-router.put('/:id', classificacaoController.atualizarClassificacao);
-router.delete('/:id', classificacaoController.deletarClassificacao);
+router.get('/', verificarPermissao('admin', 'professor'), classificacaoController.listarClassificacoes);
+router.get('/:id', verificarPermissao('admin', 'professor'), classificacaoController.obterClassificacaoPorId);
+router.post('/', verificarPermissao('admin', 'professor'), classificacaoController.criarClassificacao);
+router.put('/:id', verificarPermissao('admin', 'professor'), classificacaoController.atualizarClassificacao);
+router.delete('/:id', verificarPermissao('admin'), classificacaoController.deletarClassificacao);
 
 export default (app: express.Application) => {
   app.use('/classificacoes', router);

@@ -42,13 +42,6 @@ export function fazerCompeticaoService(competicaoRepo: ICompeticaoRepository, da
             return deletado;
         },
 
-        async obterPorFiltros(pagina: number, limite: number, where: FiltrosCompeticaoDTO, relations?: FindOptionsRelations<Competicao>): Promise<{ data: RespostaCompeticaoDTO[]; meta: { total: number; totalPaginas: number; pagina: number; limite: number } }> {
-            const { data, total } = await competicaoRepo.obterPorFiltros(pagina, limite, where as FindOptionsWhere<Competicao>, relations);
-            return SchemaRespostaPaginada(SchemaBaseCompeticao).parse({
-                data: data,
-                meta: montarPaginacao(pagina, limite, total),
-            });
-        },
 
         async gerarJogos(id: number, dataInicio: Date) {
             const competicao = await competicaoRepo.obterPorId(id);

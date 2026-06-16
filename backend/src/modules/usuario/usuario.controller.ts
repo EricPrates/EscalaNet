@@ -58,13 +58,6 @@ export function fazerUsuarioController(service: IUsuarioService) {
             await service.deletar(id);
             return res.status(204).json(montarRespostaSucesso('Usuário deletado com sucesso'));
          },
-         obterPorFiltros: async (req: Request, res: Response) => {
-            const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
-            const { includes } = QueryIncludesUsuario.parse(req.query);
-            const filtros = SchemaFiltrosUsuario.parse(req.query);
-            const includesRelations = transformarIncludesEmRelations(includes);
-            const usuario = await service.obterPorFiltros(pagina, limite, filtros, includesRelations);
-            return res.status(200).json(montarRespostaSucesso('Usuário obtido com sucesso', usuario));
-        }
+  
     }
 }

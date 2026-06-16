@@ -3,13 +3,18 @@ import { Treino } from '../treino/Treino.model';
 import { Jogo } from '../jogo/Jogo.model';
 import { Time } from '../time/time.model';
 import { Frequencia } from '../frequencia/frequencia.model';
+import { Nucleo } from '../nucleo/Nucleo.model';
 
 
 @Entity({ name: "chamada" })
 export class Chamada {
     @PrimaryGeneratedColumn()
     id!: number;
-    
+
+    @ManyToOne(() => Nucleo, { nullable: false })
+    @JoinColumn({ name: 'nucleo_id' }) 
+    nucleo!: Nucleo;
+
     @Index()
     @Column({ type: 'date' })
     data!: Date;

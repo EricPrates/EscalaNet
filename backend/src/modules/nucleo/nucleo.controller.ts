@@ -17,14 +17,7 @@ export function fazerNucleoController(service: INucleoService) {
             const { data, meta } = await service.listar(pagina, limite, filtros, includesRelations);
             return res.status(200).json(montarRespostaPaginada('Núcleos listados com sucesso', data, meta));
         },
-        async obterNucleosPorFiltro(req: Request, res: Response) {
-            const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
-            const filtros = SchemaFiltrosNucleo.parse(req.query);
-            const {includes} = QueryIncludesNucleo.parse(req.query);
-            const includesRelations = transformarIncludesEmRelations(includes);
-            const { data, meta } = await service.obterPorFiltros(pagina, limite, filtros, includesRelations);
-            return res.status(200).json(montarRespostaPaginada('Núcleos listados com sucesso', data, meta));
-        },
+     
         async obterNucleoPorId(req: Request, res: Response) {
             const { id } = SchemaIdNUcleo.parse(req.params);
             const nucleo = await service.obterPorId(id);

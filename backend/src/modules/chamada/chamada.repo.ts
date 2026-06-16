@@ -24,17 +24,6 @@ export function fazerChamadaRepo(dataSource: DataSource): IChamadaRepository {
             return await repo.findOne({ where: { id }, relations }) || null;
         },
 
-        async obterPorFiltros( pagina: number, limite: number, filtro: FindOptionsWhere<Chamada>, relations?: FindOptionsRelations<Chamada>) {
-            const skip = (pagina - 1) * limite;
-            const [data, total] = await repo.findAndCount({
-                relations,
-                where: filtro,
-                skip,
-                take: limite,
-                order: { id: 'ASC' }
-            });
-            return { data, total };
-        },
 
         async criar(data: CriarChamadaDTO) {
             const chamada = repo.create(data);
@@ -53,8 +42,18 @@ export function fazerChamadaRepo(dataSource: DataSource): IChamadaRepository {
             const result = await repo.delete({ id });
             return (result.affected ?? 0) > 0;
         },
-        async obterPorData(data: Date, relations?: FindOptionsRelations<Chamada >): Promise<Chamada [] | null> {
-            return await repo.find({ where: { data }, relations }) || null;  
+        async obterPorData(where: FindOptionsWhere<Chamada>, relations?: FindOptionsRelations<Chamada >): Promise<Chamada [] | null> {
+            return await repo.find({ where, relations }) || null;  
          },
+
+         async buscarConflitos(data: Date, timeId: number, relations?: FindOptionsRelations<Chamada>): Promise<Chamada [] | null> {
+            return await repo.find({
+                where: {
+                    data,
+                    time: { id: timeId }
+                },
+                relations
+            }) || null;
+         }
     };
 }

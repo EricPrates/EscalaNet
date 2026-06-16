@@ -44,13 +44,7 @@ export function fazerClassificacaoService(classificacaoRepo: IClassificacaoRepos
             if (!deletado) throw new AppError(404, 'Classificação não encontrada');
             return deletado;
         },
-        async obterPorFiltros(pagina: number, limite: number, where: FindOptionsWhere<Classificacao>, relations?: FindOptionsRelations<Classificacao>): Promise<{ data: RespostaClassificacaoDTO[]; meta: { total: number; totalPaginas: number; pagina: number; limite: number } }> {
-            const { data, total } = await classificacaoRepo.obterPorFiltros(pagina, limite, where, relations);
-            return SchemaRespostaPaginada(SchemaBaseClassificacao).parse({
-                data: data,
-                meta: montarPaginacao(pagina, limite, total),
-            });
-        }
+       
        
     };
 }

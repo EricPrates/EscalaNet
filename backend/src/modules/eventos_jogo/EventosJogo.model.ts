@@ -4,6 +4,7 @@ import { Usuario } from "../usuario/Usuario.model";
 import { Jogador } from "../jogador/jogador.model";
 import { Time } from "../time/time.model";
 import { TipoEventoType } from "./eventos_jogo.schemas";
+import { Nucleo } from "../nucleo/Nucleo.model";
 
 @Entity({ name: "eventos_jogo" })
 export class EventosJogo {
@@ -33,6 +34,11 @@ export class EventosJogo {
     @ManyToOne(() => Time, (time) => time.eventos)
     @JoinColumn({ name: "time_id" })
     time!: Time;
+
+    @Index()
+    @ManyToOne(() => Nucleo, (nucleo) => nucleo.eventos)
+    @JoinColumn({ name: "nucleo_id" })
+    nucleo!: Nucleo;
 
     @Index()
     @ManyToOne(() => Jogador, (jogador) => jogador.eventos, { nullable: true })

@@ -7,31 +7,14 @@ export function fazerTreinoRepo(dataSource: DataSource): ITreinoRepository {
     const repo = dataSource.getRepository(Treino);
 
     return {
-        async obterPorFiltros(pagina: number, limite: number, where: FindOptionsWhere<Treino>) {
+    
+        async listar(pagina: number, limite: number, where: FindOptionsWhere<Treino>) {
             const skip = (pagina - 1) * limite;
             const [data, total] = await repo.findAndCount({
                 where,
                 skip,
                 take: limite,
                 order: { id: 'ASC' },
-            });
-            return { data, total };
-         },
-        async listar(pagina = 1, limite = 10) {
-            const skip = (pagina - 1) * limite;
-            const [data, total] = await repo.findAndCount({
-                skip, take: limite, order: { id: 'ASC' },
-                select: { id: true, data: true, nucleo: { id: true, nome: true } },
-            });
-            return { data, total };
-        },
-
-        async listarPorNucleo(pagina = 1, limite = 10, nucleoId: number) {
-            const skip = (pagina - 1) * limite;
-            const [data, total] = await repo.findAndCount({
-                where: { nucleo: { id: nucleoId } },
-                skip, take: limite, order: { id: 'ASC' },
-                select: { id: true, data: true, nucleo: { id: true, nome: true } },
             });
             return { data, total };
         },

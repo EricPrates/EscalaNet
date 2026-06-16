@@ -48,9 +48,6 @@ export function fazerCompeticaoRepo(dataSource: DataSource): ICompeticaoReposito
             return (result.affected ?? 0) > 0;
         },
 
-        async obterPorFiltros(pagina: number, limite: number, where?: FindOptionsWhere<Competicao>, relations?: FindOptionsRelations<Competicao>, select?: FindOptionsSelect<Competicao>) {
-            return this.listar(pagina, limite, where, relations, select);
-        },
 
         async vincularTimes(id: number, timeIds: number[]) {
             const competicao = await repo.findOne({ where: { id }, relations: { times: true } });

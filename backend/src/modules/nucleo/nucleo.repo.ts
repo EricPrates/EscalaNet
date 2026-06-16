@@ -39,16 +39,7 @@ export function fazerNucleoRepo(dataSource: DataSource): INucleoRepository {
             await repo.save(nucleo);
             return this.obterPorId(id);
         },
-        async obterPorFiltros(pagina: number, limite: number, where: any) {
-            const skip = (pagina - 1) * limite;
-            const [data, total] = await repo.findAndCount({
-                where,
-                skip,
-                take: limite,
-                order: { id: 'ASC' },
-            });
-            return { data, total };
-        },
+  
         async deletar(id: number) {
             const result = await repo.delete({ id });
             return (result.affected ?? 0) > 0;

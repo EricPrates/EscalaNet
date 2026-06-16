@@ -21,17 +21,7 @@ export function fazerClassificacaoRepo(dataSource: DataSource): IClassificacaoRe
         async obterPorId(id: number, relations?: FindOptionsRelations<Classificacao>): Promise<Classificacao | null> {
             return await repo.findOne({ where: { id }, relations }) || null;
         },
-        async obterPorFiltros(pagina: number, limite: number, where: FindOptionsWhere<Classificacao>, relations?: FindOptionsRelations<Classificacao>): Promise<{ data: Classificacao[]; total: number }> {
-            const skip = (pagina - 1) * limite;
-            const [data, total] = await repo.findAndCount({
-                relations,
-                where,
-                skip,
-                take: limite,
-                order: { id: 'ASC' }
-            });
-            return { data, total };
-        },
+     
         async criar(data: Partial<Classificacao>): Promise<Classificacao> {
             const classificacao = repo.create(data);
             return repo.save(classificacao);

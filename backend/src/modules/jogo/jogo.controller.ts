@@ -17,14 +17,6 @@ export function fazerJogoController(service: IJogoService) {
         },
 
        
-        async obterJogosPorFiltro(req: Request, res: Response) {
-            const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
-            const filtros = SchemaFiltrosJogo.parse(req.query);
-            const { includes } = QueryIncludesJogo.parse(req.query);
-            const includesRelations = transformarIncludesEmRelations(includes);
-            const { data, meta } = await service.obterPorFiltros(pagina, limite, filtros, includesRelations);
-            return res.status(200).json(montarRespostaPaginada('Jogos listados com sucesso', data, meta));
-        },
         async obterJogoPorId(req: Request, res: Response) {
             const { includes } = QueryIncludesJogo.parse(req.query);
             const includesRelations = transformarIncludesEmRelations(includes);

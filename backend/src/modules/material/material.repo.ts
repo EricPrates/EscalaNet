@@ -19,18 +19,7 @@ export function fazerMaterialNucleoRepo(dataSource: DataSource): IMaterialReposi
             });
             return { data, total };
         },
-        async obterPorFiltros(pagina: number, limite: number, where: FindOptionsWhere<Material>, relations?: FindOptionsRelations<Material>, select?: FindOptionsSelect<Material>) {
-            const skip = (pagina - 1) * limite;
-            const [data, total] = await repo.findAndCount({
-                where,
-                relations,
-                select,
-                skip,
-                take: limite,
-                order: { dataRecebimento: 'DESC' },
-            });
-            return { data, total };
-        },
+  
 
         async obterPorId(id: number, relations?: FindOptionsRelations<Material>, select?: FindOptionsSelect<Material>) {
             return await repo.findOne({

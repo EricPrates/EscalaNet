@@ -19,18 +19,7 @@ export function fazerTimeRepo(dataSource: DataSource): ITimeRepository {
             });
             return { data, total };
         },
-        async obterPorFiltros(pagina: number, limite: number, where: FindOptionsWhere<Time>, relations?: FindOptionsRelations<Time>, select?: FindOptionsSelect<Time>) {
-            const skip = (pagina - 1) * limite;
-            const [data, total] = await repo.findAndCount({
-                where,
-                relations,
-                select,
-                skip,
-                take: limite,
-                order: { nome: 'ASC' },
-            });
-            return { data, total };
-        },
+      
         async obterPorId(id: number, relations?: FindOptionsRelations<Time>, select?: FindOptionsSelect<Time>) {
             return await repo.findOne({ where: { id }, relations, select }) || null;
         },

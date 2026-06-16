@@ -3,6 +3,7 @@ import { Treino } from "../treino/Treino.model";
 import { Frequencia } from "../frequencia/frequencia.model";
 import { EventosJogo } from "../eventos_jogo/EventosJogo.model";
 import { Time } from "../time/time.model";
+import { Nucleo } from "../nucleo/Nucleo.model";
 
 @Index(["time", "dataNascimento"])
 @Entity({ name: "jogadores" })
@@ -18,6 +19,9 @@ export class Jogador {
     @Index()
     @Column({ type: "date", nullable: false })
     dataNascimento!: Date;
+
+    @ManyToMany(() => Nucleo, (nucleo) => nucleo.jogadores)
+    nucleos!: Nucleo[];
 
     @CreateDateColumn({ name: "created_at" })
     createdAt!: Date;

@@ -18,14 +18,7 @@ export function fazerJogadorController(service: IJogadorService) {
             const { data, meta } = await service.listar(pagina, limite, filtros, includesRelations);
             return res.status(200).json(montarRespostaPaginada('Jogadores listados com sucesso', data, meta));
         },
-        async obterJogadoresPorFiltro(req: Request, res: Response) {
-            const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
-            const filtros = SchemaFiltrosJogador.parse(req.query);
-            const { includes } = QueryIncludesJogador.parse(req.query);
-            const includesRelations = transformarIncludesEmRelations(includes);
-            const { data, meta } = await service.obterPorFiltros(pagina, limite, filtros, includesRelations);
-            return res.status(200).json(montarRespostaPaginada('Jogadores listados com sucesso', data, meta));
-        },
+      
         async listarPorNucleoParaTreinador(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
             const nucleoId = getContext()!.nucleoVinculadoId;

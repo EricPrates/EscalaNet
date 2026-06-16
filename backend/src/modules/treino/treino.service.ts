@@ -1,26 +1,17 @@
 import { AppError } from "../../shared/utils/AppError";
 import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
-import { getContext } from "../../shared/utils/authStorage";
 import { ITreinoRepository, ITreinoService } from "./treino.interfaces";
 import { CriarTreinoDTO, RespostaTreinoDTO, SchemaTreinoResposta } from "./treino.schemas";
 import { FindOptionsWhere, FindOptionsRelations } from 'typeorm';
 
 
+
 export function fazerTreinoService(treinoRepo: ITreinoRepository): ITreinoService {
     return {
-        async listarPorNucleo(pagina: number, limite: number, nucleoId: number) {
-            const { data, total } = await treinoRepo.listarPorNucleo(pagina, limite, nucleoId);
-            const totalPaginas = Math.ceil(total / limite);
-            return SchemaRespostaPaginada(SchemaTreinoResposta).parse({
-                data: data,
-                meta: { pagina, limite, total, totalPaginas },
-            });
-        },
+
         async listar(pagina: number, limite: number, where:FindOptionsWhere<RespostaTreinoDTO>, relations?: FindOptionsRelations<RespostaTreinoDTO>) {
-            const ctx = getContext();
-            if (ctx?.permissao !== 'admin' && ctx?.nucleoVinculadoId) {
-                return this.listarPorNucleo(pagina, limite, ctx.nucleoVinculadoId);
-            }
+            
+           
             const { data, total } = await treinoRepo.listar(pagina, limite, where, relations);
             const totalPaginas = Math.ceil(total / limite);
             return SchemaRespostaPaginada(SchemaTreinoResposta).parse({
@@ -28,18 +19,7 @@ export function fazerTreinoService(treinoRepo: ITreinoRepository): ITreinoServic
                 meta: { pagina, limite, total, totalPaginas },
             });
         },
-        async obterPorFiltros(pagina: number, limite: number, where: FindOptionsWhere<RespostaTreinoDTO>, relations?: FindOptionsRelations<RespostaTreinoDTO>) {
-            const ctx = getContext();
-            if (ctx?.permissao !== 'admin' && ctx?.nucleoVinculadoId) {
-                return this.listarPorNucleo(pagina, limite, ctx.nucleoVinculadoId);
-            }
-            const { data, total } = await treinoRepo.obterPorFiltros(pagina, limite, where, relations);
-            const totalPaginas = Math.ceil(total / limite);
-            return SchemaRespostaPaginada(SchemaTreinoResposta).parse({
-                data: data,
-                meta: { pagina, limite, total, totalPaginas },
-            });
-        },
+       
 
         async obterPorId(id: number): Promise<RespostaTreinoDTO> {
             const treino = await treinoRepo.obterPorId(id);
