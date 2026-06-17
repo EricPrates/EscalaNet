@@ -62,4 +62,6 @@ export class Jogo {
 
     @Column({ type: "varchar", length: 50, nullable: true })
     chave?: string; // campo para armazenar a posição no chaveamento, ex: "R1-G1" (Rodada 1, Jogo 1)
+
+    
 }

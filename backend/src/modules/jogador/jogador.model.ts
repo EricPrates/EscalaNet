@@ -20,8 +20,9 @@ export class Jogador {
     @Column({ type: "date", nullable: false })
     dataNascimento!: Date;
 
-    @ManyToMany(() => Nucleo, (nucleo) => nucleo.jogadores)
-    nucleos!: Nucleo[];
+    @ManyToOne(() => Nucleo, (nucleo) => nucleo.jogadores)
+    @JoinColumn({ name: "nucleo_id" })
+    nucleo!: Nucleo;
 
     @CreateDateColumn({ name: "created_at" })
     createdAt!: Date;

@@ -16,7 +16,10 @@ export const SchemaRefFrequencia = z.object({
     presente: z.boolean(),
 });
 
-
+export const SchemaRefCompeticao = z.object({
+    id: z.number().int().positive(),
+    nome: z.string(),
+});
 export const SchemaRefNucleo = z.object({
     id: z.number().int().positive(),
     nome: z.string(),
@@ -38,6 +41,14 @@ export const SchemaRefTime = z.object({
     categoria: SchemaRefCategoria.optional(),
     treinador: SchemaRefUsuario.optional(),
 
+});
+
+export const SchemaRefMaterial = z.object({
+    id: z.number().int().positive(),
+    nome: z.string(),
+    quantidade: z.coerce.number().int().nonnegative(),
+    tipoMaterial: z.string().optional(),
+    dataRecebimento: z.coerce.date(),
 });
 export const SchemaRefChamada = z.object({
     id: z.number().int().positive(),

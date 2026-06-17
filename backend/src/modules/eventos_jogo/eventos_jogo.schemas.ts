@@ -15,10 +15,20 @@ export const SchemaBaseEventoJogo = z.object({
     }),
     descricao: z.string().max(1000, 'Descrição deve ter no máximo 1000 caracteres').nullable().optional(),
     minuto: z.number().int().nonnegative('Minuto deve ser um número inteiro não negativo'),
-    jogo: z.object({ id: z.number().int().positive('ID do jogo deve ser um número inteiro positivo') }),
-    usuario: z.object({ id: z.number().int().positive('ID do usuário deve ser um número inteiro positivo') }),
-    nucleo: z.object({ id: z.number().int().positive('ID do núcleo deve ser um número inteiro positivo') }),
-    jogadorEnvolvido: z.object({ id: z.number().int().positive('ID do jogador deve ser um número inteiro positivo') }).nullable().optional(),
+    jogoId: z.number().int().positive('ID do jogo deve ser um número inteiro positivo'),
+    usuarioId: z.number().int().positive('ID do usuário deve ser um número inteiro positivo'),
+    nucleoId: z.number().int().positive('ID do núcleo deve ser um número inteiro positivo').optional(),
+    jogadorEnvolvidoId: z.number().int().positive('ID do jogador deve ser um número inteiro positivo').nullable().optional(),
+}).transform(({ jogoId, usuarioId, nucleoId, jogadorEnvolvidoId, ...resto }) => ({
+    ...resto,
+    jogo: { id: jogoId },
+    usuario: { id: usuarioId },
+    nucleo: { id: nucleoId },
+    jogadorEnvolvido: jogadorEnvolvidoId ? { id: jogadorEnvolvidoId } : undefined,
+}));
+
+export const SchemaBuscarPorIdEventoJogo = z.object({
+    id: z.coerce.number().int().positive("ID do evento deve ser um número inteiro positivo"),
 });
 
 export const SchemaEventoJogoRespostaDetalhada = z.object({
@@ -51,13 +61,30 @@ export const SchemaFiltroEventoJogo = z.object({
     if (filtros.jogadorEnvolvidoId) where.jogadorEnvolvido = { id: filtros.jogadorEnvolvidoId };
     if (filtros.descricao) where.descricao = ILike(`%${filtros.descricao}%`);
     if (filtros.acrescimo !== undefined) where.acrescimo = filtros.acrescimo;
+    if (filtros.nucleoId) where.nucleo = { id: filtros.nucleoId };
     return where;
 });
 
-export const RELACOES_EVENTOS_JOGO = ['nucleo', 'jogo', 'jogadorEnvolvido', 'usuario', 'time'] as const;
+export const RELACOES_EVENTOS_JOGO = ['nucleo', 'jogo', 'jogadorEnvolvido', 'usuario', 'time', ] as const;
 export const QueryIncludesEventosJogo = criarIncludesSchema(RELACOES_EVENTOS_JOGO);
 
-export const SchemaAtualizarEventoJogo = SchemaBaseEventoJogo.partial();
+export const SchemaAtualizarEventoJogo  = z.object({
+    tipo: z.enum(TipoEvento, {
+        error: 'Tipo de evento inválido. Use: gol, falta, cartao_amarelo, cartao_vermelho, escanteio ou substituicao',
+    }).optional(),
+    descricao: z.string().max(1000, 'Descrição deve ter no máximo 1000 caracteres').nullable().optional(),
+    minuto: z.number().int().nonnegative('Minuto deve ser um número inteiro não negativo').optional(),
+    jogoId: z.number().int().positive('ID do jogo deve ser um número inteiro positivo').optional(),
+    usuarioId: z.number().int().positive('ID do usuário deve ser um número inteiro positivo').optional(),
+    nucleoId: z.number().int().positive('ID do núcleo deve ser um número inteiro positivo').optional(),
+    jogadorEnvolvidoId: z.number().int().positive('ID do jogador deve ser um número inteiro positivo').nullable().optional(),
+}).transform(({ jogoId, usuarioId, nucleoId, jogadorEnvolvidoId, ...resto }) => ({
+    ...resto,
+     jogo: jogoId ? { id: jogoId } : undefined,
+    usuario: usuarioId ? { id: usuarioId } : undefined,
+    nucleo: nucleoId ? { id: nucleoId } : undefined,
+    jogadorEnvolvido: jogadorEnvolvidoId ? { id: jogadorEnvolvidoId } : undefined
+}));
 export const SchemaEventosJogoPaginados = SchemaRespostaPaginada(SchemaEventoJogoRespostaDetalhada);
 
 export type FiltrosEventoJogoDTO = z.infer<typeof SchemaFiltroEventoJogo>;

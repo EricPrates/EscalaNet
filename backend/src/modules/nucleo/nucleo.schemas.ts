@@ -4,6 +4,8 @@ import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
 import { FindOptionsWhere, ILike } from 'typeorm';
 import { Nucleo } from './Nucleo.model';
 import { criarIncludesSchema } from '../../shared/utils/query.schema';
+import { SchemaRefChamada, SchemaRefEvento, SchemaRefFrequencia, SchemaRefJogador, SchemaRefMaterial, SchemaRefTime, SchemaRefTreino, SchemaRefUsuario } from '../../shared/utils/ref.schemas';
+
 
 
 export const SchemaDashboardNucleo = z.object({
@@ -18,6 +20,7 @@ export const SchemaDashboardNucleo = z.object({
     jogosRealizados: z.number().optional(),
     jogosFuturos: z.number().optional(),
 });
+
 
 export const SchemaFiltrosNucleo = z.object({
     id: z.coerce.number().int().positive('ID do núcleo deve ser um número inteiro positivo').optional(),
@@ -43,11 +46,23 @@ export const SchemaBaseNucleo = z.object({
     nome: z.string().min(1, "O nome do núcleo é obrigatório"),
     endereco: z.string().max(1000, "O endereço deve conter no máximo 1000 caracteres").optional(),
 });
+   
+
 export const SchemaIdNUcleo = z.object({
     id: z.number().int().positive(),
 });
 export const SchemaNucleoResposta = SchemaBaseNucleo.extend({
     id: z.coerce.number().int().positive(),
+    eventos:z.array(z.object(SchemaRefEvento)).optional(),
+    nome: z.string(),
+    endereco: z.string().optional(),
+    jogadores: z.array(z.object(SchemaRefJogador)).optional(),
+    frequencias: z.array(z.object(SchemaRefFrequencia)).optional(),
+    chamadas: z.array(z.object(SchemaRefChamada)).optional(),    
+    times: z.array(z.object(SchemaRefTime)).optional(),
+    treinos: z.array(z.object(SchemaRefTreino)).optional(),
+    usuariosVinculados:z.array(z.object(SchemaRefUsuario)).optional(),
+    materiais: z.array(z.object(SchemaRefMaterial)).optional()
 });
 
 export const RELACOES_NUCLEO = ['materiais', 'times', 'treinos'] as const;

@@ -11,5 +11,4 @@ export interface IJogoRepository extends IBaseRepository<Jogo, CriarJogoDTO> {
 
 export interface IJogoService extends IBaseService<RespostaJogoDTO, FiltrosJogadorDTO, CriarJogoDTO> {
     contar(where?: FindOptionsWhere<Jogo>): Promise<number>;
-    
 }

@@ -20,7 +20,7 @@ export function fazerEventoJogoRepo(dataSource: DataSource): IEventoJogoReposito
             return { data, total };
         },
 
-  
+
         async obterPorId(id: number, relations?: FindOptionsRelations<EventosJogo>, select?: FindOptionsSelect<EventosJogo>) {
             return await repo.findOne({
                 where: { id },
@@ -29,9 +29,9 @@ export function fazerEventoJogoRepo(dataSource: DataSource): IEventoJogoReposito
             }) || null;
         },
 
-        async criar(data: CriarEventoJogoDTO) {
+        async criar(data: CriarEventoJogoDTO): Promise<EventosJogo> {
             const evento = repo.create(data);
-            return repo.save(evento);
+            return await repo.save(evento);
         },
 
         async atualizar(id: number, data: Partial<CriarEventoJogoDTO>) {

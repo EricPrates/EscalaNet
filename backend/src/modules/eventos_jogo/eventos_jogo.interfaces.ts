@@ -2,10 +2,8 @@ import { IBaseRepository, IBaseService } from "../../shared/factory/BaseInterfac
 import { EventosJogo } from "./EventosJogo.model";
 import { CriarEventoJogoDTO, FiltrosEventoJogoDTO, RespostaEventoJogoDTO } from "./eventos_jogo.schemas";
 
-export interface IEventoJogoRepository extends IBaseRepository<EventosJogo, CriarEventoJogoDTO> {
+export interface IEventoJogoRepository extends IBaseRepository<EventosJogo, CriarEventoJogoDTO, number> {
    
 }
 
-export interface IEventoJogoService extends IBaseService<RespostaEventoJogoDTO, FiltrosEventoJogoDTO, CriarEventoJogoDTO, number> {
-   
-}
+export interface IEventoJogoService extends IBaseService<RespostaEventoJogoDTO, FiltrosEventoJogoDTO, CriarEventoJogoDTO, number> {}

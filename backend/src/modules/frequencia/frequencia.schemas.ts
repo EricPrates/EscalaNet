@@ -6,17 +6,17 @@ import { criarIncludesSchema } from '../../shared/utils/query.schema';
 import { Frequencia } from './frequencia.model';
 
 export const SchemaBaseFrequencia = z.object({
-    data: z.coerce.date({ error: "Data inválida" }),
     presente: z.boolean('Presente deve ser um valor booleano'),
     jogadorId : z.number().int().positive('ID do jogador deve ser um número inteiro positivo'),
     treinoId: z.number().int().positive('ID do treino deve ser um número inteiro positivo').optional(),
     jogoId: z.number().int().positive('ID do jogo deve ser um número inteiro positivo').nullable().optional(),
     chamadaId: z.number().int().positive('ID da chamada deve ser um número inteiro positivo'),
+    nucleoId: z.number().int().positive('ID do núcleo deve ser um número inteiro positivo').optional(),
+    justificativa: z.string('Justificativa deve ser uma string').optional(),
 });
 
 export const SchemaFrequenciaResposta = z.object({
     id: z.coerce.number().int().positive(),
-    data: z.coerce.date(),
     presente: z.boolean(),
     jogador: SchemaRefJogador,
     treino: SchemaRefTreino.optional(),
@@ -29,6 +29,7 @@ export const SchemaFiltroFrequencia = z.object({
     presente: z.boolean('Presente deve ser um valor booleano').optional(),
     jogadorId: z.number().int().positive('ID do jogador deve ser um número inteiro positivo').optional(),
     justificativa: z.string('Justificativa deve ser uma string').optional(),
+    nucleoId: z.number().int().positive('ID do núcleo deve ser um número inteiro positivo').optional(),
 }).transform(filtros => {
     const where: FindOptionsWhere<Frequencia> = {};
     
@@ -36,6 +37,7 @@ export const SchemaFiltroFrequencia = z.object({
     if (filtros.jogadorId) where.jogador = { id: filtros.jogadorId };
     if (filtros.chamadaId) where.chamada = { id: filtros.chamadaId };
     if (filtros.justificativa) where.justificativa = filtros.justificativa;
+    if (filtros.nucleoId) where.nucleo = { id: filtros.nucleoId };
     return where;
 });
 

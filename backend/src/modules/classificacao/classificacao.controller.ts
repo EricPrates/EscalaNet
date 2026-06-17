@@ -7,20 +7,17 @@ import { QueryIncludesClassificacao, SchemaAtualizarClassificacao, SchemaBuscarP
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
 
 
+
 export function fazerClassificacaoController(service: IClassificacaoService) {
     return {
        /* async obterClassificacao(req: Request, res: Response) {
-            const { id } = req.params;
-            
-            const classificacao = await service.calcularClassificacao(
-                Number(id)
-            );
-            
+            const { id } = SchemaBuscarPorIdCompeticao.parse(req.params);
+            const classificacao = await service.calcularClassificacao(id);
             return res.status(200).json(montarRespostaSucesso(
                 'Classificação obtida com sucesso',
                 classificacao
             ));
-        }*/
+        },*/
        async listarClassificacoes(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
             const filtro = SchemaFiltrosClassificacao.parse(req.query);
@@ -37,7 +34,7 @@ export function fazerClassificacaoController(service: IClassificacaoService) {
             const classificacao = await service.obterPorId(id, includesRelations);
             return res.status(200).json(montarRespostaSucesso('Classificação obtida com sucesso', classificacao));
         },
-      
+
         async criarClassificacao(req: Request, res: Response) {
             const data = SchemaCriarClassificacao.parse(req.body)
             const classificacao = await service.criar(data);
@@ -50,8 +47,8 @@ export function fazerClassificacaoController(service: IClassificacaoService) {
             const classificacao = await service.atualizar(id, data);
             return res.status(200).json(montarRespostaSucesso('Classificação atualizada com sucesso', classificacao));
         },
-        
-        
+
+
         async deletarClassificacao(req: Request, res: Response) {
             const { id } = SchemaBuscarPorIdClassificacao.parse(req.params);
             await service.deletar(id);

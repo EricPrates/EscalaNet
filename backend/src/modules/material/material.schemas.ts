@@ -9,9 +9,7 @@ export const SchemaBaseMaterial = z.object({
     quantidade: z.coerce.number().int().nonnegative('A quantidade deve ser um número inteiro não negativo'),
     observacao: z.string('Observação deve ser uma string').nullable().optional(),
     tipoMaterial: z.string('Tipo de material é uma string').max(255).optional(),
-    nucleo: z.object({
-        id: z.coerce.number().int().positive('ID do núcleo é obrigatório'),
-    }),
+    nucleoId: z.coerce.number().int().positive('ID do núcleo é obrigatório'),
     dataRecebimento: z.coerce.date({ message: "Data de recebimento deve ser uma data válida" }),
     
 });

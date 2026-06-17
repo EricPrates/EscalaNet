@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
-import { SchemaRefCategoria, SchemaRefNucleo, SchemaRefUsuario, SchemaRefChamada, SchemaRefEvento } from '../../shared/utils/ref.schemas';
+import { SchemaRefCategoria,  SchemaRefUsuario, SchemaRefChamada, SchemaRefEvento, SchemaRefTime } from '../../shared/utils/ref.schemas';
 import { FindOptionsWhere, ILike } from 'typeorm';
 import { Jogo } from './Jogo.model';
 import { criarIncludesSchema } from '../../shared/utils/query.schema';
@@ -19,8 +19,8 @@ export const SchemaJogoResposta = z.object({
     id: z.coerce.number().int().positive(),
     nome: z.string(),
     data: z.coerce.date(),
-    timeA: SchemaRefNucleo,
-    timeB: SchemaRefNucleo,
+    timeA: SchemaRefTime,
+    timeB: SchemaRefTime,
     arbitro: SchemaRefUsuario.nullable().optional(),
     categoria: SchemaRefCategoria.nullable().optional(),
     golsTimeA: z.number(),

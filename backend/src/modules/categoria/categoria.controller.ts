@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { ICategoriaService } from "./categoria.interfaces";
-import { SchemaFiltrosCategoria, SchemaCriarCategoria, SchemaAtualizarCategoria, SchemaBuscarPorIdCategoria, QueryIncludesCategoria } from './categoria.schemas';
+import { SchemaFiltrosCategoria, SchemaCriarCategoria, SchemaBuscarPorIdCategoria, QueryIncludesCategoria, SchemaAtualizarCategoria } from './categoria.schemas';
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
 
 export function fazerCategoriaController(service: ICategoriaService) {
@@ -18,7 +18,9 @@ export function fazerCategoriaController(service: ICategoriaService) {
 
         async obterCategoriaPorId(req: Request, res: Response) {
             const { id } = SchemaBuscarPorIdCategoria.parse(req.params);
-            const categoria = await service.obterPorId(id);
+            const { includes } = QueryIncludesCategoria.parse(req.query);
+            const includesRelations = transformarIncludesEmRelations(includes);
+            const categoria = await service.obterPorId(id, includesRelations);
             return res.status(200).json(montarRespostaSucesso('Categoria obtida com sucesso', categoria));
         },
 
@@ -40,11 +42,7 @@ export function fazerCategoriaController(service: ICategoriaService) {
             await service.deletar(id);
             return res.status(204).json(montarRespostaSucesso('Categoria deletada com sucesso'));
         },
-        async buscarPorIdadeMaxima(req: Request, res: Response) {
-            const { idadeMaxima } = SchemaFiltrosCategoria.parse(req.query);
-            const categoria = await service.buscarPorIdadeMaxima(Number(idadeMaxima));
-            return res.status(200).json(montarRespostaSucesso('Categoria obtida com sucesso', categoria));
-        },
+        
        
     };
 }

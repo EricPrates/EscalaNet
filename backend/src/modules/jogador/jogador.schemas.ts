@@ -15,8 +15,13 @@ export const SchemaCriarJogador = z.object({
     time: z.object({
         id: z.coerce.number().int().positive("ID do time é obrigatório")
     }),
+    nucleoId: z.coerce.number().int().positive({ message: "ID do núcleo deve ser um número inteiro positivo" }).optional(),
 
-});
+}).transform(({ time, nucleoId, ...resto }) => ({
+    ...resto,
+    time: { id: time.id },
+    nucleo: nucleoId? { id: nucleoId } : undefined,
+}));
 
 export const SchemaBaseJogador = SchemaCriarJogador;
 

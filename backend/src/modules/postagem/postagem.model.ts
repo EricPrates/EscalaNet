@@ -4,8 +4,10 @@ import {
     Column, 
     CreateDateColumn, 
     UpdateDateColumn,
-    Index 
+    Index, 
+    OneToOne
 } from 'typeorm';
+import { Usuario } from '../usuario/Usuario.model';
 
 @Entity({ name: "postagens" })
 export class Postagem {
@@ -36,4 +38,7 @@ export class Postagem {
 
     @Column({ nullable: true })
     publicadoEm?: Date;
+
+    @OneToOne(() => Usuario, (usuario) => usuario.postagem)
+    autor!: Usuario;
 }

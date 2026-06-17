@@ -124,7 +124,7 @@ describe('CategoriaService', () => {
             });
 
             const result = await service.obterPorId(1);
-            expect(result.id).toBe(1);
+            expect(result?.id).toBe(1);
         });
     });
 });

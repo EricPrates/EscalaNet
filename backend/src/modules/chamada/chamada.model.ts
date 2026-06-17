@@ -12,12 +12,13 @@ export class Chamada {
     id!: number;
 
     @ManyToOne(() => Nucleo, { nullable: false })
-    @JoinColumn({ name: 'nucleo_id' }) 
+    @JoinColumn({ name: 'nucleo_id' })
     nucleo!: Nucleo;
 
     @Index()
     @Column({ type: 'date' })
     data!: Date;
+
 
     @ManyToOne(() => Treino, { nullable: true })
     @JoinColumn({ name: "treino_id" })

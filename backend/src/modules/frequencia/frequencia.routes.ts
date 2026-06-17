@@ -9,7 +9,7 @@ router.get('/:id', verificarPermissao('admin', 'professor'), frequenciaControlle
 router.post('/', verificarPermissao('admin', 'professor'), frequenciaController.criarFrequencia);
 router.put('/:id', verificarPermissao('admin', 'professor'), frequenciaController.atualizarFrequencia);
 router.delete('/:id', verificarPermissao('admin'), frequenciaController.deletarFrequencia);
-
+router.get('/jogador/:id', verificarPermissao('admin', 'professor'), frequenciaController.listarFrequenciasPorJogador);
 
 export default (app: express.Application) => {
   app.use('/frequencias', router);

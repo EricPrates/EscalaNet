@@ -4,7 +4,7 @@ import { montarPaginacao } from "../../shared/utils/montarPaginacao";
 import { ICategoriaRepository, ICategoriaService } from "./categoria.interfaces";
 import { Categoria } from "./Categoria.model";
 import { CriarCategoriaDTO, RespostaCategoriaDTO, SchemaBaseCategoria, SchemaCategoriasPaginadas } from "./categoria.schemas";
-import { FindOptionsRelations,  FindOptionsWhere } from 'typeorm';
+import { FindOptionsRelations, FindOptionsWhere } from 'typeorm';
 
 
 
@@ -18,16 +18,12 @@ export function fazerCategoriaService(categoriaRepo: ICategoriaRepository): ICat
             });
         },
 
-        async buscarPorIdadeMaxima(idadeMaxima: number): Promise<RespostaCategoriaDTO | null> {
-            const categoria = await categoriaRepo.buscarPorIdadeMaxima(idadeMaxima);
-            return categoria ? SchemaBaseCategoria.parse(categoria) : null;
-        },
         async obterPorId(id: number): Promise<RespostaCategoriaDTO> {
-            const categoria = await categoriaRepo.obterPorId(id );
+            const categoria = await categoriaRepo.obterPorId(id);
             if (!categoria) throw new AppError(404, 'Categoria não encontrada');
             return SchemaBaseCategoria.parse(categoria);
         },
-    
+
 
         async obterPorNome(nome: string): Promise<RespostaCategoriaDTO> {
             const categoria = await categoriaRepo.obterPorNome(nome);
@@ -38,15 +34,23 @@ export function fazerCategoriaService(categoriaRepo: ICategoriaRepository): ICat
         async criar(data: CriarCategoriaDTO): Promise<RespostaCategoriaDTO> {
             const existente = await categoriaRepo.obterPorNome(data.nome);
             if (existente) throw new AppError(409, 'Categoria já cadastrada');
-            const categoria = await categoriaRepo.criar(data);
-            return SchemaBaseCategoria.parse(categoria);
+
+            try {
+                const categoria = await categoriaRepo.criar(data);
+                return SchemaBaseCategoria.parse(categoria);
+            } catch (err: any) {
+                if (err.code === '23505') {
+                    throw new AppError(409, 'Categoria já cadastrada');
+                }
+                throw err;
+            }
         },
 
         async atualizar(id: number, data: Partial<CriarCategoriaDTO>): Promise<RespostaCategoriaDTO> {
             const categoriaExistente = await categoriaRepo.obterPorId(id);
             if (!categoriaExistente) throw new AppError(404, 'Categoria não encontrada');
             const categoria = await categoriaRepo.atualizar(id, data);
-            return SchemaBaseCategoria.parse(categoria);    
+            return SchemaBaseCategoria.parse(categoria);
         },
 
         async deletar(id: number): Promise<boolean> {

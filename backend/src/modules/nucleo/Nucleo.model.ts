@@ -22,7 +22,7 @@ export class Nucleo {
     @Column({ type: "varchar", length: 255, nullable: false })
     nome!: string; 
 
-    @OneToMany(() => Jogador, (jogador) => jogador.nucleos)
+    @OneToMany(() => Jogador, (jogador) => jogador.nucleo)
     jogadores!: Jogador[];
 
     @OneToMany(() => Frequencia, (frequencia) => frequencia.nucleo)
@@ -53,4 +53,7 @@ export class Nucleo {
     @ManyToOne(() => Nucleo, (nucleo) => nucleo.materiais)
     @JoinColumn({ name: "nucleo_recebedor_id"})
     materiais!: Nucleo; 
+
+
+
 }

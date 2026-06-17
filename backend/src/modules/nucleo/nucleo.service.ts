@@ -37,19 +37,19 @@ export const fazerNucleoService = (nucleoRepo: INucleoRepository): INucleoServic
             return SchemaNucleoResposta.parse(nucleo);
         },
         async obterPorId(id: number, relations?: FindOptionsRelations<Nucleo>): Promise<RespostaNucleoDTO> {
-               const usuario = authStorage.getStore();
+            const usuario = authStorage.getStore();
             if (usuario?.permissao === "professor") {
                 if (!usuario.nucleoVinculadoId) throw new AppError(403, 'Professor sem núcleo');
                 if (id !== usuario.nucleoVinculadoId) {
                     throw new AppError(403, 'Acesso negado a frequência fora do núcleo vinculado');
                 }
             }
-             const material = await nucleoRepo.obterPorId(id, relations);
+            const material = await nucleoRepo.obterPorId(id, relations);
             if (!material) throw new AppError(404, 'Material não encontrado');
             return SchemaNucleoResposta.parse(material);
         },
 
-          async criar(data: CriarNucleoDTO): Promise<RespostaNucleoDTO> {
+        async criar(data: CriarNucleoDTO): Promise<RespostaNucleoDTO> {
             const nucleo = await nucleoRepo.criar(data);
             const respostaDTO: RespostaNucleoDTO = SchemaNucleoResposta.parse(nucleo);
             return respostaDTO;

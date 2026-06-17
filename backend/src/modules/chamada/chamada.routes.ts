@@ -5,6 +5,7 @@ import { verificarPermissao } from '../../shared/Middlewares/verificarPermissao'
 const router = express.Router();
 
 router.get('/',verificarPermissao('admin'), chamadasController.listarChamadas);
+router.get('/data', verificarPermissao('admin', 'professor'), chamadasController.obterChamadaPorData);
 router.get('/:id', verificarPermissao('admin', 'professor'), chamadasController.obterChamadaPorId);
 router.post('/' , verificarPermissao('admin', 'professor'), chamadasController.criarChamada);
 router.put('/:id', verificarPermissao('admin', 'professor'), chamadasController.atualizarChamada);

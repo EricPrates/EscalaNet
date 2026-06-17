@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { montarRespostaPaginada,  montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { IChamadaService } from "./chamada.interfaces";
-import { SchemaCriarChamada, SchemaFiltrosChamada, SchemaBuscarPorIdChamada, SchemaAtualizarChamada, QueryIncludesChamada, SchemaChamadaData } from './chamada.schemas';
+import { SchemaCriarChamada, SchemaFiltrosChamada, SchemaBuscarPorIdChamada, QueryIncludesChamada, SchemaChamadaData, AtualizarChamadaSchema } from './chamada.schemas';
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
 
 export function fazerChamadaController(service: IChamadaService) {
@@ -32,7 +32,7 @@ export function fazerChamadaController(service: IChamadaService) {
 
         async atualizarChamada(req: Request, res: Response) {
             const { id } = SchemaBuscarPorIdChamada.parse(req.params);
-            const data = SchemaAtualizarChamada.parse(req.body);
+            const data = AtualizarChamadaSchema.parse(req.body);
             const chamada = await service.atualizar(id, data);
             return res.status(200).json(montarRespostaSucesso('Chamada atualizada com sucesso', chamada));
         },

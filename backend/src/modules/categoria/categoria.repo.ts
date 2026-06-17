@@ -18,9 +18,7 @@ export function fazerCategoriaRepo(dataSource: DataSource): ICategoriaRepository
             });
             return { data, total };
         },
-        async buscarPorIdadeMaxima(idadeMaxima: number, relations?: FindOptionsRelations<Categoria>) {
-            return await repo.findOne({ where: { idadeMaxima }, relations }) || null;
-        },
+     
         async obterPorId(id: number, relations?: FindOptionsRelations<Categoria>) {
             return await repo.findOne({ where: { id }, relations }) || null;
         },

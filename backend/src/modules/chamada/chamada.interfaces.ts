@@ -5,7 +5,7 @@ import { CriarChamadaDTO, RespostaChamadaDTO, FiltrosChamadaDTO } from "./chamad
 
 export interface IChamadaRepository extends IBaseRepository<Chamada, CriarChamadaDTO> {
   obterPorData(where: FindOptionsWhere<Chamada>, relations?: FindOptionsRelations<Chamada>): Promise<Chamada [] | null>;
-  buscarConflitos(data: Date, timeId: number, relations?: FindOptionsRelations<Chamada>): Promise<Chamada [] | null>;
+  buscarConflitos(data: Date, timeId: number): Promise<Chamada [] | null>;
 }
 export interface IChamadaService extends IBaseService< RespostaChamadaDTO, FiltrosChamadaDTO, CriarChamadaDTO, number> {
     obterPorData(data: Date, relations?: FindOptionsRelations<Chamada>): Promise<RespostaChamadaDTO [] | null>;

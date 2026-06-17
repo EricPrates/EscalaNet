@@ -3,6 +3,7 @@ import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
 import { criarIncludesSchema } from '../../shared/utils/query.schema';
 import { FindOptionsWhere, ILike } from 'typeorm';
 import { Time } from './time.model';
+import { SchemaRefCategoria, SchemaRefNucleo, SchemaRefUsuario } from '../../shared/utils/ref.schemas';
 
 export const SchemaBaseTime = z.object({
     id: z.coerce.number().int().positive("ID do time inválido"),
@@ -17,6 +18,16 @@ export const SchemaCriarTime = z.object({
     nucleoId: z.coerce.number().int().positive("ID do núcleo deve ser um número inteiro positivo").optional(),
     categoriaId: z.coerce.number().int().positive("ID da categoria deve ser um número inteiro positivo").optional(),
     treinadorId: z.coerce.number().int().positive("ID do treinador deve ser um número inteiro positivo").optional(),
+});
+
+export const SchemaTimeResposta = z.object({
+    id: z.coerce.number().int().positive(),
+    nome: z.string(),
+    nucleo: z.object(SchemaRefNucleo).optional(),
+    categoria: z.object(SchemaRefCategoria).optional(),
+    treinador: z.object(SchemaRefUsuario).optional(),
+    createdAt: z.coerce.date().optional(),
+    updatedAt: z.coerce.date().optional(),
 });
 
 export const SchemaAtualizarTime = SchemaBaseTime.partial();

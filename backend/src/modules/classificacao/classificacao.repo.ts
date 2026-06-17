@@ -1,6 +1,7 @@
 import { DataSource, FindOptionsRelations, FindOptionsSelect, FindOptionsWhere } from "typeorm";
 import { IClassificacaoRepository } from "./classificacao.interfaces";
 import { Classificacao } from "./Classificacao.model";
+import { CriarClassificacaoDTO } from "./classificacao.schemas";
 
 
 export function fazerClassificacaoRepo(dataSource: DataSource): IClassificacaoRepository {
@@ -21,10 +22,18 @@ export function fazerClassificacaoRepo(dataSource: DataSource): IClassificacaoRe
         async obterPorId(id: number, relations?: FindOptionsRelations<Classificacao>): Promise<Classificacao | null> {
             return await repo.findOne({ where: { id }, relations }) || null;
         },
-     
-        async criar(data: Partial<Classificacao>): Promise<Classificacao> {
+
+        async criar(data: CriarClassificacaoDTO): Promise<Classificacao> {
             const classificacao = repo.create(data);
             return repo.save(classificacao);
+        },
+        async buscarPorCompeticaoETime(competicaoId: number, timeId: number): Promise<Classificacao | null> {
+            return await repo.findOne({
+                where: {
+                    competicao: { id: competicaoId },
+                    time: { id: timeId }
+                }
+            }) || null;
         },
         async atualizar(id: number, data: Partial<Classificacao>): Promise<Classificacao | null> {
             const classificacao = await repo.findOne({ where: { id } });

@@ -7,7 +7,7 @@ export function fazerFrequenciaRepo(dataSource: DataSource): IFrequenciaReposito
     const repo = dataSource.getRepository(Frequencia);
 
     return {
-        async listar(pagina = 1, limite = 10, where: FindOptionsWhere<Frequencia>, relations?: FindOptionsRelations<any>) {
+        async listar(pagina = 1, limite = 10, where: FindOptionsWhere<Frequencia>, relations?: FindOptionsRelations<Frequencia>) {
             const skip = (pagina - 1) * limite;
             const [data, total] = await repo.findAndCount({
                 where,
@@ -28,11 +28,8 @@ export function fazerFrequenciaRepo(dataSource: DataSource): IFrequenciaReposito
             return { data, total };
         },
 
-        async obterPorId(id: number) {
-            return await repo.findOne({
-                where: { id },
-    
-            }) || null;
+        async obterPorId(id: number, relations?: FindOptionsRelations<Frequencia>) {
+            return await repo.findOne({ where: { id }, relations }) || null;
         },
 
         async criar(data: CriarFrequenciaDTO) {

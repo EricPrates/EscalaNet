@@ -3,10 +3,10 @@ import { AppError } from "../../shared/utils/AppError";
 import bcrypt from 'bcrypt';
 import { RespostaUsuarioDTO, CriarUsuarioDTO, AtualizarUsuarioDTO, SchemaUsuarioResumido } from './usuario.schemas';
 import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
-import { getContext } from "../../shared/utils/authStorage";
-
+import { authStorage, getContext } from "../../shared/utils/authStorage";
 import { FindOptionsRelations, FindOptionsWhere } from "typeorm";
 import { Usuario } from "./Usuario.model";
+
 
 
 
@@ -19,8 +19,16 @@ export const fazerUsuarioService = (usuarioRepo: IUsuarioRepository): IUsuarioSe
     return {
 
         async listar(pagina: number, limite: number, where: FindOptionsWhere<Usuario>, relations?: FindOptionsRelations<Usuario>) {
-
-            const { data, total } = await usuarioRepo.listar(pagina, limite, where, relations);
+               const usuario = authStorage.getStore();
+            let finalWhere = where ? { ...where } : {};
+            if (usuario?.permissao === "professor") {
+                if (!usuario.nucleoVinculadoId) throw new AppError(403, 'Professor sem núcleo');
+                finalWhere = {
+                    ...finalWhere,
+                    nucleoVinculado: { id: usuario.nucleoVinculadoId }
+                };
+            }
+            const { data, total } = await usuarioRepo.listar(pagina, limite, finalWhere, relations);
             const totalPaginas = Math.ceil(total / limite);
             return SchemaRespostaPaginada(SchemaUsuarioResumido).parse({
                 data: data,
@@ -30,11 +38,17 @@ export const fazerUsuarioService = (usuarioRepo: IUsuarioRepository): IUsuarioSe
 
 
         async obterPorId(id: number): Promise<RespostaUsuarioDTO> {
+            const usuarioCtx = authStorage.getStore();
             const usuario = await usuarioRepo.obterPorId(id);
             if (!usuario) {
                 throw new AppError(404, 'Usuário não encontrado');
             }
-
+            if (usuarioCtx?.permissao === "professor") {
+                if (!usuarioCtx.nucleoVinculadoId) throw new AppError(403, 'Professor sem núcleo');
+                if (usuarioCtx.nucleoVinculadoId !== usuario.nucleoVinculado?.id) {
+                    throw new AppError(403, 'Acesso negado a usuário fora do núcleo vinculado');
+                }
+            }
             return SchemaUsuarioResumido.parse(usuario);
         },
 

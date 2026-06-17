@@ -1,10 +1,10 @@
-// categoria.schemas.ts
+
 import { z } from 'zod';
 import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
 import { Between, FindOptionsWhere, ILike } from 'typeorm';
 import { Categoria } from './Categoria.model';
 import { criarIncludesSchema } from '../../shared/utils/query.schema';
-import { SchemaRefJogo, SchemaRefTime } from '../../shared/utils/ref.schemas';
+import { SchemaRefJogo,  SchemaRefTime } from '../../shared/utils/ref.schemas';
 
 export const SchemaCriarCategoria = z.object({
     nome: z.string().min(1, "O nome da categoria é obrigatório"),
@@ -20,6 +20,7 @@ export const SchemaBaseCategoria = z.object({
     ativa: z.boolean(),
     times: z.array(SchemaRefTime).optional(),
     jogos: z.array(SchemaRefJogo).optional(),
+    
 });
 
 export const SchemaFiltrosCategoria = z.object({
@@ -51,14 +52,13 @@ export const SchemaBuscarPorNomeCategoria = z.object({
     nome: z.string().trim().min(1, "O nome da categoria é obrigatório").optional(),
 
 });
-
+export const SchemaAtualizarCategoria = SchemaCriarCategoria.partial();
 export const FILTROS_PERMITIDOS_CATEGORIA = ['id', 'nome', 'ativa', 'idadeMaxima'] as const;
 export const RELACOES_CATEGORIA = ['times', 'jogos'] as const; 
 export const QueryIncludesCategoria = criarIncludesSchema(RELACOES_CATEGORIA);
-export const SchemaAtualizarCategoria = SchemaCriarCategoria.partial();
-export const SchemaCategoriasPaginadas = SchemaRespostaPaginada(SchemaBaseCategoria);
 
+export const SchemaCategoriasPaginadas = SchemaRespostaPaginada(SchemaBaseCategoria);
+export type AtualizarCategoriaDTO = z.infer<typeof SchemaAtualizarCategoria>;
 export type FiltrosCategoriaDTO = z.infer<typeof SchemaFiltrosCategoria>;
 export type CriarCategoriaDTO = z.infer<typeof SchemaCriarCategoria>;
 export type RespostaCategoriaDTO = z.infer<typeof SchemaBaseCategoria>;
-export type AtualizarCategoriaDTO = z.infer<typeof SchemaAtualizarCategoria>;

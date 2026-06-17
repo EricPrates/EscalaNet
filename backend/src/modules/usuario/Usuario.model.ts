@@ -1,8 +1,9 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, Index, ManyToMany, ManyToOne, JoinColumn } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, Index, ManyToMany, ManyToOne, JoinColumn, OneToOne } from "typeorm";
 import { Nucleo } from "../nucleo/Nucleo.model";
 import { Treino } from "../treino/Treino.model";
 import { Jogo } from "../jogo/Jogo.model";
 import { EventosJogo } from "../eventos_jogo/EventosJogo.model";
+import { Postagem } from "../postagem/postagem.model";
 
 
 
@@ -49,6 +50,7 @@ export class Usuario {
 
     @OneToMany(() => EventosJogo, (eventos) => eventos.usuario)
     eventos?: EventosJogo[];
-    
+    @OneToOne(() => Postagem, (postagem) => postagem.autor)
+    postagem?: Postagem;
 }
 

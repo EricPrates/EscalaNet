@@ -3,6 +3,7 @@ import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
 import { criarIncludesSchema } from '../../shared/utils/query.schema';
 import { FindOptionsWhere, ILike } from 'typeorm';
 import { Competicao } from './Competicao.model';
+import { SchemaRefTime } from '../../shared/utils/ref.schemas';
 
 export const SchemaBaseCompeticao = z.object({
     id: z.coerce.number().int().positive(),
@@ -10,13 +11,10 @@ export const SchemaBaseCompeticao = z.object({
     tipo: z.enum(['Copa', 'Liga']),
     intervaloDias: z.coerce.number().int().positive().optional(),
     duplaVolta: z.boolean().optional(),
-    times: z.array(z.object({
-        id: z.coerce.number().int().positive(),
-        nome: z.string(),
-    })).optional(),
+    times: z.array(z.object(SchemaRefTime)).optional(),
 });
 
-export const SchemaCriarCompeticao = SchemaBaseCompeticao.omit({ id: true });
+export const SchemaCriarCompeticao = SchemaBaseCompeticao.omit({ id: true, times: true });
 export const SchemaAtualizarCompeticao = SchemaCriarCompeticao.partial();
 
 export const SchemaBuscarPorIdCompeticao = z.object({
