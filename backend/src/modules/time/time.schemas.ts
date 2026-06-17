@@ -11,7 +11,12 @@ export const SchemaBaseTime = z.object({
     nucleoId: z.coerce.number().int().positive("ID do núcleo deve ser um número inteiro positivo").optional(),
     categoriaId: z.coerce.number().int().positive("ID da categoria deve ser um número inteiro positivo").optional(),
     treinadorId: z.coerce.number().int().positive("ID do treinador deve ser um número inteiro positivo").optional(),
-});
+}).transform(({ nucleoId, categoriaId, treinadorId, ...rest }) => ({
+    ...rest,
+    nucleo: nucleoId ? { id: nucleoId } : undefined,
+    categoria: categoriaId ? { id: categoriaId } : undefined,
+    treinador: treinadorId ? { id: treinadorId } : undefined,
+}));
 
 export const SchemaCriarTime = z.object({
     nome: z.string().min(1, 'O nome do time é obrigatório'),

@@ -8,10 +8,14 @@ import { criarIncludesSchema } from '../../shared/utils/query.schema';
 
 export const SchemaBaseTreino = z.object({
     data: z.coerce.date({ error: "Data do treino inválida" }),
-    nucleo: z.object({ id: z.number().int().positive() }),
-    jogadores: z.array(z.object({ id: z.number().int().positive() })).optional(),
-    usuarios: z.array(z.object({ id: z.number().int().positive() })).optional(),
-});
+    nucleoId: z.coerce.number().int().positive('ID do núcleo deve ser um número inteiro positivo'),
+    timeId: z.coerce.number().int().positive('ID do time deve ser um número inteiro positivo').optional(),
+}).transform(({ nucleoId, timeId, ...rest }) => ({
+    ...rest,
+    time: timeId ? { id: timeId } : undefined,
+    nucleo: nucleoId ? { id: nucleoId } : undefined,
+
+}));
 
 export const SchemaTreinoResposta = z.object({
     id: z.coerce.number().int().positive(),

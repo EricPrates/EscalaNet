@@ -11,8 +11,10 @@ export const SchemaBaseMaterial = z.object({
     tipoMaterial: z.string('Tipo de material é uma string').max(255).optional(),
     nucleoId: z.coerce.number().int().positive('ID do núcleo é obrigatório'),
     dataRecebimento: z.coerce.date({ message: "Data de recebimento deve ser uma data válida" }),
-    
-});
+}).transform(({ nucleoId, ...rest }) => ({
+    ...rest,
+    nucleo: { id: nucleoId },
+}));
 
 export const SchemaMaterialResposta = z.object({
     id: z.coerce.number().int().positive(),

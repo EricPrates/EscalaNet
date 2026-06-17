@@ -12,8 +12,13 @@ export const SchemaBaseJogo = z.object({
     timeB: z.object({ id: z.number().int().positive() }),
     arbitro: z.object({ id: z.number().int().positive() }).nullable().optional(),
     categoria: z.object({ id: z.number().int().positive() }).nullable().optional(),
-
-});
+}).transform(({ timeA, timeB, arbitro, categoria, ...rest }) => ({
+    ...rest,
+    timeA: { id: timeA.id },
+    timeB: { id: timeB.id },
+    arbitro: arbitro ? { id: arbitro.id } : undefined,
+    categoria: categoria ? { id: categoria.id } : undefined,
+}));
 
 export const SchemaJogoResposta = z.object({
     id: z.coerce.number().int().positive(),

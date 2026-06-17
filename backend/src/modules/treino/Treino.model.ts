@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGe
 import { Nucleo } from "../nucleo/Nucleo.model";
 import { Jogador } from "../jogador/jogador.model";
 import { Usuario } from "../usuario/Usuario.model";
+import { Time } from "../time/time.model";
 
 
 @Entity({ name: "treinos" })
@@ -26,4 +27,8 @@ export class Treino {
 
     @ManyToMany(() => Usuario, (usuario) => usuario.treinos)
     usuarios!: Usuario[];
+
+    @ManyToOne(() => Time, (time) => time.treinos)
+    @JoinColumn({ name: "time_id" })
+    time?: Time;
 }

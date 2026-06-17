@@ -13,7 +13,13 @@ export const SchemaBaseFrequencia = z.object({
     chamadaId: z.number().int().positive('ID da chamada deve ser um número inteiro positivo'),
     nucleoId: z.number().int().positive('ID do núcleo deve ser um número inteiro positivo').optional(),
     justificativa: z.string('Justificativa deve ser uma string').optional(),
-});
+}).transform(({ jogadorId, treinoId, jogoId, chamadaId, ...rest }) => ({
+    ...rest,
+    jogador: { id: jogadorId },
+    treino: treinoId ? { id: treinoId } : undefined,
+    jogo: jogoId ? { id: jogoId } : undefined,
+    chamada: { id: chamadaId },
+}));
 
 export const SchemaFrequenciaResposta = z.object({
     id: z.coerce.number().int().positive(),
