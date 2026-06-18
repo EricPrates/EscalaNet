@@ -24,12 +24,19 @@ export function fazerUsuarioRepo(dataSource: DataSource): IUsuarioRepository {
         },
 
         async obterPorId(id: number, relations?: FindOptionsRelations<Usuario>) {
-            return await repo.findOne({ where: { id }, relations }) || null;
+            const defaultRelations = { nucleoVinculado: true };
+            return await repo.findOne({
+                where: { id },
+                relations: { ...defaultRelations, ...relations }
+            }) || null;
         },
 
         async obterPorEmail(email: string) {
-            const usuario = await repo.findOne({ where: { email } });
-            return usuario || null;
+            const defaultRelations = { nucleoVinculado: true };
+            return await repo.findOne({
+                where: { email },
+                relations: { ...defaultRelations } // combina
+            }) || null;
         },
 
         async criar(data: CriarUsuarioDTO) {

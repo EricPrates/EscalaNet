@@ -21,7 +21,7 @@ import frequenciaRoutes from "./modules/frequencia/frequencia.routes";
 import materialRoutes from "./modules/material/material.routes";
 import chamadaRoutes from "./modules/chamada/chamada.routes";
 import treinoRoutes from "./modules/treino/treino.routes";
-import postagemRoutes from "./modules/postagem/postagem.routes";
+import postagemRoutes, { routerProtected as postagemAdminRoutes } from "./modules/postagem/postagem.routes";
 import uploadRoutes from "./modules/upload/upload.routes";
 import relatorioRoutes from "./modules/relatorio/relatorio.routes";
 
@@ -48,8 +48,8 @@ app.post('/usuario', validate(SchemaBaseUsuario, 'body'), usuarioController.cria
 
 app.use('/postagens', postagemRoutes);
 app.use(middlewareTokenContexto);
-app.use('/admin/postagens', postagemRoutes);
-  // público — antes do token
+app.use('/admin/postagens', postagemAdminRoutes);
+
 uploadRoutes(app);   
 categoriaRoutes(app);
 nucleoRoutes(app);

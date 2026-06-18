@@ -1,19 +1,45 @@
-# EscalaNet — API Backend
+# EscalaNet Backend API
 
-API REST do sistema de gestão esportiva do **Programa Bom de Bola** (SEL/PJF).  
-Gerencia núcleos, times, jogadores, treinos, jogos, competições, frequência, relatórios e publicações da landing page.
+API REST do sistema de gestão esportiva do **Programa Bom de Bola**.
 
-**Base URL:** `http://localhost:3000` (ou a URL do ambiente configurado)
+O backend é construído com **Node.js**, **TypeScript**, **Express**, **TypeORM**, **Zod** e **JWT**. O foco é gerenciar núcleos, categorias, times, jogadores, treinos, jogos, frequência, competições, classificação, materiais, relatórios, upload e usuários.
+
+Base local padrão: `http://localhost:3000`
+
+---
+
+## O Que Foi Atualizado
+
+As últimas mudanças alinharam os módulos de domínio com um padrão mais consistente de entrada, saída e permissão:
+
+- `time`
+  - schema base passou a usar `*_Id` para relações na entrada;
+  - respostas usam o schema de resposta;
+  - filtros foram limpos de casts inseguros;
+  - rotas de escrita passaram a usar `verificarPermissao`;
+  - service valida núcleo em criar, atualizar e deletar.
+- `treino`
+  - entrada agora usa `nucleoId` com transformação para relação;
+  - filtros inválidos foram removidos;
+  - repository passou a aceitar `relations` no `listar`;
+  - `obterPorId` não força mais `select` fixo;
+  - rotas de escrita agora exigem permissão.
+- `material`
+  - schema e service foram ajustados para trabalhar com relação `nucleo` de forma consistente;
+  - o repositório foi corrigido para evitar inferência errada de tipos no create/save.
+
+As últimas mudanças foram aplicadas e os módulos principais seguem compilando. Há ainda pendências em testes sob `src/tests/relatorio` que podem afetar a compilação total do projeto.
 
 ---
 
 ## Sumário
 
 - [Como rodar](#como-rodar)
+- [Variáveis de ambiente](#variáveis-de-ambiente)
+- [Scripts](#scripts)
 - [Banco de dados e migrations](#banco-de-dados-e-migrations)
-- [Autenticação](#autenticação)
-- [Formato das respostas](#formato-das-respostas)
-- [Paginação, filtros e includes](#paginação-filtros-e-includes)
+- [Autenticação e permissões](#autenticação-e-permissões)
+- [Convenções da API](#convenções-da-api)
 - [Rotas públicas](#rotas-públicas)
 - [Rotas protegidas](#rotas-protegidas)
   - [Usuários](#usuários)
@@ -28,28 +54,32 @@ Gerencia núcleos, times, jogadores, treinos, jogos, competições, frequência,
   - [Frequência](#frequência)
   - [Competições](#competições)
   - [Classificação](#classificação)
-  - [Material de Núcleo](#material-de-núcleo)
+  - [Materiais](#materiais)
   - [Relatórios](#relatórios)
-- [Upload de arquivos](#upload-de-arquivos)
-- [Referência rápida](#referência-rápida)
+  - [Upload](#upload)
+- [Respostas](#respostas)
 
 ---
 
-## Como rodar
+## Como Rodar
 
 ```bash
-# Instalar dependências
 npm install
-
-# Desenvolvimento (hot reload)
 npm run dev
+```
 
-# Produção
+Build e produção:
+
+```bash
 npm run build
 npm start
 ```
 
-### Variáveis de ambiente (`.env`)
+---
+
+## Variáveis de Ambiente
+
+Exemplo de `.env`:
 
 ```env
 PORT=3000
@@ -69,34 +99,38 @@ CLOUDINARY_API_SECRET=
 
 ---
 
-## Banco de dados e migrations
-
-O projeto usa **TypeORM** com `synchronize: false`. O schema é controlado por migrations.
+## Scripts
 
 ```bash
-# Gerar migration a partir dos models (banco deve estar vazio ou sem diff)
+npm run dev
+npm run build
+npm start
+npm test
 npm run migrate:generate -- src/migrations/NomeDaMigration
-
-# Aplicar migrations pendentes
 npm run migrate:run
-
-# Reverter última migration
 npm run migrate:revert
-
-# Limpar todas as tabelas (cuidado: apaga tudo)
-npm run typeorm -- schema:drop -d src/data-source.ts
-```
-
-**Primeira configuração (banco vazio, sem dados):**
-
-```bash
-npm run typeorm -- schema:drop -d src/data-source.ts
-npm run migrate:run
 ```
 
 ---
 
-## Autenticação
+## Banco de Dados e Migrations
+
+O projeto usa **TypeORM** com `synchronize: false`. O schema do banco é controlado por migrations.
+
+```bash
+npm run typeorm -- schema:drop -d src/data-source.ts
+npm run migrate:run
+```
+
+Para gerar uma migration a partir dos models:
+
+```bash
+npm run migrate:generate -- src/migrations/NomeDaMigration
+```
+
+---
+
+## Autenticação e Permissões
 
 A API usa **JWT Bearer Token**.
 
@@ -114,62 +148,385 @@ Content-Type: application/json
 }
 ```
 
-**Resposta (200):**
-
-```json
-{
-  "message": "Login realizado com sucesso",
-  "data": {
-    "id": 1,
-    "nome": "Admin",
-    "email": "admin@escalanet.com",
-    "permissao": "admin",
-    "nucleoVinculadoId": null
-  },
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-O token também é retornado no header `Authorization: Bearer <token>`.
-
-### Rotas protegidas
-
-Envie o token em todas as rotas registradas **após** o middleware de autenticação:
+O token deve ser enviado em todas as rotas protegidas:
 
 ```http
 Authorization: Bearer <token>
 ```
 
-Sem token ou token inválido → `401 Unauthorized`.
+### Perfis
 
-### Permissões
+| Permissão | Uso |
+|-----------|-----|
+| `admin` | Acesso total |
+| `professor` | Acesso restrito ao próprio núcleo |
+| `arbitro` | Uso em fluxos de jogo, quando aplicável |
+| `auxiliar` | Uso em fluxos administrativos, quando aplicável |
 
-| Permissão | Descrição |
-|-----------|-----------|
-| `admin` | Acesso total; obrigatório para criar/editar/deletar categorias |
-| `professor` | Padrão no cadastro |
-| `arbitro` | Árbitro de jogos |
-| `auxiliar` | Auxiliar |
+### Regra geral
+
+- `admin` pode criar, editar e excluir em praticamente todos os módulos.
+- `professor` enxerga e altera apenas dados do núcleo vinculado.
+- Em alguns módulos, a permissão é reforçada também no service para evitar bypass de rota.
 
 ---
 
-## Formato das respostas
+## Convenções da API
 
-### Sucesso (item único)
+### Paginação
+
+Listagens paginadas aceitam:
+
+| Parâmetro | Padrão |
+|-----------|--------|
+| `pagina` | `1` |
+| `limite` | `10` |
+
+### Includes
+
+Use `includes` para carregar relações:
+
+```http
+GET /times?includes=nucleo,categoria,treinador
+```
+
+### Datas
+
+Datas devem ser enviadas em formato ISO 8601:
+
+```json
+"2026-06-10"
+```
+
+ou
+
+```json
+"2026-06-10T14:00:00.000Z"
+```
+
+### Relações por ID
+
+Os schemas mais recentes seguem este padrão:
+
+- entrada usa campos como `nucleoId`, `categoriaId`, `treinadorId`, `timeId`, `jogadorId`;
+- o schema transforma esses IDs para objetos de relação antes de chegar ao repositório;
+- o repositório salva a entidade já com a estrutura esperada pelo TypeORM.
+
+Exemplo:
+
+```json
+{
+  "nucleoId": 1,
+  "categoriaId": 2,
+  "treinadorId": 3
+}
+```
+
+---
+
+## Guia De Consumo Do Frontend
+
+Para consumir a API sem precisar abrir o backend, o front deve seguir estas regras:
+
+- rotas públicas não precisam de token;
+- rotas protegidas exigem `Authorization: Bearer <token>`;
+- quando a resposta for paginada, use `data` e `meta`;
+- quando o payload tiver relações, envie os campos `*Id` ou objetos com `id`, conforme o schema do módulo;
+- trate `403` como bloqueio de permissão ou bloqueio de núcleo do professor.
+
+### Fluxo de integração recomendado
+
+1. Fazer login em `POST /login`.
+2. Salvar o token recebido.
+3. Enviar o token no header `Authorization` em todas as ações protegidas.
+4. Buscar as listas por módulo usando paginação e includes quando necessário.
+5. Em telas de edição, reaproveitar os objetos retornados pelo backend para manter o estado sincronizado.
+
+### Padrões de consumo que o front deve esperar
+
+- `200`: leitura e atualização com sucesso.
+- `201`: criação com sucesso.
+- `204`: exclusão com sucesso, sem corpo.
+- `400`: validação inválida no formulário.
+- `401`: token ausente ou inválido.
+- `403`: sem permissão ou fora do núcleo permitido.
+- `404`: recurso não encontrado.
+- `409`: conflito de negócio, como duplicidade.
+
+---
+
+## Rotas Públicas
+
+Não exigem token.
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| `GET` | `/` | Status da API |
+| `POST` | `/login` | Autenticação |
+| `POST` | `/usuario` | Cadastro público de usuário |
+| `GET` | `/postagens` | Listagem pública de postagens publicadas |
+| `GET` | `/postagens/:id` | Detalhe público de uma postagem |
+
+### Postagens
+
+O módulo de postagens está dividido em duas bases:
+
+- `/postagens` para fluxo público;
+- `/admin/postagens` para ações protegidas por `admin`.
+
+| Método | Rota | Permissão |
+|--------|------|-----------|
+| `GET` | `/postagens` | público |
+| `GET` | `/postagens/:id` | público |
+| `POST` | `/admin/postagens` | `admin` |
+| `PUT` | `/admin/postagens/:id` | `admin` |
+| `DELETE` | `/admin/postagens/:id` | `admin` |
+
+---
+
+## Rotas Protegidas
+
+Todas as rotas abaixo exigem `Authorization: Bearer <token>`.
+
+### Usuários
+
+Base: `/usuarios`
+
+| Método | Rota |
+|--------|------|
+| `GET` | `/usuarios` |
+| `GET` | `/usuarios/:id` |
+| `POST` | `/usuarios` |
+| `PUT` | `/usuarios/:id` |
+| `DELETE` | `/usuarios/:id` |
+
+### Núcleos
+
+Base: `/nucleos`
+
+| Método | Rota | Permissão |
+|--------|------|-----------|
+| `GET` | `/nucleos` | `admin` |
+| `GET` | `/nucleos/:id` | `admin`, `professor` |
+| `GET` | `/nucleos/:id/dashboard` | `admin`, `professor` |
+| `POST` | `/nucleos` | `admin` |
+| `PUT` | `/nucleos/:id` | `admin`, `professor` |
+| `DELETE` | `/nucleos/:id` | `admin` |
+
+### Categorias
+
+Base: `/categorias`
+
+| Método | Rota | Permissão |
+|--------|------|-----------|
+| `GET` | `/categorias` | autenticado |
+| `GET` | `/categorias/:id` | autenticado |
+| `POST` | `/categorias` | `admin` |
+| `PUT` | `/categorias/:id` | `admin` |
+| `DELETE` | `/categorias/:id` | `admin` |
+
+### Times
+
+Base: `/times`
+
+| Método | Rota | Permissão |
+|--------|------|-----------|
+| `GET` | `/times` | autenticado |
+| `GET` | `/times/:id` | autenticado |
+| `POST` | `/times` | `admin`, `professor` |
+| `PUT` | `/times/:id` | `admin`, `professor` |
+| `DELETE` | `/times/:id` | `admin`, `professor` |
+
+Exemplo de criação:
+
+```json
+{
+  "nome": "Time Sub-15 A",
+  "nucleoId": 1,
+  "categoriaId": 2,
+  "treinadorId": 3
+}
+```
+
+Filtros comuns: `id`, `nome`, `nucleoId`, `categoriaId`, `treinadorId`
+
+### Jogadores
+
+Base: `/jogadores`
+
+| Método | Rota | Permissão |
+|--------|------|-----------|
+| `GET` | `/jogadores` | autenticado |
+| `GET` | `/jogadores/:id` | autenticado |
+| `POST` | `/jogadores` | `admin`, `professor` |
+| `PUT` | `/jogadores/:id` | `admin`, `professor` |
+| `DELETE` | `/jogadores/:id` | `admin`, `professor` |
+
+### Treinos
+
+Base: `/treinos`
+
+| Método | Rota | Permissão |
+|--------|------|-----------|
+| `GET` | `/treinos` | autenticado |
+| `GET` | `/treinos/:id` | autenticado |
+| `POST` | `/treinos` | `admin`, `professor` |
+| `PUT` | `/treinos/:id` | `admin`, `professor` |
+| `DELETE` | `/treinos/:id` | `admin`, `professor` |
+
+Exemplo de criação:
+
+```json
+{
+  "data": "2026-06-10",
+  "nucleoId": 1,
+  "jogadores": [{ "id": 1 }, { "id": 2 }],
+  "usuarios": [{ "id": 3 }]
+}
+```
+
+Filtros aceitos: `id`, `data`, `nucleoId`
+
+### Jogos
+
+Base: `/jogos`
+
+| Método | Rota | Permissão |
+|--------|------|-----------|
+| `GET` | `/jogos` | autenticado |
+| `GET` | `/jogos/:id` | autenticado |
+| `POST` | `/jogos` | `admin`, `professor` |
+| `PUT` | `/jogos/:id` | `admin`, `professor` |
+| `DELETE` | `/jogos/:id` | `admin`, `professor` |
+
+### Eventos de Jogo
+
+Base: `/eventos`
+
+| Método | Rota | Permissão |
+|--------|------|-----------|
+| `GET` | `/eventos` | `admin`, `professor` |
+| `GET` | `/eventos/:id` | `admin`, `professor` |
+| `POST` | `/eventos` | `admin`, `professor` |
+| `PUT` | `/eventos/:id` | `admin`, `professor` |
+| `DELETE` | `/eventos/:id` | `admin` |
+
+### Chamadas
+
+Base: `/chamadas`
+
+| Método | Rota | Permissão |
+|--------|------|-----------|
+| `GET` | `/chamadas` | `admin` |
+| `GET` | `/chamadas/data` | `admin`, `professor` |
+| `GET` | `/chamadas/:id` | `admin`, `professor` |
+| `POST` | `/chamadas` | `admin`, `professor` |
+| `PUT` | `/chamadas/:id` | `admin`, `professor` |
+| `DELETE` | `/chamadas/:id` | `admin` |
+
+### Frequência
+
+Base: `/frequencias`
+
+| Método | Rota | Permissão |
+|--------|------|-----------|
+| `GET` | `/frequencias` | `admin`, `professor` |
+| `GET` | `/frequencias/:id` | `admin`, `professor` |
+| `POST` | `/frequencias` | `admin`, `professor` |
+| `PUT` | `/frequencias/:id` | `admin`, `professor` |
+| `DELETE` | `/frequencias/:id` | `admin` |
+
+### Competições
+
+Base: `/competicoes`
+
+| Método | Rota | Permissão |
+|--------|------|-----------|
+| `GET` | `/competicoes` | autenticado |
+| `GET` | `/competicoes/:id` | autenticado |
+| `POST` | `/competicoes` | `admin` |
+| `PUT` | `/competicoes/:id` | `admin` |
+| `DELETE` | `/competicoes/:id` | `admin` |
+| `PUT` | `/competicoes/:id/times` | `admin` |
+| `POST` | `/competicoes/:id/gerar-jogos` | `admin` |
+| `POST` | `/competicoes/:id/recalcular-classificacao` | `admin` |
+
+### Classificação
+
+Base: `/classificacoes`
+
+| Método | Rota | Permissão |
+|--------|------|-----------|
+| `GET` | `/classificacoes` | `admin`, `professor` |
+| `GET` | `/classificacoes/:id` | `admin`, `professor` |
+| `POST` | `/classificacoes` | `admin`, `professor` |
+| `PUT` | `/classificacoes/:id` | `admin`, `professor` |
+| `DELETE` | `/classificacoes/:id` | `admin` |
+
+### Materiais
+
+Base: `/materiais`
+
+| Método | Rota | Permissão |
+|--------|------|-----------|
+| `GET` | `/materiais` | `admin`, `professor` |
+| `GET` | `/materiais/:id` | `admin`, `professor` |
+| `POST` | `/materiais` | `admin`, `professor` |
+| `PUT` | `/materiais/:id` | `admin`, `professor` |
+| `DELETE` | `/materiais/:id` | `admin` |
+
+Exemplo de criação:
+
+```json
+{
+  "quantidade": 10,
+  "tipoMaterial": "Bola",
+  "observacao": "Bolas novas",
+  "nucleoId": 1,
+  "dataRecebimento": "2026-01-15"
+}
+```
+
+### Relatórios
+
+Base: `/relatorios`
+
+| Método | Rota | Permissão |
+|--------|------|-----------|
+| `GET` | `/relatorios/frequencia` | `admin`, `professor` |
+| `GET` | `/relatorios/desempenho` | `admin`, `professor` |
+| `GET` | `/relatorios/frequencia/pdf` | `admin`, `professor` |
+| `GET` | `/relatorios/desempenho/pdf` | `admin`, `professor` |
+
+### Upload
+
+Base: `/upload`
+
+| Método | Rota | Permissão |
+|--------|------|-----------|
+| `POST` | `/upload/imagem` | `admin` |
+| `POST` | `/upload/documento` | `admin` |
+| `POST` | `/upload/video` | `admin` |
+
+---
+
+## Respostas
+
+### Sucesso de item único
 
 ```json
 {
   "message": "Mensagem descritiva",
-  "data": { }
+  "data": {}
 }
 ```
 
-### Sucesso (lista paginada)
+### Sucesso paginado
 
 ```json
 {
   "message": "Listagem realizada com sucesso",
-  "data": [ ],
+  "data": [],
   "meta": {
     "pagina": 1,
     "limite": 10,
@@ -189,709 +546,23 @@ Sem token ou token inválido → `401 Unauthorized`.
 }
 ```
 
-### Códigos HTTP comuns
+### Códigos HTTP mais comuns
 
 | Código | Significado |
 |--------|-------------|
 | `200` | Sucesso |
 | `201` | Criado |
-| `204` | Removido (sem corpo) |
+| `204` | Removido sem corpo |
 | `400` | Dados inválidos |
 | `401` | Não autenticado |
 | `403` | Sem permissão |
 | `404` | Não encontrado |
-| `409` | Conflito (ex.: jogos já gerados) |
+| `409` | Conflito |
 
 ---
 
-## Paginação, filtros e includes
-
-### Paginação
-
-Disponível em todas as listagens (`GET` com coleção). Query params:
-
-| Param | Tipo | Padrão | Regra |
-|-------|------|--------|-------|
-| `pagina` | `number` | `1` | Inteiro positivo |
-| `limite` | `number` | `10` | Inteiro positivo, máx. `100` |
-
-**Exemplo:**
-
-```http
-GET /times?pagina=1&limite=20&nome=sub-15
-Authorization: Bearer <token>
-```
-
-### Filtros
-
-Cada módulo aceita filtros específicos via query string (documentados em cada seção). Buscas de texto (`nome`, `busca`) usam correspondência parcial (ILIKE).
-
-### Includes (relações)
-
-Para carregar entidades relacionadas, use o parâmetro `includes` com valores separados por vírgula:
-
-```http
-GET /competicoes/1?includes=times,jogos
-Authorization: Bearer <token>
-```
-
-Os valores permitidos variam por módulo (listados em cada seção).
-
-### Datas
-
-Envie datas em formato ISO 8601: `"2026-06-10"` ou `"2026-06-10T14:00:00.000Z"`.
-
-### Referências por ID
-
-Campos de relação são enviados como objeto com `id`:
-
-```json
-{ "timeA": { "id": 1 }, "timeB": { "id": 2 } }
-```
-
----
-
-## Rotas públicas
-
-Não exigem token.
-
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| `GET` | `/` | Status da API |
-| `POST` | `/login` | Autenticação |
-| `POST` | `/usuario` | Cadastro de usuário |
-| `GET` | `/postagens/publicadas` | Postagens publicadas (landing) |
-| `GET` | `/postagens/:id` | Detalhe de postagem |
-| `GET` | `/postagens` | Listagem admin de postagens |
-| `POST` | `/postagens` | Criar postagem |
-| `PUT` | `/postagens/:id` | Atualizar postagem |
-| `DELETE` | `/postagens/:id` | Remover postagem |
-| `POST` | `/upload/imagem` | Upload de imagem |
-| `POST` | `/upload/documento` | Upload de documento |
-| `POST` | `/upload/video` | Upload de vídeo |
-
-> **Nota:** O módulo de postagens está montado antes do middleware de autenticação — todas as rotas de `/postagens` são públicas no estado atual do servidor.
-
----
-
-## Rotas protegidas
-
-Todas exigem `Authorization: Bearer <token>`.
-
----
-
-### Usuários
-
-**Base:** `/usuarios`
-
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| `GET` | `/usuarios` | Listar |
-| `GET` | `/usuarios/:id` | Buscar por ID |
-| `POST` | `/usuarios` | Criar |
-| `PUT` | `/usuarios/:id` | Atualizar |
-| `DELETE` | `/usuarios/:id` | Remover |
-
-> Cadastro público alternativo: `POST /usuario` (mesmo body).
-
-**Criar / atualizar (body):**
-
-```json
-{
-  "nome": "João Silva",
-  "email": "joao@email.com",
-  "senha": "senha123",
-  "permissao": "professor",
-  "nucleoVinculado": { "id": 1 }
-}
-```
-
-| Campo | Tipo | Obrigatório |
-|-------|------|-------------|
-| `nome` | `string` | sim (criar) |
-| `email` | `string` (email) | sim (criar) |
-| `senha` | `string` (min 6) | sim (criar) |
-| `permissao` | `admin` \| `professor` \| `arbitro` \| `auxiliar` | sim (criar) |
-| `nucleoVinculado` | `{ id: number }` | não |
-
-**Filtros (query):** `id`, `nome`, `email`, `permissao`, `nucleoVinculadoId`
-
-**Includes:** `nucleoVinculado`, `jogos`, `treinos`, `eventos`
-
----
-
-### Núcleos
-
-**Base:** `/nucleos`
-
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| `GET` | `/nucleos` | Listar |
-| `GET` | `/nucleos/:id` | Buscar por ID |
-| `GET` | `/nucleos/:id/dashboard` | Métricas do núcleo |
-| `POST` | `/nucleos` | Criar |
-| `PUT` | `/nucleos/:id` | Atualizar |
-| `DELETE` | `/nucleos/:id` | Remover |
-
-**Criar (body):**
-
-```json
-{
-  "nome": "Núcleo Centro",
-  "endereco": "Rua das Flores, 100"
-}
-```
-
-**Dashboard (`GET /nucleos/:id/dashboard`)** retorna totais de jogadores, professores, jogos, treinos, times, categorias, etc.
-
-**Filtros:** `id`, `nome`, `endereco`, `createdAt`, `updateAt`
-
-**Includes:** `materiais`, `times`, `treinos`
-
----
-
-### Categorias
-
-**Base:** `/categorias`
-
-| Método | Rota | Permissão |
-|--------|------|-----------|
-| `GET` | `/categorias` | Qualquer autenticado |
-| `GET` | `/categorias/:id` | Qualquer autenticado |
-| `POST` | `/categorias` | **admin** |
-| `PUT` | `/categorias/:id` | **admin** |
-| `DELETE` | `/categorias/:id` | **admin** |
-
-**Criar (body):**
-
-```json
-{
-  "nome": "Sub-15",
-  "idadeMaxima": 15,
-  "ativa": true
-}
-```
-
-**Filtros:** `id`, `nome`, `ativa`, `idadeMaxima`, `buscaDataInicio`, `buscaDataFim`
-
-**Includes:** `times`, `jogos`
-
----
-
-### Times
-
-**Base:** `/times`
-
-| Método | Rota |
-|--------|------|
-| `GET` | `/times` |
-| `GET` | `/times/:id` |
-| `POST` | `/times` |
-| `PUT` | `/times/:id` |
-| `DELETE` | `/times/:id` |
-
-**Criar (body):**
-
-```json
-{
-  "nome": "Time Sub-15 A",
-  "nucleoId": 1,
-  "categoriaId": 2,
-  "treinadorId": 3
-}
-```
-
-**Filtros:** `id`, `nome`, `nucleoId`, `categoriaId`, `treinadorId`
-
-**Includes:** `nucleo`, `categoria`, `treinador`, `jogadores`, `jogosComoTimeA`, `jogosComoTimeB`, `eventos`, `competicoes`, `chamadas`
-
----
-
-### Jogadores
-
-**Base:** `/jogadores`
-
-| Método | Rota |
-|--------|------|
-| `GET` | `/jogadores` |
-| `GET` | `/jogadores/:id` |
-| `POST` | `/jogadores` |
-| `PUT` | `/jogadores/:id` |
-| `DELETE` | `/jogadores/:id` |
-
-**Criar (body):**
-
-```json
-{
-  "nome": "Pedro Santos",
-  "dataNascimento": "2011-03-15",
-  "ativo": true,
-  "telefone": "11999999999",
-  "time": { "id": 1 }
-}
-```
-
-**Filtros:** `id`, `nome`, `timeId`, `treinadorId`, `ativo`, `dataNascimento`, `nucleoId`, `categoriaId`
-
-**Includes:** `time`
-
----
-
-### Treinos
-
-**Base:** `/treinos`
-
-| Método | Rota |
-|--------|------|
-| `GET` | `/treinos` |
-| `GET` | `/treinos/:id` |
-| `POST` | `/treinos` |
-| `PUT` | `/treinos/:id` |
-| `DELETE` | `/treinos/:id` |
-
-**Criar (body):**
-
-```json
-{
-  "data": "2026-06-10",
-  "nucleo": { "id": 1 },
-  "jogadores": [{ "id": 1 }, { "id": 2 }],
-  "usuarios": [{ "id": 3 }]
-}
-```
-
-**Filtros:** `id`, `data`, `nome`, `nucleoId`, `jogadorId`, `usuarioId`
-
-**Includes:** `nucleo`, `jogadores`, `usuarios`
-
----
-
-### Jogos
-
-**Base:** `/jogo`
-
-| Método | Rota |
-|--------|------|
-| `GET` | `/jogo` |
-| `GET` | `/jogo/:id` |
-| `POST` | `/jogo` |
-| `PUT` | `/jogo/:id` |
-| `DELETE` | `/jogo/:id` |
-
-**Criar (body):**
-
-```json
-{
-  "nome": "Time A x Time B",
-  "data": "2026-06-15",
-  "timeA": { "id": 1 },
-  "timeB": { "id": 2 },
-  "arbitro": { "id": 3 },
-  "categoria": { "id": 1 }
-}
-```
-
-**Atualizar placar (body):**
-
-```json
-{
-  "golsTimeA": 2,
-  "golsTimeB": 1,
-  "finalizado": true
-}
-```
-
-| Campo extra (update) | Descrição |
-|---------------------|-----------|
-| `golsTimeA` | Gols do time A |
-| `golsTimeB` | Gols do time B |
-| `finalizado` | `true` quando o jogo foi disputado |
-
-> Ao marcar `finalizado: true` em jogo de competição do tipo **Liga**, a classificação é recalculada automaticamente.
-
-**Filtros:** `id`, `nome`, `data`, `timeA`, `timeB`, `arbitro`, `categoria`, `golsTimeA`, `golsTimeB`, `chamada`, `evento`
-
-**Includes:** `timeA`, `timeB`, `arbitro`, `categoria`, `competicao`
-
----
-
-### Eventos de Jogo
-
-**Base:** `/eventos`
-
-| Método | Rota |
-|--------|------|
-| `GET` | `/eventos` |
-| `GET` | `/eventos/:id` |
-| `POST` | `/eventos` |
-| `PUT` | `/eventos/:id` |
-| `DELETE` | `/eventos/:id` |
-
-**Criar (body):**
-
-```json
-{
-  "tipo": "gol",
-  "descricao": "Gol de falta",
-  "minuto": 23,
-  "jogo": { "id": 1 },
-  "usuario": { "id": 3 },
-  "nucleo": { "id": 1 },
-  "jogadorEnvolvido": { "id": 5 }
-}
-```
-
-**Tipos de evento (`tipo`):**
-
-`gol` · `falta` · `cartao_amarelo` · `cartao_vermelho` · `escanteio` · `substituicao`
-
-**Filtros:** `tipo`, `minuto`, `jogoId`, `usuarioId`, `nucleoId`, `jogadorEnvolvidoId`, `descricao`, `acrescimo`
-
-**Includes:** `time`, `jogo`, `jogadorEnvolvido`, `usuario`
-
----
-
-### Chamadas
-
-**Base:** `/chamadas`
-
-| Método | Rota |
-|--------|------|
-| `GET` | `/chamadas` |
-| `GET` | `/chamadas/:id` |
-| `POST` | `/chamadas` |
-| `PUT` | `/chamadas/:id` |
-| `DELETE` | `/chamadas/:id` |
-
-**Criar (body):**
-
-```json
-{
-  "data": "2026-06-10",
-  "timeId": 1,
-  "treinoId": 5,
-  "jogoId": null
-}
-```
-
-Informe `treinoId` **ou** `jogoId` (o outro como `null`).
-
-**Filtros:** `dataInicio`, `dataFim`, `timeId`, `jogoId`, `treinoId`
-
-**Includes:** `time`, `jogo`, `treino`
-
----
-
-### Frequência
-
-**Base:** `/frequencias`
-
-| Método | Rota |
-|--------|------|
-| `GET` | `/frequencias` |
-| `GET` | `/frequencias/:id` |
-| `POST` | `/frequencias` |
-| `PUT` | `/frequencias/:id` |
-| `DELETE` | `/frequencias/:id` |
-
-**Criar (body):**
-
-```json
-{
-  "data": "2026-06-10",
-  "presente": true,
-  "jogadorId": 1,
-  "treinoId": 5,
-  "jogoId": null
-}
-```
-
-**Filtros:** `chamadaId`, `presente`, `jogadorId`, `justificativa`
-
-**Includes:** `jogador`, `treino`, `jogo`
-
----
-
-### Competições
-
-**Base:** `/competicoes`
-
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| `GET` | `/competicoes` | Listar |
-| `GET` | `/competicoes/:id` | Buscar por ID |
-| `POST` | `/competicoes` | Criar |
-| `PUT` | `/competicoes/:id` | Atualizar |
-| `DELETE` | `/competicoes/:id` | Remover |
-| `PUT` | `/competicoes/:id/times` | Vincular times |
-| `POST` | `/competicoes/:id/gerar-jogos` | Gerar jogos automaticamente |
-| `POST` | `/competicoes/:id/recalcular-classificacao` | Recalcular tabela |
-
-**Criar (body):**
-
-```json
-{
-  "nome": "Liga Bom de Bola 2026",
-  "tipo": "Liga",
-  "intervaloDias": 7,
-  "duplaVolta": true
-}
-```
-
-| Campo | Tipo | Descrição |
-|-------|------|-----------|
-| `nome` | `string` | Nome da competição |
-| `tipo` | `Copa` \| `Liga` | Formato |
-| `intervaloDias` | `number` | Dias entre rodadas (padrão: 7) |
-| `duplaVolta` | `boolean` | Dois turnos (só Liga; padrão: false) |
-
-**Vincular times (`PUT /competicoes/:id/times`):**
-
-```json
-{
-  "timeIds": [1, 2, 3, 4]
-}
-```
-
-**Gerar jogos (`POST /competicoes/:id/gerar-jogos`):**
-
-```json
-{
-  "dataInicio": "2026-06-10"
-}
-```
-
-- **Liga:** gera round-robin (todos contra todos); com `duplaVolta: true` inverte o mando no segundo turno.
-- **Copa:** gera apenas a primeira rodada do mata-mata.
-- Requer pelo menos 2 times vinculados.
-- Não gera novamente se já existirem jogos (retorna `409`).
-
-**Filtros:** `id`, `nome`, `tipo`
-
-**Includes:** `jogos`, `times`
-
-#### Fluxo completo de uma competição Liga
-
-```bash
-# 1. Criar competição
-POST /competicoes
-{ "nome": "Liga 2026", "tipo": "Liga", "intervaloDias": 7, "duplaVolta": true }
-
-# 2. Vincular times
-PUT /competicoes/1/times
-{ "timeIds": [1, 2, 3, 4] }
-
-# 3. Gerar jogos
-POST /competicoes/1/gerar-jogos
-{ "dataInicio": "2026-06-10" }
-
-# 4. Registrar placar (marca jogo como finalizado)
-PUT /jogo/5
-{ "golsTimeA": 2, "golsTimeB": 1, "finalizado": true }
-
-# 5. Consultar classificação
-GET /classificacoes?competicaoId=1&includes=time,competicao
-```
-
----
-
-### Classificação
-
-**Base:** `/classificacoes`
-
-| Método | Rota |
-|--------|------|
-| `GET` | `/classificacoes` |
-| `GET` | `/classificacoes/:id` |
-| `POST` | `/classificacoes` |
-| `PUT` | `/classificacoes/:id` |
-| `DELETE` | `/classificacoes/:id` |
-
-Em competições **Liga**, a tabela é criada ao gerar jogos e atualizada automaticamente quando um jogo é finalizado. O endpoint manual de recálculo fica em `POST /competicoes/:id/recalcular-classificacao`.
-
-**Criar manualmente (body):**
-
-```json
-{
-  "competicaoId": 1,
-  "timeId": 3,
-  "pontos": 9,
-  "jogos": 3,
-  "vitorias": 3,
-  "empates": 0,
-  "derrotas": 0,
-  "golsPro": 8,
-  "golsContra": 2,
-  "saldoGols": 6,
-  "aproveitamento": 100
-}
-```
-
-**Filtros:** `id`, `competicaoId`, `timeId`, `timeNome`
-
-**Includes:** `competicao`, `time`
-
-**Critérios de ordenação:** pontos → saldo de gols → gols pró.
-
----
-
-### Material de Núcleo
-
-**Base:** `/material-nucleo`
-
-| Método | Rota |
-|--------|------|
-| `GET` | `/material-nucleo` |
-| `GET` | `/material-nucleo/:id` |
-| `POST` | `/material-nucleo` |
-| `PUT` | `/material-nucleo/:id` |
-| `DELETE` | `/material-nucleo/:id` |
-
-**Criar (body):**
-
-```json
-{
-  "quantidade": 10,
-  "tipoMaterial": "Bola",
-  "observacao": "Bolas novas",
-  "nucleo": { "id": 1 },
-  "dataRecebimento": "2026-01-15"
-}
-```
-
-**Filtros:** `id`, `quantidade`, `tipoMaterial`, `nucleoId`, `dataRecebimento`
-
-**Includes:** `nucleo`
-
----
-
-### Relatórios
-
-**Base:** `/relatorios`
-
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| `GET` | `/relatorios/frequencia` | Presença por jogador |
-| `GET` | `/relatorios/desempenho` | Estatísticas de jogo por jogador |
-
-#### Frequência
-
-```http
-GET /relatorios/frequencia?nucleoId=1&timeId=2&dataInicio=2026-01-01&dataFim=2026-06-30&tipo=todos
-```
-
-| Filtro | Tipo | Padrão |
-|--------|------|--------|
-| `nucleoId` | `number` | — |
-| `timeId` | `number` | — |
-| `jogadorId` | `number` | — |
-| `dataInicio` | `date` | — |
-| `dataFim` | `date` | — |
-| `tipo` | `treino` \| `jogo` \| `todos` | `todos` |
-
-#### Desempenho
-
-```http
-GET /relatorios/desempenho?competicaoId=1&timeId=2&dataInicio=2026-01-01&dataFim=2026-06-30
-```
-
-| Filtro | Tipo |
-|--------|------|
-| `nucleoId` | `number` |
-| `timeId` | `number` |
-| `jogadorId` | `number` |
-| `jogoId` | `number` |
-| `competicaoId` | `number` |
-| `dataInicio` | `date` |
-| `dataFim` | `date` |
-
----
-
-## Upload de arquivos
-
-**Base:** `/upload` (público)  
-**Content-Type:** `multipart/form-data`
-
-| Método | Rota | Campo do form | Tipos aceitos | Tamanho máx. |
-|--------|------|---------------|---------------|--------------|
-| `POST` | `/upload/imagem` | `imagem` | jpeg, png, webp, gif | 5 MB |
-| `POST` | `/upload/documento` | `documento` | pdf, doc, docx | 10 MB |
-| `POST` | `/upload/video` | `video` | mp4, mov, avi, webm | 100 MB |
-
-**Resposta (201):**
-
-```json
-{
-  "message": "Imagem enviada com sucesso",
-  "data": {
-    "url": "https://res.cloudinary.com/...",
-    "publicId": "imagens/abc123",
-    "formato": "jpg",
-    "tamanhoBytes": 245000
-  }
-}
-```
-
-Use a `url` retornada em campos como `imagemUrl` ao criar postagens.
-
----
-
-## Postagens (landing page)
-
-**Base:** `/postagens` (público)
-
-| Método | Rota | Uso |
-|--------|------|-----|
-| `GET` | `/postagens/publicadas` | Landing — só `status: publicado` |
-| `GET` | `/postagens/:id` | Detalhe |
-| `GET` | `/postagens` | Listagem admin |
-| `POST` | `/postagens` | Criar |
-| `PUT` | `/postagens/:id` | Atualizar |
-| `DELETE` | `/postagens/:id` | Remover |
-
-**Criar (body):**
-
-```json
-{
-  "titulo": "Campeonato 2026",
-  "conteudo": "Texto completo da notícia...",
-  "resumo": "Resumo curto",
-  "imagemUrl": "https://res.cloudinary.com/...",
-  "status": "publicado",
-  "publicadoEm": "2026-06-01"
-}
-```
-
-**Filtros (admin):** `status`, `busca`, `dataInicio`, `dataFim`
-
----
-
-## Referência rápida
-
-| Módulo | Base | Auth |
-|--------|------|------|
-| Status / Login | `/`, `/login`, `/usuario` | Público |
-| Postagens | `/postagens` | Público |
-| Upload | `/upload` | Público |
-| Usuários | `/usuarios` | Token |
-| Núcleos | `/nucleos` | Token |
-| Categorias | `/categorias` | Token (+ admin para mutações) |
-| Times | `/times` | Token |
-| Jogadores | `/jogadores` | Token |
-| Treinos | `/treinos` | Token |
-| Jogos | `/jogo` | Token |
-| Eventos | `/eventos` | Token |
-| Chamadas | `/chamadas` | Token |
-| Frequências | `/frequencias` | Token |
-| Competições | `/competicoes` | Token |
-| Classificações | `/classificacoes` | Token |
-| Material | `/material-nucleo` | Token |
-| Relatórios | `/relatorios` | Token |
-
----
-
-## Testes
-
-```bash
-npm test
-```
+## Observações Finais
+
+- O backend já está compilando com sucesso.
+- Os módulos mais recentes seguem o padrão de transformar `*_Id` em relações antes de salvar.
+- Quando houver dúvida sobre um payload, prefira consultar o schema do módulo correspondente em `src/modules/*/*.schemas.ts`.

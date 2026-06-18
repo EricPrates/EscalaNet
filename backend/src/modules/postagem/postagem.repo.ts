@@ -45,7 +45,7 @@ export function fazerPostagemRepo(dataSource: DataSource): IPostagemRepository {
         },
 
         async atualizar(id: number, data: Partial<CriarPostagemDTO>) {
-            await repo.update({ id }, data as any);
+            await repo.update({ id }, data);
             return this.obterPorId(id);
         },
 

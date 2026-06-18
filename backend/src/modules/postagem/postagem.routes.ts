@@ -15,7 +15,6 @@ routerProtected.post('/', postagemController.criarPostagem);
 routerProtected.put('/:id', postagemController.atualizarPostagem);
 routerProtected.delete('/:id', postagemController.deletarPostagem);
 
-export default (app: express.Application) => {
-  app.use('/postagens', routerPublic);
-  app.use('/admin/postagens', routerProtected);
-};
+export { routerPublic, routerProtected };
+
+export default routerPublic;

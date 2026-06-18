@@ -28,7 +28,7 @@ export class Treino {
     @ManyToMany(() => Usuario, (usuario) => usuario.treinos)
     usuarios!: Usuario[];
 
-    @ManyToOne(() => Time, (time) => time.treinos)
+    @ManyToOne(() => Time, { nullable: true })
     @JoinColumn({ name: "time_id" })
     time?: Time;
 }
