@@ -1,19 +1,17 @@
+// relatorio.routes.ts
 import express from 'express';
 import { relatorioController } from './relatorio.controller';
+import { verificarPermissao } from '../../shared/Middlewares/verificarPermissao';
 
 const router = express.Router();
 
-/**
- * GET /relatorios/frequencia
- * Query params: nucleoId?, timeId?, jogadorId?, dataInicio?, dataFim?, tipo? (treino|jogo|todos)
- */
-router.get('/frequencia', relatorioController.frequencia);
+// JSON endpoints
+router.get('/frequencia', verificarPermissao('admin', 'professor'), relatorioController.frequencia);
+router.get('/desempenho', verificarPermissao('admin', 'professor'), relatorioController.desempenho);
 
-/**
- * GET /relatorios/desempenho
- * Query params: nucleoId?, timeId?, jogadorId?, jogoId?, competicaoId?, dataInicio?, dataFim?
- */
-router.get('/desempenho', relatorioController.desempenho);
+// ✅ PDF endpoints
+router.get('/frequencia/pdf', verificarPermissao('admin', 'professor'), relatorioController.frequenciaPDF);
+router.get('/desempenho/pdf', verificarPermissao('admin', 'professor'), relatorioController.desempenhoPDF);
 
 export default (app: express.Application) => {
     app.use('/relatorios', router);

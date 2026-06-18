@@ -28,7 +28,7 @@ export class Categoria {
     
    
     @OneToMany(() => Time, (time) => time.categoria)
-    times!: Time[];
+    times?: Time[];
 
 
     @OneToMany(() => Jogo, (jogo) => jogo.categoria)

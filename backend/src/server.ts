@@ -24,6 +24,7 @@ import treinoRoutes from "./modules/treino/treino.routes";
 import postagemRoutes from "./modules/postagem/postagem.routes";
 import uploadRoutes from "./modules/upload/upload.routes";
 import relatorioRoutes from "./modules/relatorio/relatorio.routes";
+
 dotenv.config();
 
 const app: express.Application = express();
@@ -45,9 +46,9 @@ app.get('/', (_req: Request, res: Response) => {
 app.post('/login', validate(SchemaLoginUsuario, 'body'), usuarioController.login);
 app.post('/usuario', validate(SchemaBaseUsuario, 'body'), usuarioController.criarUsuario);
 
-postagemRoutes(app); 
+app.use('/postagens', postagemRoutes);
 app.use(middlewareTokenContexto);
-
+app.use('/admin/postagens', postagemRoutes);
   // público — antes do token
 uploadRoutes(app);   
 categoriaRoutes(app);

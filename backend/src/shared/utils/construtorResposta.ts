@@ -1,17 +1,11 @@
 import { MontarResposta, MontarRespostaPaginada } from "./util.types";
 
 
-export const montarRespostaErro = (status: number, message?: string, detalhes?: string): MontarResposta => {
-    const response = {
-        status,
-        message,
-    } as MontarResposta;
-
-    if (detalhes !== undefined) {
-        response.detalhes = detalhes;
-    }
-    return response;
-};
+export const montarRespostaErro = (statusCode: number, message?: string, detalhes?: string) => ({
+    statusCode,
+    message,
+    ...(detalhes && { detalhes })
+});
 export const montarRespostaSucesso = (message: string | 'Sucesso na requisição', data?: any, token?: string): MontarResposta => {
     const response = {
         message,

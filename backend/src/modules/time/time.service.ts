@@ -4,7 +4,7 @@ import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
 import { montarPaginacao } from "../../shared/utils/montarPaginacao";
 import { ITimeRepository, ITimeService } from "./time.interfaces";
 import { Time } from "./time.model";
-import { CriarTimeDTO, SchemaBaseTime, AtualizarTimeDTO, FiltrosTimeDTO, SchemaTimeResposta } from "./time.schemas";
+import { CriarTimeDTO, AtualizarTimeDTO, FiltrosTimeDTO, SchemaTimeResposta } from "./time.schemas";
 import { FindOptionsRelations } from "typeorm";
 
 export function fazerTimeService(timeRepo: ITimeRepository): ITimeService {
@@ -36,22 +36,60 @@ export function fazerTimeService(timeRepo: ITimeRepository): ITimeService {
                     throw new AppError(403, 'Acesso negado a frequência fora do núcleo vinculado');
                 }
             }
-            if (!time) throw new AppError(404, 'Time não encontrado');
             return SchemaTimeResposta.parse(time);
         },
 
         async criar(data: CriarTimeDTO) {
+            const usuario = authStorage.getStore();
+
+            if (usuario?.permissao === 'professor') {
+                if (!usuario.nucleoVinculadoId) throw new AppError(403, 'Professor sem núcleo');
+                data = {
+                    ...data,
+                    nucleo: { id: usuario.nucleoVinculadoId },
+                };
+            }
+
+            if (!data.nucleo?.id) {
+                throw new AppError(400, 'Informe o núcleo do time');
+            }
+
             const time = await timeRepo.criar(data);
-            return SchemaBaseTime.parse(time);
+            return SchemaTimeResposta.parse(time);
         },
 
         async atualizar(id: number, data: AtualizarTimeDTO) {
+            const usuario = authStorage.getStore();
+            const timeExistente = await timeRepo.obterPorId(id, { nucleo: true });
+            if (!timeExistente) throw new AppError(404, 'Time não encontrado');
+
+            if (usuario?.permissao === 'professor') {
+                if (!usuario.nucleoVinculadoId) throw new AppError(403, 'Professor sem núcleo');
+                if (timeExistente.nucleo.id !== usuario.nucleoVinculadoId) {
+                    throw new AppError(403, 'Acesso negado a time fora do núcleo vinculado');
+                }
+                if (data.nucleo && data.nucleo.id !== usuario.nucleoVinculadoId) {
+                    throw new AppError(403, 'Não é permitido mover o time para outro núcleo');
+                }
+            }
+
             const time = await timeRepo.atualizar(id, data);
             if (!time) throw new AppError(404, 'Time não encontrado');
-            return SchemaBaseTime.parse(time);
+            return SchemaTimeResposta.parse(time);
         },
 
         async deletar(id: number) {
+            const usuario = authStorage.getStore();
+            const timeExistente = await timeRepo.obterPorId(id, { nucleo: true });
+            if (!timeExistente) throw new AppError(404, 'Time não encontrado');
+
+            if (usuario?.permissao === 'professor') {
+                if (!usuario.nucleoVinculadoId) throw new AppError(403, 'Professor sem núcleo');
+                if (timeExistente.nucleo.id !== usuario.nucleoVinculadoId) {
+                    throw new AppError(403, 'Acesso negado a time fora do núcleo vinculado');
+                }
+            }
+
             const deletado = await timeRepo.deletar(id);
             if (!deletado) throw new AppError(404, 'Time não encontrado');
             return deletado;

@@ -13,6 +13,17 @@ export const SchemaBaseFrequencia = z.object({
     chamadaId: z.number().int().positive('ID da chamada deve ser um número inteiro positivo'),
     nucleoId: z.number().int().positive('ID do núcleo deve ser um número inteiro positivo').optional(),
     justificativa: z.string('Justificativa deve ser uma string').optional(),
+}).transform(({ jogadorId, treinoId, jogoId, chamadaId, nucleoId, ...resto }) => ({
+    ...resto,
+    jogador: { id: jogadorId },
+    treino: treinoId ? { id: treinoId } : undefined,
+    jogo: jogoId ? { id: jogoId } : undefined,
+    chamada: { id: chamadaId },
+    nucleo: nucleoId ? { id: nucleoId } : undefined,
+}));
+
+export const SchemaJogadorId = z.object({
+    id: z.coerce.number().int().positive("ID do jogador deve ser um número inteiro positivo"),
 });
 
 export const SchemaFrequenciaResposta = z.object({
@@ -52,7 +63,22 @@ export const QueryIncludesFrequencia = criarIncludesSchema(RELACOES_FREQUENCIA);
 
 
 
-export const SchemaAtualizarFrequencia = SchemaBaseFrequencia.partial();
+export const SchemaAtualizarFrequencia = z.object({
+    presente: z.boolean('Presente deve ser um valor booleano').optional(),
+    jogadorId : z.number().int().positive('ID do jogador deve ser um número inteiro positivo').optional(),
+    treinoId: z.number().int().positive('ID do treino deve ser um número inteiro positivo').optional(),
+    jogoId: z.number().int().positive('ID do jogo deve ser um número inteiro positivo').nullable().optional(),
+    chamadaId: z.number().int().positive('ID da chamada deve ser um número inteiro positivo').optional(),
+    nucleoId: z.number().int().positive('ID do núcleo deve ser um número inteiro positivo').optional(),
+    justificativa: z.string('Justificativa deve ser uma string').optional(),
+}).transform(({ jogadorId, treinoId, jogoId, chamadaId, nucleoId, ...resto }) => ({
+    ...resto,
+    jogador: jogadorId ? { id: jogadorId } : undefined,
+    treino: treinoId ? { id: treinoId } : undefined,
+    jogo: jogoId ? { id: jogoId } : undefined,
+    chamada: chamadaId ? { id: chamadaId } : undefined,
+    nucleo: nucleoId ? { id: nucleoId } : undefined,
+}));
 export const SchemaFrequenciasPaginadas = SchemaRespostaPaginada(SchemaFrequenciaResposta);
 
 export type FiltrosFrequenciaDTO = z.infer<typeof SchemaFiltroFrequencia>;

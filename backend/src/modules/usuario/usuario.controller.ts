@@ -1,7 +1,7 @@
 import { IUsuarioService } from "./usuario.interfaces";
 import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
-import {  SchemaBaseUsuario, SchemaBuscarPorIdUsuario, QueryIncludesUsuario, SchemaFiltrosUsuario, SchemaLoginUsuario, SchemaAtualizarUsuario } from "./usuario.schemas";
+import { SchemaBaseUsuario, SchemaBuscarPorIdUsuario, QueryIncludesUsuario, SchemaFiltrosUsuario, SchemaLoginUsuario, SchemaAtualizarUsuario } from "./usuario.schemas";
 import gerarToken from "../../shared/utils/gerarToken";
 import { SchemaPaginacaoQuery } from '../../shared/utils/listas.schema';
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
@@ -11,23 +11,18 @@ import { transformarIncludesEmRelations } from "../../shared/utils/query.schema"
 export function fazerUsuarioController(service: IUsuarioService) {
     return {
         async listarUsuarios(req: Request, res: Response) {
-            const {limite, pagina} = SchemaPaginacaoQuery.parse(req.query);
-            const {includes} = QueryIncludesUsuario.parse(req.query);
+            const { limite, pagina } = SchemaPaginacaoQuery.parse(req.query);
+            const { includes } = QueryIncludesUsuario.parse(req.query);
             const filtros = SchemaFiltrosUsuario.parse(req.query);
             const includesRelations = transformarIncludesEmRelations(includes);
             const { data, meta } = await service.listar(pagina, limite, filtros, includesRelations);
             return res.status(200).json(montarRespostaPaginada('Usuários listados com sucesso', data, meta));
         },
-        async listarPornucleoVinculado (req: Request, res: Response) {
-            const {limite, pagina} = SchemaPaginacaoQuery.parse(req.query);
-            const {includes} = QueryIncludesUsuario.parse(req.query);
-            const includesRelations = transformarIncludesEmRelations(includes);
-            const { data, meta } = await service.listarPornucleoVinculado(pagina, limite, includesRelations);
-            return res.status(200).json(montarRespostaPaginada('Usuários listados com sucesso', data, meta));
-        },
         async obterUsuarioPorId(req: Request, res: Response) {
             const { id } = SchemaBuscarPorIdUsuario.parse(req.params);
-            const usuario = await service.obterPorId(id);
+            const { includes } = QueryIncludesUsuario.parse(req.query);
+            const includesRelations = transformarIncludesEmRelations(includes);
+            const usuario = await service.obterPorId(id, includesRelations);
             return res.status(200).json(montarRespostaSucesso('Usuário obtido com sucesso', usuario));
         },
     
@@ -38,15 +33,15 @@ export function fazerUsuarioController(service: IUsuarioService) {
             return res.status(201).json(montarRespostaSucesso('Usuário criado com sucesso', usuario));
         },
 
-        async login (req: Request, res: Response) {
+        async login(req: Request, res: Response) {
             const { email, senha } = SchemaLoginUsuario.parse(req.body);
 
             const usuarioLogado = await service.obterUsuarioParaLogin(email, senha);
-            const payload = { id: usuarioLogado.id, nome: usuarioLogado.nome, email: usuarioLogado.email, permissao: usuarioLogado.permissao, nucleoVinculadoId: usuarioLogado.nucleoVinculadoId };
+            const payload = { id: usuarioLogado.id, nome: usuarioLogado.nome, email: usuarioLogado.email, permissao: usuarioLogado.permissao, nucleoVinculadoId: usuarioLogado.nucleoVinculado?.id };
             const token = gerarToken(payload);
             res.setHeader('Authorization', `Bearer ${token}`);
             return res.status(200).json(montarRespostaSucesso('Login realizado com sucesso', usuarioLogado, token));
-        }, 
+        },
         async atualizarUsuario(req: Request, res: Response) {
             const { id } = SchemaBuscarPorIdUsuario.parse(req.params);
             const data = SchemaAtualizarUsuario.parse(req.body);
@@ -57,7 +52,7 @@ export function fazerUsuarioController(service: IUsuarioService) {
             const { id } = SchemaBuscarPorIdUsuario.parse(req.params);
             await service.deletar(id);
             return res.status(204).json(montarRespostaSucesso('Usuário deletado com sucesso'));
-         },
-  
+        },
+
     }
 }

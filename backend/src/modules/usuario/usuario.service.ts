@@ -1,9 +1,9 @@
 import { IUsuarioRepository, IUsuarioService } from "./usuario.interfaces";
 import { AppError } from "../../shared/utils/AppError";
 import bcrypt from 'bcrypt';
-import { RespostaUsuarioDTO, CriarUsuarioDTO, AtualizarUsuarioDTO, SchemaUsuarioResumido } from './usuario.schemas';
+import { RespostaUsuarioDTO, CriarUsuarioDTO, AtualizarUsuarioDTO, SchemaUsuarioResumido, SchemaUsuarioDetalhado } from './usuario.schemas';
 import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
-import { authStorage, getContext } from "../../shared/utils/authStorage";
+import { authStorage } from "../../shared/utils/authStorage";
 import { FindOptionsRelations, FindOptionsWhere } from "typeorm";
 import { Usuario } from "./Usuario.model";
 
@@ -19,7 +19,7 @@ export const fazerUsuarioService = (usuarioRepo: IUsuarioRepository): IUsuarioSe
     return {
 
         async listar(pagina: number, limite: number, where: FindOptionsWhere<Usuario>, relations?: FindOptionsRelations<Usuario>) {
-               const usuario = authStorage.getStore();
+            const usuario = authStorage.getStore();
             let finalWhere = where ? { ...where } : {};
             if (usuario?.permissao === "professor") {
                 if (!usuario.nucleoVinculadoId) throw new AppError(403, 'Professor sem núcleo');
@@ -30,66 +30,52 @@ export const fazerUsuarioService = (usuarioRepo: IUsuarioRepository): IUsuarioSe
             }
             const { data, total } = await usuarioRepo.listar(pagina, limite, finalWhere, relations);
             const totalPaginas = Math.ceil(total / limite);
-            return SchemaRespostaPaginada(SchemaUsuarioResumido).parse({
+            return SchemaRespostaPaginada(SchemaUsuarioDetalhado).parse({
                 data: data,
                 meta: { pagina, limite, total, totalPaginas },
             });
         },
 
 
-        async obterPorId(id: number): Promise<RespostaUsuarioDTO> {
+        async obterPorId(id: number, relations?: FindOptionsRelations<Usuario>): Promise<RespostaUsuarioDTO> {
             const usuarioCtx = authStorage.getStore();
-            const usuario = await usuarioRepo.obterPorId(id);
-            if (!usuario) {
-                throw new AppError(404, 'Usuário não encontrado');
-            }
-            if (usuarioCtx?.permissao === "professor") {
+            const usuario = await usuarioRepo.obterPorId(id, relations);
+            if (!usuario) throw new AppError(404, 'Usuário não encontrado');
+            if (usuarioCtx?.permissao === 'professor') {
                 if (!usuarioCtx.nucleoVinculadoId) throw new AppError(403, 'Professor sem núcleo');
                 if (usuarioCtx.nucleoVinculadoId !== usuario.nucleoVinculado?.id) {
                     throw new AppError(403, 'Acesso negado a usuário fora do núcleo vinculado');
                 }
             }
-            return SchemaUsuarioResumido.parse(usuario);
+            return SchemaUsuarioDetalhado.parse(usuario);
         },
 
         async criar(data: CriarUsuarioDTO): Promise<RespostaUsuarioDTO> {
 
+            const usuarioAuth = authStorage.getStore();
+            if (usuarioAuth?.permissao === 'professor') {
+                if (!usuarioAuth.nucleoVinculadoId) throw new AppError(403, 'Professor sem núcleo');
+                if (!data.nucleoVinculado) {
+                    data.nucleoVinculado = { id: usuarioAuth.nucleoVinculadoId };
+                } else if (data.nucleoVinculado.id !== usuarioAuth.nucleoVinculadoId) {
+                    throw new AppError(403, 'Não pode criar usuário em outro núcleo');
+                }
+            }
             const hashSenha = await bcrypt.hash(data.senha, 10);
             const emailExistente = await usuarioRepo.obterPorEmail(data.email);
 
             if (emailExistente) throw new AppError(409, 'Email já cadastrado');
+            if (!data.nucleoVinculado?.id) throw new AppError(400, 'ID do núcleo vinculado é obrigatório');
             const usuarioData: CriarUsuarioDTO = {
                 nome: data.nome,
                 email: data.email,
                 senha: hashSenha,
                 permissao: data.permissao,
-
+                nucleoVinculado: { id: data.nucleoVinculado.id },
             };
-            if (data.nucleoVinculado) {
-                usuarioData.nucleoVinculado = { id: data.nucleoVinculado.id };
-            }
             const usuario = await usuarioRepo.criar(usuarioData);
             if (!usuario) throw new AppError(500, 'Erro ao criar usuário');
             return SchemaUsuarioResumido.parse(usuario);
-        },
-        async listarPornucleoVinculado(pagina: number, limite: number, relations?: FindOptionsRelations<Usuario>) {
-            const nucleoVinculadoId = getContext()?.nucleoVinculadoId;
-            if (!nucleoVinculadoId) {
-                throw new AppError(400, 'Núcleo vinculado não encontrado');
-            }
-            const { data, total } = await usuarioRepo.listarPornucleoVinculado(pagina, limite, nucleoVinculadoId, relations);
-            const dataValidada = SchemaUsuarioResumido.array().parse(data);
-            const totalPaginas = Math.ceil(total / limite);
-
-            return SchemaRespostaPaginada(SchemaUsuarioResumido).parse({
-                data: dataValidada,
-                meta: {
-                    pagina: pagina,
-                    limite: limite,
-                    total: total,
-                    totalPaginas: totalPaginas
-                }
-            });
         },
         async obterPorEmail(email: string): Promise<RespostaUsuarioDTO> {
             const usuario = await usuarioRepo.obterPorEmail(email);

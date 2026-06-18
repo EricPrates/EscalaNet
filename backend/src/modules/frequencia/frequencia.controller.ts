@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { IFrequenciaService } from "./frequencia.interfaces";
-import { QueryIncludesFrequencia, SchemaBaseFrequencia, SchemaFiltroFrequencia, SchemaFrequenciaId, SchemaFrequenciaResposta } from './frequencia.schemas';
+import { QueryIncludesFrequencia, SchemaAtualizarFrequencia, SchemaBaseFrequencia, SchemaFiltroFrequencia, SchemaFrequenciaId } from './frequencia.schemas';
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
 
 
@@ -40,7 +40,7 @@ export function fazerFrequenciaController(service: IFrequenciaService) {
      
         async atualizarFrequencia(req: Request, res: Response) {
             const { id } = SchemaFrequenciaId.parse(req.params);
-            const data = SchemaFrequenciaResposta.partial().parse(req.body);
+            const data = SchemaAtualizarFrequencia.parse(req.body);
             const frequencia = await service.atualizar(id, data);
             return res.status(200).json(montarRespostaSucesso('Frequência atualizada com sucesso', frequencia));
         },

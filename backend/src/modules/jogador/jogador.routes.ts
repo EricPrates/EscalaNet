@@ -4,12 +4,12 @@ import { verificarPermissao } from '../../shared/Middlewares/verificarPermissao'
 
 const router = express.Router();
 
-router.get('/', verificarPermissao('admin', 'professor'), jogadorController.listarJogadores);
-router.get('/:id', verificarPermissao('admin', 'professor'), jogadorController.obterJogadorPorId);
+router.get('/',  jogadorController.listarJogadores);
+router.get('/:id', jogadorController.obterJogadorPorId);
 
-router.post('/', jogadorController.criarJogador);
-router.put('/:id', jogadorController.atualizarJogador);
-router.delete('/:id', jogadorController.deletarJogador);
+router.post('/', verificarPermissao('admin', 'professor'), jogadorController.criarJogador);
+router.put('/:id', verificarPermissao('admin', 'professor'), jogadorController.atualizarJogador);
+router.delete('/:id', verificarPermissao('admin', 'professor'), jogadorController.deletarJogador);
 
 
 export default (app: express.Application) => {

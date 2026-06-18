@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
-import { SchemaBaseNucleo, SchemaIdNUcleo, SchemaAtualizarNucleo, SchemaFiltrosNucleo, QueryIncludesNucleo } from "./nucleo.schemas";
+import { SchemaBaseNucleo, SchemaAtualizarNucleo, SchemaFiltrosNucleo, QueryIncludesNucleo, SchemaIdNucleo } from "./nucleo.schemas";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { INucleoService } from "./nucleo.interfaces";
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
@@ -19,7 +19,7 @@ export function fazerNucleoController(service: INucleoService) {
         },
      
         async obterNucleoPorId(req: Request, res: Response) {
-            const { id } = SchemaIdNUcleo.parse(req.params);
+            const  id  = SchemaIdNucleo.parse(req.params);
             const nucleo = await service.obterPorId(id);
             return res.status(200).json(montarRespostaSucesso('Núcleo obtido com sucesso', nucleo));
         },
@@ -31,20 +31,20 @@ export function fazerNucleoController(service: INucleoService) {
         },
 
         async atualizarNucleo(req: Request, res: Response) {
-            const { id } = SchemaIdNUcleo.parse(req.params);
+            const  id  = SchemaIdNucleo.parse(req.params);
             const data = SchemaAtualizarNucleo.parse(req.body);
             const nucleo = await service.atualizar(id, data);
             return res.status(200).json(montarRespostaSucesso('Núcleo atualizado com sucesso', nucleo));
         },
 
         async deletarNucleo(req: Request, res: Response) {
-            const { id } = SchemaIdNUcleo.parse(req.params);
+            const  id  = SchemaIdNucleo.parse(req.params);
             await service.deletar(id);
             return res.status(204).json(montarRespostaSucesso('Núcleo deletado com sucesso'));
         },
 
         async obterDashboardNucleo(req: Request, res: Response) {
-            const { id } = SchemaIdNUcleo.parse(req.params);
+            const  id  = SchemaIdNucleo.parse(req.params);
             const dashboard = await service.obterDashboard(id);
             return res.status(200).json(montarRespostaSucesso('Dashboard do núcleo obtido com sucesso', dashboard));
         },

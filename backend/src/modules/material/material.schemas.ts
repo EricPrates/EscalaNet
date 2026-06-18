@@ -5,38 +5,52 @@ import { criarIncludesSchema } from '../../shared/utils/query.schema';
 import { FindOptionsWhere, ILike } from 'typeorm';
 import { Material } from './material.model';
 
+// Schema de entrada — recebe nucleoId e transforma em { nucleo: { id } }
+// para o TypeORM salvar corretamente a relação
 export const SchemaBaseMaterial = z.object({
     quantidade: z.coerce.number().int().nonnegative('A quantidade deve ser um número inteiro não negativo'),
-    observacao: z.string('Observação deve ser uma string').nullable().optional(),
-    tipoMaterial: z.string('Tipo de material é uma string').max(255).optional(),
-    nucleoId: z.coerce.number().int().positive('ID do núcleo é obrigatório'),
-    dataRecebimento: z.coerce.date({ message: "Data de recebimento deve ser uma data válida" }),
-    
-});
+    observacao: z.string().nullable().optional(),
+    tipoMaterial: z.string().max(255, 'Tipo de material deve ter no máximo 255 caracteres').optional(),
+    nucleoId: z.coerce.number().int().positive('ID do núcleo deve ser um número inteiro positivo'),
+    dataRecebimento: z.coerce.date({ message: 'Data de recebimento deve ser uma data válida' }),
+}).transform(({ nucleoId, ...resto }) => ({
+    ...resto,
+    nucleo: { id: nucleoId },
+}));
+
+// Schema de atualização — todos opcionais, nucleoId também mapeado para nucleo
+export const SchemaAtualizarMaterial = z.object({
+    quantidade: z.coerce.number().int().nonnegative('A quantidade deve ser um número inteiro não negativo').optional(),
+    observacao: z.string().nullable().optional(),
+    tipoMaterial: z.string().max(255, 'Tipo de material deve ter no máximo 255 caracteres').optional(),
+    nucleoId: z.coerce.number().int().positive('ID do núcleo deve ser um número inteiro positivo').optional(),
+    dataRecebimento: z.coerce.date({ message: 'Data de recebimento deve ser uma data válida' }).optional(),
+}).transform(({ nucleoId, ...resto }) => ({
+    ...resto,
+    ...(nucleoId !== undefined ? { nucleo: { id: nucleoId } } : {}),
+}));
 
 export const SchemaMaterialResposta = z.object({
     id: z.coerce.number().int().positive(),
     quantidade: z.coerce.number().int().nonnegative(),
     dataRecebimento: z.coerce.date(),
-    observacao: z.string().optional(),
+    observacao: z.string().nullable().optional(),
     tipoMaterial: z.string().optional(),
     nucleo: SchemaRefNucleo,
     createdAt: z.coerce.date().optional(),
     updatedAt: z.coerce.date().optional(),
 });
 
-export const SchemaAtualizarMaterial = SchemaBaseMaterial.partial();
-
 export const SchemaBuscarPorIdMaterial = z.object({
     id: z.coerce.number().int().positive('ID do material deve ser um número inteiro positivo'),
 });
 
 export const SchemaFiltrosMaterial = z.object({
-    id: z.coerce.number().int().positive('ID do material deve ser um número inteiro positivo').optional(),
-    quantidade: z.coerce.number().int().nonnegative('A quantidade deve ser um número inteiro não negativo').optional(),
-    tipoMaterial: z.string('Tipo de material é uma string').optional(),
-    nucleoId: z.coerce.number().int().positive('ID do núcleo é obrigatório').optional(),
-    dataRecebimento: z.coerce.date('Data de recebimento deve ser uma data válida').optional(),
+    id: z.coerce.number().int().positive().optional(),
+    quantidade: z.coerce.number().int().nonnegative().optional(),
+    tipoMaterial: z.string().optional(),
+    nucleoId: z.coerce.number().int().positive().optional(),
+    dataRecebimento: z.coerce.date().optional(),
 }).transform(filtros => {
     const where: FindOptionsWhere<Material> = {};
 
@@ -53,7 +67,8 @@ export const RELACOES_MATERIAL = ['nucleo'] as const;
 export const QueryIncludesMaterial = criarIncludesSchema(RELACOES_MATERIAL);
 export const SchemaMateriaisPaginados = SchemaRespostaPaginada(SchemaMaterialResposta);
 
-export type CriarMaterialDTO = z.infer<typeof SchemaBaseMaterial>;
+// Após o transform, CriarMaterialDTO tem { nucleo: { id }, ... } — sem nucleoId
+export type CriarMaterialDTO = z.output<typeof SchemaBaseMaterial>;
+export type AtualizarMaterialDTO = z.output<typeof SchemaAtualizarMaterial>;
 export type RespostaMaterialDTO = z.infer<typeof SchemaMaterialResposta>;
-export type AtualizarMaterialDTO = z.infer<typeof SchemaAtualizarMaterial>;
 export type FiltrosMaterialDTO = z.infer<typeof SchemaFiltrosMaterial>;

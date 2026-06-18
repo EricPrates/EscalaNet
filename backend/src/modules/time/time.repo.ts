@@ -1,4 +1,4 @@
-import { DataSource, FindOptionsRelations, FindOptionsSelect, FindOptionsWhere } from "typeorm";
+import { DataSource,  FindOptionsRelations, FindOptionsSelect, FindOptionsWhere } from "typeorm";
 import { Time } from "./time.model";
 import { CriarTimeDTO } from "./time.schemas";
 import { ITimeRepository } from "./time.interfaces";
@@ -19,12 +19,18 @@ export function fazerTimeRepo(dataSource: DataSource): ITimeRepository {
             });
             return { data, total };
         },
-      
+        async listarIdsPorNucleo(nucleoId: number): Promise<number[]> {
+            const result = await repo.find({
+                where: { nucleo: { id: nucleoId } },
+                select: { id: true },
+            });
+            return result.map(time => time.id);
+        },
         async obterPorId(id: number, relations?: FindOptionsRelations<Time>, select?: FindOptionsSelect<Time>) {
             return await repo.findOne({ where: { id }, relations, select }) || null;
         },
 
-        async criar(data: CriarTimeDTO)  {
+        async criar(data: CriarTimeDTO) {
             const time = repo.create(data);
             return repo.save(time);
         },
@@ -32,9 +38,9 @@ export function fazerTimeRepo(dataSource: DataSource): ITimeRepository {
         async atualizar(id: number, data: Partial<CriarTimeDTO>) {
             const time = await repo.findOne({ where: { id } });
             if (!time) return null;
-            repo.merge(time, data as any);
+            repo.merge(time, data);
             await repo.save(time);
-            return this.obterPorId(id);
+            return await this.obterPorId(id);
         },
 
         async deletar(id: number) {

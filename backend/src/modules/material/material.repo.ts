@@ -30,16 +30,16 @@ export function fazerMaterialNucleoRepo(dataSource: DataSource): IMaterialReposi
         },
 
         async criar(data: CriarMaterialDTO): Promise<Material> {
-            const jogo = repo.create(data);
-            return repo.save(jogo);
+            const material = repo.create(data);
+            return repo.save(material);
         },
 
         async atualizar(id: number, data: AtualizarMaterialDTO): Promise<Material | null> {
             const material = await repo.findOne({ where: { id } });
             if (!material) return null;
-            repo.merge(material, data);
+            repo.merge(material, data as any);
             await repo.save(material);
-            return this.obterPorId(id);
+            return this.obterPorId(id, { nucleo: true });
         },
 
         async deletar(id: number): Promise<boolean> {

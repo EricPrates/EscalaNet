@@ -16,7 +16,11 @@ export function fazerJogoController(service: IJogoService) {
             return res.status(200).json(montarRespostaPaginada('Jogos listados com sucesso', data, meta));
         },
 
-       
+        async contarJogos(req: Request, res: Response) {
+            const filtros = SchemaFiltrosJogo.parse(req.query);
+            const total = await service.contar(filtros);
+            return res.status(200).json(montarRespostaSucesso('Total de jogos contado com sucesso', { total }));
+        },
         async obterJogoPorId(req: Request, res: Response) {
             const { includes } = QueryIncludesJogo.parse(req.query);
             const includesRelations = transformarIncludesEmRelations(includes);

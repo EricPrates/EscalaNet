@@ -3,6 +3,7 @@ import { uploadImagem, uploadDocumento, uploadVideo } from '../../shared/Middlew
 import { uploadParaCloudinary } from '../../shared/servicosExternos/uploadCloudinary.service';
 import { montarRespostaSucesso } from '../../shared/utils/construtorResposta';
 import { AppError } from '../../shared/utils/AppError';
+import { verificarPermissao } from '../../shared/Middlewares/verificarPermissao';
 
 const router = express.Router();
 
@@ -11,7 +12,7 @@ const router = express.Router();
  * Campo do form: "imagem"
  * Retorna: { url, publicId, formato, tamanhoBytes }
  */
-router.post('/imagem', (req: Request, res: Response, next: NextFunction) => {
+router.post('/imagem', verificarPermissao('admin'), (req: Request, res: Response, next: NextFunction) => {
     uploadImagem(req, res, async (err) => {
         if (err) return next(err);
         if (!req.file) return next(new AppError(400, 'Nenhuma imagem enviada'));
@@ -31,7 +32,7 @@ router.post('/imagem', (req: Request, res: Response, next: NextFunction) => {
  * Campo do form: "documento"
  * Aceita: PDF, Word — max 10MB
  */
-router.post('/documento', (req: Request, res: Response, next: NextFunction) => {
+router.post('/documento',  (req: Request, res: Response, next: NextFunction) => {
     uploadDocumento(req, res, async (err) => {
         if (err) return next(err);
         if (!req.file) return next(new AppError(400, 'Nenhum documento enviado'));

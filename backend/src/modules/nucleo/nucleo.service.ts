@@ -5,15 +5,15 @@ import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
 import { INucleoRepository, INucleoService } from "./nucleo.interfaces";
 import { Nucleo } from "./Nucleo.model";
 import { RespostaNucleoDTO, SchemaNucleoResposta, CriarNucleoDTO, DashboardNucleoDTO, SchemaDashboardNucleo } from './nucleo.schemas';
-import { FindOptionsRelations } from 'typeorm';
+import { FindOptionsRelations, FindOptionsWhere } from 'typeorm';
 
 
 export const fazerNucleoService = (nucleoRepo: INucleoRepository): INucleoService => {
 
     return {
         //apenas admin pode listar todos os núcleos, os outros só podem buscar o seu núcleo vinculado
-        async listar(pagina: number, limite: number) {
-            const { data, total } = await nucleoRepo.listar(pagina, limite);
+        async listar(pagina: number, limite: number, where?: FindOptionsWhere<Nucleo>, relations?: FindOptionsRelations<Nucleo>) {
+            const { data, total } = await nucleoRepo.listar(pagina, limite, where, relations);
             const dataValidada = SchemaNucleoResposta.array().parse(data);
             const totalPaginas = Math.ceil(total / limite);
 
@@ -44,9 +44,9 @@ export const fazerNucleoService = (nucleoRepo: INucleoRepository): INucleoServic
                     throw new AppError(403, 'Acesso negado a frequência fora do núcleo vinculado');
                 }
             }
-            const material = await nucleoRepo.obterPorId(id, relations);
-            if (!material) throw new AppError(404, 'Material não encontrado');
-            return SchemaNucleoResposta.parse(material);
+            const nucleo = await nucleoRepo.obterPorId(id, relations);
+            if (!nucleo) throw new AppError(404, 'Núcleo não encontrado');
+            return SchemaNucleoResposta.parse(nucleo);
         },
 
         async criar(data: CriarNucleoDTO): Promise<RespostaNucleoDTO> {

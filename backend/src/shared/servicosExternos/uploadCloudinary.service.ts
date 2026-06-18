@@ -85,15 +85,21 @@ export const uploadParaCloudinary = async (
  * Remove um arquivo do Cloudinary pelo seu public_id.
  * Útil ao deletar uma postagem ou material.
  */
-export const deletarDoCloudinary = async (publicId: string, resourceType: 'image' | 'video' | 'raw' = 'image'): Promise<void> => {
+export const deletarDoCloudinary = async (
+  publicId: string,
+  resourceType: 'image' | 'video' | 'raw' = 'image'
+): Promise<{ success: boolean; message?: string }> => {
   try {
-    await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
+    const result = await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
+    if (result.result === 'ok') {
+      return { success: true };
+    }
+    return { success: false, message: `Falha ao deletar: ${result.result}` };
   } catch (error) {
     console.error('Erro ao deletar do Cloudinary:', error);
-    // Não lança erro — falha no delete do Cloudinary não deve quebrar a operação principal
+    return { success: false, message: error instanceof Error ? error.message : 'Erro desconhecido' };
   }
 };
-
 // Mantém compatibilidade com o código antigo
 export const uploadImageToCloudinary = async (fileBuffer: Buffer, folder: string): Promise<string> => {
   const resultado = await uploadParaCloudinary(fileBuffer, 'image/jpeg', folder);

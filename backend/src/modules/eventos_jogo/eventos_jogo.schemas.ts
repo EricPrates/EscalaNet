@@ -19,6 +19,7 @@ export const SchemaBaseEventoJogo = z.object({
     usuarioId: z.number().int().positive('ID do usuário deve ser um número inteiro positivo'),
     nucleoId: z.number().int().positive('ID do núcleo deve ser um número inteiro positivo').optional(),
     jogadorEnvolvidoId: z.number().int().positive('ID do jogador deve ser um número inteiro positivo').nullable().optional(),
+    acrescimo: z.number().int().nonnegative().nullable().optional(),
 }).transform(({ jogoId, usuarioId, nucleoId, jogadorEnvolvidoId, ...resto }) => ({
     ...resto,
     jogo: { id: jogoId },

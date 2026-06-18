@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
-import { SchemaRefNucleo } from '../../shared/utils/ref.schemas';
+import { SchemaRefJogador, SchemaRefNucleo, SchemaRefUsuario } from '../../shared/utils/ref.schemas';
 import { FindOptionsWhere } from 'typeorm';
 import { Treino } from './Treino.model';
 import { criarIncludesSchema } from '../../shared/utils/query.schema';
@@ -8,23 +8,41 @@ import { criarIncludesSchema } from '../../shared/utils/query.schema';
 
 export const SchemaBaseTreino = z.object({
     data: z.coerce.date({ error: "Data do treino inválida" }),
-    nucleo: z.object({ id: z.number().int().positive() }),
-    jogadores: z.array(z.object({ id: z.number().int().positive() })).optional(),
-    usuarios: z.array(z.object({ id: z.number().int().positive() })).optional(),
-});
+    nucleoId: z.coerce.number().int().positive('ID do núcleo deve ser um número inteiro positivo'),
+    jogadoresIds: z.array(z.coerce.number().int().positive()).optional(),
+    usuariosIds: z.array(z.coerce.number().int().positive()).optional(),
+}).transform(({ nucleoId, jogadoresIds, usuariosIds, ...resto }) => ({
+    ...resto,
+    nucleo: { id: nucleoId },
+    jogadores: jogadoresIds?.map(id => ({ id })) || [],
+    usuarios: usuariosIds?.map(id => ({ id })) || [],
+}));
 
 export const SchemaTreinoResposta = z.object({
     id: z.coerce.number().int().positive(),
     data: z.coerce.date(),
     nucleo: SchemaRefNucleo,
+    jogadores: z.array(SchemaRefJogador).optional(),
+    usuarios: z.array(SchemaRefUsuario).optional(),
 });
 
-export const SchemaAtualizarTreino = SchemaBaseTreino.partial();
+export const SchemaCriarTreino = SchemaBaseTreino;
+export const SchemaAtualizarTreino = z.object({
+    data: z.coerce.date({ error: "Data do treino inválida" }).optional(),
+    nucleoId: z.coerce.number().int().positive('ID do núcleo deve ser um número inteiro positivo').optional(),
+    jogadoresIds: z.array(z.coerce.number().int().positive()).optional(),
+    usuariosIds: z.array(z.coerce.number().int().positive()).optional(),
+}).transform(({ nucleoId, jogadoresIds, usuariosIds, ...resto }) => ({
+    ...resto,
+    nucleo: nucleoId ? { id: nucleoId } : undefined,
+    jogadores: jogadoresIds?.map(id => ({ id })) || [],
+    usuarios: usuariosIds?.map(id => ({ id })) || [],
+}));
 export const SchemaTreinosPaginados = SchemaRespostaPaginada(SchemaTreinoResposta);
 
-export type CriarTreinoDTO = z.infer<typeof SchemaBaseTreino>;
+export type CriarTreinoDTO = z.output<typeof SchemaCriarTreino>;
 export type RespostaTreinoDTO = z.infer<typeof SchemaTreinoResposta>;
-export type AtualizarTreinoDTO = z.infer<typeof SchemaAtualizarTreino>;
+export type AtualizarTreinoDTO = z.output<typeof SchemaAtualizarTreino>;
 
 export const SchemaBuscarPorIdTreino = z.object({
     id: z.coerce.number().int().positive('ID do treino deve ser um número inteiro positivo'),
@@ -32,17 +50,12 @@ export const SchemaBuscarPorIdTreino = z.object({
 export const SchemaFiltrosTreino = z.object({
     id: z.coerce.number().int().positive('ID do treino deve ser um número inteiro positivo').optional(),
     data: z.coerce.date({ error: "Data do treino inválida" }).optional(),
-    nome: z.string('Nome do treino é uma string').optional(),
     nucleoId: z.coerce.number().int().positive('ID do núcleo deve ser um número inteiro positivo').optional(),
-    jogadorId: z.coerce.number().int().positive('ID do jogador deve ser um número inteiro positivo').optional(),
-    usuarioId: z.coerce.number().int().positive('ID do usuário deve ser um número inteiro positivo').optional(),
 }).transform(filtros => {
     const where: FindOptionsWhere<Treino> = {};
     if (filtros.id) where.id = filtros.id;
     if (filtros.data) where.data = filtros.data;
     if (filtros.nucleoId) where.nucleo = { id: filtros.nucleoId };
-    if(filtros.jogadorId) where.jogadores = { id: filtros.jogadorId };
-    if(filtros.usuarioId) where.usuarios = { id: filtros.usuarioId };
     return where;
 });
 

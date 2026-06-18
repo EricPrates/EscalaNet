@@ -48,9 +48,7 @@ export const SchemaBaseNucleo = z.object({
 });
    
 
-export const SchemaIdNUcleo = z.object({
-    id: z.number().int().positive(),
-});
+export const SchemaIdNucleo = z.number().int().positive('ID do núcleo deve ser um número inteiro positivo');
 export const SchemaNucleoResposta = SchemaBaseNucleo.extend({
     id: z.coerce.number().int().positive(),
     eventos:z.array(z.object(SchemaRefEvento)).optional(),

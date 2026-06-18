@@ -3,7 +3,7 @@ import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
 import { criarIncludesSchema } from '../../shared/utils/query.schema';
 import { FindOptionsWhere, ILike } from 'typeorm';
 import { Competicao } from './Competicao.model';
-import { SchemaRefTime } from '../../shared/utils/ref.schemas';
+
 
 export const SchemaBaseCompeticao = z.object({
     id: z.coerce.number().int().positive(),
@@ -11,11 +11,23 @@ export const SchemaBaseCompeticao = z.object({
     tipo: z.enum(['Copa', 'Liga']),
     intervaloDias: z.coerce.number().int().positive().optional(),
     duplaVolta: z.boolean().optional(),
-    times: z.array(z.object(SchemaRefTime)).optional(),
-});
+    timesIds: z.array(z.coerce.number().int().positive('ID do time deve ser um número inteiro positivo')).optional(),
+}).transform(({ timesIds, ...resto }) => ({
+    ...resto,
+    times: timesIds ? timesIds.map(id => ({ id })) : undefined,
+}));
 
-export const SchemaCriarCompeticao = SchemaBaseCompeticao.omit({ id: true, times: true });
-export const SchemaAtualizarCompeticao = SchemaCriarCompeticao.partial();
+export const SchemaCriarCompeticao = SchemaBaseCompeticao;
+export const SchemaAtualizarCompeticao = z.object({
+    nome: z.string().min(1, 'O nome da competição é obrigatório').optional(),
+    tipo: z.enum(['Copa', 'Liga']).optional(),
+    intervaloDias: z.coerce.number().int().positive().optional(),
+    duplaVolta: z.boolean().optional(),
+    timesIds: z.array(z.coerce.number().int().positive('ID do time deve ser um número inteiro positivo')).optional(),
+}).transform(({ timesIds, ...resto }) => ({
+    ...resto,
+    times: timesIds ? timesIds.map(id => ({ id })) : undefined,
+}));
 
 export const SchemaBuscarPorIdCompeticao = z.object({
     id: z.coerce.number().int().positive('ID da competição deve ser um número inteiro positivo'),

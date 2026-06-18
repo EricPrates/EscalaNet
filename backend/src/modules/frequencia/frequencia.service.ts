@@ -59,16 +59,16 @@ export function fazerFrequenciaService(frequenciaRepo: IFrequenciaRepository, jo
             const usuario = authStorage.getStore();
             if (usuario && usuario?.permissao !== "admin") {
                 if (!usuario.nucleoVinculadoId) throw new AppError(403, 'Professor sem núcleo vinculado');
-                data.nucleoId = usuario.nucleoVinculadoId;
-            } else if (!data.nucleoId) {
+                data.nucleo!.id = usuario.nucleoVinculadoId;
+            } else if (!data.nucleo?.id) {
                 throw new AppError(400, 'Núcleo é obrigatório');
             }
-           const jogador = await jogadorRepo.obterPorId(data.jogadorId, { nucleo: true });
+           const jogador = await jogadorRepo.obterPorId(data.jogador?.id, { nucleo: true });
             if (!jogador || jogador.nucleo.id !== usuario!.nucleoVinculadoId) {
                 throw new AppError(403, 'Jogador não pertence ao seu núcleo');
             }
             // Verificar se a chamada pertence ao núcleo
-            const chamada = await chamadaRepo.obterPorId(data.chamadaId, { nucleo: true });
+            const chamada = await chamadaRepo.obterPorId(data.chamada?.id, { nucleo: true });
             if (!chamada || chamada.nucleo.id !== usuario!.nucleoVinculadoId) {
                 throw new AppError(403, 'Chamada não pertence ao seu núcleo');
             }

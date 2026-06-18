@@ -49,5 +49,10 @@ export function fazerPostagemController(service: IPostagemService) {
             await service.deletar(id);
             return res.status(204).send();
         },
+        async obterPostagemPorId(req: Request, res: Response) {
+            const { id } = SchemaBuscarPorIdPostagem.parse(req.params);
+            const postagem = await service.obterPorId(id);
+            return res.status(200).json(montarRespostaSucesso('Postagem obtida com sucesso', postagem));
+        }
     };
 }
