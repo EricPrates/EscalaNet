@@ -36,7 +36,7 @@ export function fazerNucleoRepo(dataSource: DataSource): INucleoRepository {
         async atualizar(id: number, data: Partial<CriarNucleoDTO>) {
             const nucleo = await repo.findOne({ where: { id } });
             if (!nucleo) return null;
-            repo.merge(nucleo, data as any);
+            repo.merge(nucleo, data);
             await repo.save(nucleo);
             return this.obterPorId(id);
         },

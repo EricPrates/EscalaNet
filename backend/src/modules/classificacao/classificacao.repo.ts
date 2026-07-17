@@ -38,7 +38,7 @@ export function fazerClassificacaoRepo(dataSource: DataSource): IClassificacaoRe
         async atualizar(id: number, data: Partial<Classificacao>): Promise<Classificacao | null> {
             const classificacao = await repo.findOne({ where: { id } });
             if (!classificacao) return null;
-            repo.merge(classificacao, data as any);
+            repo.merge(classificacao, data);
             await repo.save(classificacao);
             return this.obterPorId(id);
         },

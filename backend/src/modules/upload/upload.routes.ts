@@ -32,7 +32,7 @@ router.post('/imagem', verificarPermissao('admin'), (req: Request, res: Response
  * Campo do form: "documento"
  * Aceita: PDF, Word — max 10MB
  */
-router.post('/documento',  (req: Request, res: Response, next: NextFunction) => {
+router.post('/documento', verificarPermissao('admin'), (req: Request, res: Response, next: NextFunction) => {
     uploadDocumento(req, res, async (err) => {
         if (err) return next(err);
         if (!req.file) return next(new AppError(400, 'Nenhum documento enviado'));
@@ -52,7 +52,7 @@ router.post('/documento',  (req: Request, res: Response, next: NextFunction) => 
  * Campo do form: "video"
  * Aceita: MP4, MOV, AVI, WebM — max 100MB
  */
-router.post('/video', (req: Request, res: Response, next: NextFunction) => {
+router.post('/video', verificarPermissao('admin'), (req: Request, res: Response, next: NextFunction) => {
     uploadVideo(req, res, async (err) => {
         if (err) return next(err);
         if (!req.file) return next(new AppError(400, 'Nenhum vídeo enviado'));

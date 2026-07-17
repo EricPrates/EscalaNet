@@ -21,7 +21,7 @@ export class Categoria {
     ativa!: boolean;
 
     @CreateDateColumn({ name: "created_at" })
-    createdAt!: Date;
+    createdAt!: Date | undefined;
 
     @UpdateDateColumn({ name: "updated_at" })
     updatedAt!: Date;

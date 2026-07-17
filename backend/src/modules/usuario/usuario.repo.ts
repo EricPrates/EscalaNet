@@ -13,12 +13,12 @@ export function fazerUsuarioRepo(dataSource: DataSource): IUsuarioRepository {
         async listar(pagina: number = 1, limite: number = 10, where?: FindOptionsWhere<Usuario>, relations?: FindOptionsRelations<Usuario>) {
             const skip = (pagina - 1) * limite;
             const [data, total] = await repo.findAndCount({
-                where,      // ← adicionar
-                relations,  // ← adicionar
+                where,      
+                relations,  
                 skip,
                 take: limite,
                 order: { id: 'ASC' },
-                // remova o select fixo para permitir todas as colunas e relações
+               
             });
             return { data, total };
         },

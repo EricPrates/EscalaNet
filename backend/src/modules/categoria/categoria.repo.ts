@@ -35,7 +35,7 @@ export function fazerCategoriaRepo(dataSource: DataSource): ICategoriaRepository
         async atualizar(id: number, data: Partial<CriarCategoriaDTO>) {
             const categoria = await repo.findOne({ where: { id } });
             if (!categoria) return null;
-            repo.merge(categoria, data as any);
+            repo.merge(categoria, data);
             await repo.save(categoria);
             return this.obterPorId(id);
         },

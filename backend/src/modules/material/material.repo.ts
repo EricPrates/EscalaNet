@@ -37,7 +37,7 @@ export function fazerMaterialNucleoRepo(dataSource: DataSource): IMaterialReposi
         async atualizar(id: number, data: AtualizarMaterialDTO): Promise<Material | null> {
             const material = await repo.findOne({ where: { id } });
             if (!material) return null;
-            repo.merge(material, data as any);
+            repo.merge(material, data);
             await repo.save(material);
             return this.obterPorId(id, { nucleo: true });
         },

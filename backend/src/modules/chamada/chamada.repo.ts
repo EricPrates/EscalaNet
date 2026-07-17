@@ -32,7 +32,7 @@ export function fazerChamadaRepo(dataSource: DataSource): IChamadaRepository {
         async atualizar(id: number, data: Partial<CriarChamadaDTO>) {
             const chamada = await repo.findOne({ where: { id } });
             if (!chamada) return null;
-            repo.merge(chamada, data as any);
+            repo.merge(chamada, data);
             await repo.save(chamada);
             return this.obterPorId(id);
         },
