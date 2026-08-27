@@ -4,8 +4,7 @@ import { z } from 'zod';
 import { criarIncludesSchema } from '../../shared/utils/query.schema';
 import { Usuario } from './Usuario.model';
 import { FindOptionsWhere, ILike } from 'typeorm';
-import { SchemaRefEvento, SchemaRefJogo, SchemaRefNucleo, SchemaRefTreino } from '../../shared/utils/ref.schemas';
-
+import { SchemaRefEvento, SchemaRefJogo, SchemaRefTreino } from '../../shared/utils/ref.schemas';
 
 export const SchemaBaseUsuario = z.object({
     nome: z.string().min(1, "O nome do usuário é obrigatório"),
@@ -14,7 +13,9 @@ export const SchemaBaseUsuario = z.object({
         error: "Permissão inválida. Use: admin, professor, arbitro ou auxiliar",
     }),
     senha: z.string().min(6, "A senha deve conter no mínimo 6 caracteres"),
-    nucleoVinculadoId: z.number().int().positive("ID do núcleo deve ser um número inteiro positivo"),
+    nucleoVinculadoId: z.number().int().positive("ID do núcleo deve ser um número inteiro positivo").nullable().optional(),
+    responsavelNucleoId: z.number().int().positive("ID do responsável pelo núcleo deve ser um número inteiro positivo").nullable().optional(),
+    telefone: z.string().max(11, "O telefone deve ter no máximo 11 caracteres").optional().nullable(),
 }).transform(({ nucleoVinculadoId, ...resto }) => ({
     ...resto,
     nucleoVinculado: nucleoVinculadoId ? { id: nucleoVinculadoId } : undefined,
@@ -27,12 +28,15 @@ export const SchemaLoginUsuario = z.object({
 });
 
 
+
 export const SchemaUsuarioResumido = z.object({
     id: z.number().int().positive(),
     nome: z.string().min(1),
     email: z.email(),
     permissao: z.enum(['admin', 'professor', 'arbitro', 'auxiliar']),
-    nucleoVinculado: SchemaRefNucleo.nullable().optional(), // objeto completo ou null
+    nucleoVinculado: z.object({
+        id: z.number().int().positive(),
+    }).nullable().optional(),
 });
 
 export const SchemaUsuarioDetalhado = SchemaUsuarioResumido.extend({
@@ -52,6 +56,7 @@ export const SchemaAtualizarUsuario = z.object({
     }).optional(),
     senha: z.string().min(6, "A senha deve conter no mínimo 6 caracteres").optional(),
     nucleoVinculadoId: z.number().int().positive("ID do núcleo deve ser um número inteiro positivo").nullable().optional(),
+    telefone: z.string().max(11, "O telefone deve ter no máximo 11 caracteres").optional().nullable(),
 }).transform(({ nucleoVinculadoId, ...resto }) => ({
     ...resto,
     nucleoVinculado: nucleoVinculadoId ? { id: nucleoVinculadoId } : undefined,
@@ -66,6 +71,7 @@ export const SchemaFiltrosUsuario = z.object({
     email: z.email().optional(),
     permissao: z.enum(['admin', 'professor', 'arbitro', 'auxiliar']).optional(),
     nucleoVinculadoId: z.coerce.number().int().positive().optional(),
+    telefone: z.string().max(11, "O telefone deve ter no máximo 11 caracteres").optional().nullable(),
 }).transform(filtros => {
     const where: FindOptionsWhere<Usuario> = {};
     if (filtros.id) where.id = filtros.id;
@@ -73,6 +79,7 @@ export const SchemaFiltrosUsuario = z.object({
     if (filtros.email) where.email = ILike(filtros.email);
     if (filtros.permissao) where.permissao = filtros.permissao;
     if (filtros.nucleoVinculadoId) where.nucleoVinculado = { id: filtros.nucleoVinculadoId };
+    if (filtros.telefone) where.telefone = ILike(`%${filtros.telefone}%`);
     return where;
 });;
 

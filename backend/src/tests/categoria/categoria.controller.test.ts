@@ -31,7 +31,7 @@ describe('CategoriaController', () => {
         app.put('/categorias/:id', controller.atualizarCategoria);
         app.delete('/categorias/:id', controller.deletarCategoria);
 
-        app.use((err: any, req: any, res: any, next: any) => {
+        app.use((err: any, _req: any, res: any, _next: any) => {
             if (err instanceof AppError) {
                 return res.status(err.statusCode).json({ message: err.message });
             }

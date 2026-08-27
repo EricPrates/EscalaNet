@@ -31,7 +31,8 @@ export class NucleoEntityFactory {
             times: [],
             treinos: [],
             usuariosVinculados: [],
-            materiais: {} as Nucleo, // auto-relacionamento, pode ser undefined ou nulo
+            eventosJogo: [],
+            materiais: {} as Material[], // auto-relacionamento, pode ser undefined ou nulo
             createdAt: new Date(),
             updatedAt: new Date(),
         };
@@ -127,8 +128,11 @@ export class JogadorEntityFactory {
             eventos: [],
             ativo: true,
             telefone: '(11) 99999-9999',
+            responsavel: 'Responsável A',
+            cpf: '123.456.789-00',
             createdAt: new Date(),
             updatedAt: new Date(),
+            matricula: 'MAT12345',
         };
         return { ...base, ...params };
     }

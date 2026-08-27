@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { IClassificacaoService } from "./classificacao.interfaces";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
-import { QueryIncludesClassificacao, SchemaAtualizarClassificacao, SchemaBuscarPorIdClassificacao, SchemaCriarClassificacao, SchemaFiltrosClassificacao } from "./classificacao.schemas";
+import { SchemaAtualizarClassificacao, SchemaBuscarPorIdClassificacao, SchemaCriarClassificacao, SchemaFiltrosClassificacao } from "./classificacao.schemas";
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
 
 
@@ -21,14 +21,14 @@ export function fazerClassificacaoController(service: IClassificacaoService) {
        async listarClassificacoes(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
             const filtro = SchemaFiltrosClassificacao.parse(req.query);
-            const { includes } = QueryIncludesClassificacao.parse(req.query);
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const includesRelations = transformarIncludesEmRelations(includes);
             const { data, meta } = await service.listar(pagina, limite, filtro, includesRelations);
             return res.status(200).json(montarRespostaPaginada('Classificações listadas com sucesso', data, meta));
         },
 
         async obterClassificacaoPorId(req: Request, res: Response) {
-            const { includes } = QueryIncludesClassificacao.parse(req.query);
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const includesRelations = transformarIncludesEmRelations(includes);
             const { id } = SchemaBuscarPorIdClassificacao.parse(req.params);
             const classificacao = await service.obterPorId(id, includesRelations);

@@ -7,7 +7,7 @@ import {
     SchemaRelatorioDesempenho,
 } from './relatorio.schemas';
 import { fazerRelatorioRepo } from './relatorio.repo';
-import { AppDataSource } from '../../data-source';
+import { AppDataSource } from '../../../data-source';
 import { PDFService } from '../../shared/servicosExternos/pdf.service';
 
 const relatorioRepo = fazerRelatorioRepo(AppDataSource);

@@ -47,7 +47,7 @@ export const fazerUsuarioService = (usuarioRepo: IUsuarioRepository): IUsuarioSe
                     throw new AppError(403, 'Acesso negado a usuário fora do núcleo vinculado');
                 }
             }
-            return SchemaUsuarioDetalhado.parse(usuario);
+            return usuario;
         },
 
         async criar(data: CriarUsuarioDTO): Promise<RespostaUsuarioDTO> {
@@ -75,7 +75,7 @@ export const fazerUsuarioService = (usuarioRepo: IUsuarioRepository): IUsuarioSe
             };
             const usuario = await usuarioRepo.criar(usuarioData);
             if (!usuario) throw new AppError(500, 'Erro ao criar usuário');
-            return SchemaUsuarioResumido.parse(usuario);
+            return usuario;
         },
         async obterPorEmail(email: string): Promise<RespostaUsuarioDTO> {
             const usuario = await usuarioRepo.obterPorEmail(email);
@@ -117,6 +117,8 @@ export const fazerUsuarioService = (usuarioRepo: IUsuarioRepository): IUsuarioSe
             if (!usuarioAtualizado) {
                 throw new AppError(500, 'Erro ao atualizar usuário');
             }
+
+
 
 
             return SchemaUsuarioResumido.parse(usuarioAtualizado);

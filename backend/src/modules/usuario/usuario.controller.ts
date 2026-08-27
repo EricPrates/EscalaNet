@@ -1,18 +1,20 @@
 import { IUsuarioService } from "./usuario.interfaces";
 import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
-import { SchemaBaseUsuario, SchemaBuscarPorIdUsuario, QueryIncludesUsuario, SchemaFiltrosUsuario, SchemaLoginUsuario, SchemaAtualizarUsuario } from "./usuario.schemas";
+import { SchemaBaseUsuario, SchemaBuscarPorIdUsuario, SchemaFiltrosUsuario, SchemaLoginUsuario, SchemaAtualizarUsuario } from "./usuario.schemas";
 import gerarToken from "../../shared/utils/gerarToken";
 import { SchemaPaginacaoQuery } from '../../shared/utils/listas.schema';
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
 
 
 
+
 export function fazerUsuarioController(service: IUsuarioService) {
     return {
         async listarUsuarios(req: Request, res: Response) {
+            console.log("Cheguei aqui ")
             const { limite, pagina } = SchemaPaginacaoQuery.parse(req.query);
-            const { includes } = QueryIncludesUsuario.parse(req.query);
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const filtros = SchemaFiltrosUsuario.parse(req.query);
             const includesRelations = transformarIncludesEmRelations(includes);
             const { data, meta } = await service.listar(pagina, limite, filtros, includesRelations);
@@ -20,7 +22,7 @@ export function fazerUsuarioController(service: IUsuarioService) {
         },
         async obterUsuarioPorId(req: Request, res: Response) {
             const { id } = SchemaBuscarPorIdUsuario.parse(req.params);
-            const { includes } = QueryIncludesUsuario.parse(req.query);
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const includesRelations = transformarIncludesEmRelations(includes);
             const usuario = await service.obterPorId(id, includesRelations);
             return res.status(200).json(montarRespostaSucesso('Usuário obtido com sucesso', usuario));
@@ -29,6 +31,7 @@ export function fazerUsuarioController(service: IUsuarioService) {
 
         async criarUsuario(req: Request, res: Response) {
             const data = SchemaBaseUsuario.parse(req.body);
+            console.log('Data recebida no controller:', data);
             const usuario = await service.criar(data);
             return res.status(201).json(montarRespostaSucesso('Usuário criado com sucesso', usuario));
         },

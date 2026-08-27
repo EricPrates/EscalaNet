@@ -11,7 +11,10 @@ export class Jogador {
 
     @PrimaryGeneratedColumn()
     id!: number;
-
+    @Column({ type: "varchar", length: 255, nullable: false })
+    responsavel!: string;
+    @Column({ type: "varchar", length: 255, nullable: false })
+    cpf!: string;
     @Index()
     @Column({ type: "varchar", length: 255, nullable: false })
     nome!: string;
@@ -51,6 +54,7 @@ export class Jogador {
     @OneToMany(() => EventosJogo, (eventos) => eventos.jogadorEnvolvido)
     eventos!: EventosJogo[];
 
-
+    @Column({ type: "varchar", length: 50, nullable: false })
+    matricula!: string;
 
 }

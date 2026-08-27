@@ -1,13 +1,13 @@
 import "reflect-metadata";
 import express, { Request, Response } from "express"; // ← adicionar Request, Response
-import { AppDataSource } from "./data-source";
+import { AppDataSource } from "../data-source";
 import dotenv from "dotenv";
 import cors from "cors";
 import { middlewareTokenContexto } from "./shared/Middlewares/middlewareTokenContexto";
 import { errorHandler } from "./shared/Middlewares/erroHandler";
 import { usuarioController } from './shared/factory/container';
 import { validate } from "./shared/Middlewares/validadorSchema";
-import { SchemaBaseUsuario, SchemaLoginUsuario } from "./modules/usuario/usuario.schemas";
+import { SchemaLoginUsuario } from "./modules/usuario/usuario.schemas";
 import nucleoRoutes from "./modules/nucleo/nucleo.routes";
 import usuarioRoutes from "./modules/usuario/usuario.routes";
 import categoriaRoutes from "./modules/categoria/categoria.routes";
@@ -24,6 +24,7 @@ import treinoRoutes from "./modules/treino/treino.routes";
 import postagemRoutes, { routerProtected as postagemAdminRoutes } from "./modules/postagem/postagem.routes";
 import uploadRoutes from "./modules/upload/upload.routes";
 import relatorioRoutes from "./modules/relatorio/relatorio.routes";
+import dashRoutes from "./modules/dash/dash.routes";
 
 dotenv.config();
 
@@ -44,10 +45,8 @@ app.get('/', (_req: Request, res: Response) => {
 
 
 app.post('/login', validate(SchemaLoginUsuario, 'body'), usuarioController.login);
-app.post('/usuario', validate(SchemaBaseUsuario, 'body'), usuarioController.criarUsuario);
-
-app.use('/postagens', postagemRoutes);
 app.use(middlewareTokenContexto);
+app.use('/postagens', postagemRoutes);
 app.use('/admin/postagens', postagemAdminRoutes);
 
 uploadRoutes(app);   
@@ -65,7 +64,7 @@ frequenciaRoutes(app);
 chamadaRoutes(app);
 treinoRoutes(app);
 relatorioRoutes(app);
-
+dashRoutes(app); 
 
 
 app.use(errorHandler);
@@ -76,7 +75,7 @@ const PORT: number = process.env.PORT ? parseInt(process.env.PORT) : 3000;
   try {
     await AppDataSource.initialize();
     app.listen(PORT, () => {
-      console.log(`EscalaNet rodando na porta ${PORT}`);
+      console.log(`EscalaNet rodando na porta ${PORT} ` + `banco de dados conectado: ${AppDataSource.options.database}`);
     });
   } catch (error) {
     console.error("Erro ao iniciar o servidor:", error);

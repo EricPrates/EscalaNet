@@ -7,6 +7,10 @@ import { AppError } from "../utils/AppError";
 
 
 export async function middlewareTokenContexto(req: Request, _res: Response, next: NextFunction): Promise<void> {
+    const publicRoutes = ['/login', '/postagens'];
+    if (publicRoutes.some(route => req.path.startsWith(route))) {
+        return next();
+    }
     const authHeader = req.headers.authorization;
     let decoded: AuthContext | null = null;
     if (!authHeader) {
@@ -24,6 +28,7 @@ export async function middlewareTokenContexto(req: Request, _res: Response, next
     if (!decoded) {
         throw new AppError(401, 'Token inválido');
     }
+    console.log('decoded no middleware:', decoded);
      authStorage.run(decoded, () => next());
 
 };

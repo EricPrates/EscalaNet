@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, Index, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, Index, OneToOne } from 'typeorm';
 import { Treino } from '../treino/Treino.model';
 import { Time } from '../time/time.model';
 
@@ -7,6 +7,8 @@ import { Chamada } from '../chamada/chamada.model';
 import { EventosJogo } from '../eventos_jogo/EventosJogo.model';
 import { Frequencia } from '../frequencia/frequencia.model';
 import { Jogador } from '../jogador/jogador.model';
+import { Material } from '../material/material.model';
+import { Eventos } from '../eventos/Eventos.model';
 
 
 
@@ -15,12 +17,18 @@ export class Nucleo {
     @PrimaryGeneratedColumn()
     id!: number;
 
+    @Column({ type: "varchar", length: 20, nullable: true })
+    telefone?: string;
+    @OneToOne(() => Usuario, (usuario) => usuario.responsavelNucleo, { nullable: true })
+    responsavelNucleo?: Usuario;
+
     @OneToMany(() => EventosJogo, (eventosJogo) => eventosJogo.nucleo)
-    eventos!: EventosJogo[];
+    eventosJogo!: EventosJogo[];
 
     @Index()
     @Column({ type: "varchar", length: 255, nullable: false })
     nome!: string; 
+
 
     @OneToMany(() => Jogador, (jogador) => jogador.nucleo)
     jogadores!: Jogador[];
@@ -40,7 +48,6 @@ export class Nucleo {
     @UpdateDateColumn({ name: "updated_at" })
     updatedAt!: Date;
 
-   
     @OneToMany(() => Time, (time) => time.nucleo)
     times!: Time[]; 
 
@@ -50,10 +57,10 @@ export class Nucleo {
     @OneToMany(() => Usuario, (usuario) => usuario.nucleoVinculado)
     usuariosVinculados!: Usuario[];
 
-    @ManyToOne(() => Nucleo, (nucleo) => nucleo.materiais)
-    @JoinColumn({ name: "nucleo_recebedor_id"})
-    materiais!: Nucleo; 
+    @OneToMany(() => Material, (material) => material.nucleo)
+    materiais!: Material[]; 
 
-
+    @OneToMany(() => Eventos, (eventos) => eventos.nucleo)
+    eventos?: Eventos[];
 
 }

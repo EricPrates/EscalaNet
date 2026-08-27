@@ -5,7 +5,7 @@ import { Between, FindOptionsWhere, ILike } from 'typeorm';
 import { Categoria } from './Categoria.model';
 import { criarIncludesSchema } from '../../shared/utils/query.schema';
 import { SchemaRefJogo,  SchemaRefTime } from '../../shared/utils/ref.schemas';
-import da from 'zod/v4/locales/da.cjs';
+
 
 export const SchemaCriarCategoria = z.object({
     nome: z.string().min(1, "O nome da categoria é obrigatório"),
@@ -21,6 +21,7 @@ export const SchemaBaseCategoria = z.object({
     ativa: z.boolean().default(true),
     times: z.array(SchemaRefTime).optional(),
     jogos: z.array(SchemaRefJogo).optional(),
+    
     createdAt: z.date().optional().default(() => new Date()),
     updatedAt: z.date().optional(),
 });

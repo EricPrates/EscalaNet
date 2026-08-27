@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { montarRespostaPaginada,  montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { IChamadaService } from "./chamada.interfaces";
-import { SchemaCriarChamada, SchemaFiltrosChamada, SchemaBuscarPorIdChamada, QueryIncludesChamada, SchemaChamadaData, AtualizarChamadaSchema } from './chamada.schemas';
+import { SchemaCriarChamada, SchemaFiltrosChamada, SchemaBuscarPorIdChamada, SchemaChamadaData, AtualizarChamadaSchema } from './chamada.schemas';
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
 
 export function fazerChamadaController(service: IChamadaService) {
@@ -10,14 +10,14 @@ export function fazerChamadaController(service: IChamadaService) {
         async listarChamadas(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
             const filtro = SchemaFiltrosChamada.parse(req.query);
-            const { includes } = QueryIncludesChamada.parse(req.query);
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const includesRelations = transformarIncludesEmRelations(includes);
             const { data, meta } = await service.listar(pagina, limite, filtro, includesRelations);
             return res.status(200).json(montarRespostaPaginada('Chamadas listadas com sucesso', data, meta));
         },
 
         async obterChamadaPorId(req: Request, res: Response) {
-            const { includes } = QueryIncludesChamada.parse(req.query);
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const includesRelations = transformarIncludesEmRelations(includes);
             const { id } = SchemaBuscarPorIdChamada.parse(req.params);
             const chamada = await service.obterPorId(id, includesRelations);

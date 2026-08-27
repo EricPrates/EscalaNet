@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { IJogoService } from "./jogo.interfaces";
-import { SchemaBaseJogo, SchemaBuscarPorIdJogo, SchemaAtualizarJogo, QueryIncludesJogo, SchemaFiltrosJogo } from "./jogo.schemas";
+import { SchemaBaseJogo, SchemaBuscarPorIdJogo, SchemaAtualizarJogo, SchemaFiltrosJogo } from "./jogo.schemas";
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
 
 export function fazerJogoController(service: IJogoService) {
@@ -10,7 +10,7 @@ export function fazerJogoController(service: IJogoService) {
         async listarJogos(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
             const filtros = SchemaFiltrosJogo.parse(req.query);
-            const{includes} = QueryIncludesJogo.parse(req.query);
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const includesRelations = transformarIncludesEmRelations(includes);
             const { data, meta } = await service.listar(pagina, limite, filtros, includesRelations);
             return res.status(200).json(montarRespostaPaginada('Jogos listados com sucesso', data, meta));
@@ -22,7 +22,7 @@ export function fazerJogoController(service: IJogoService) {
             return res.status(200).json(montarRespostaSucesso('Total de jogos contado com sucesso', { total }));
         },
         async obterJogoPorId(req: Request, res: Response) {
-            const { includes } = QueryIncludesJogo.parse(req.query);
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const includesRelations = transformarIncludesEmRelations(includes);
             const { id } = SchemaBuscarPorIdJogo.parse(req.params);
             const jogo = await service.obterPorId(id, includesRelations);

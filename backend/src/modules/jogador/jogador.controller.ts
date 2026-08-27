@@ -13,7 +13,8 @@ export function fazerJogadorController(service: IJogadorService) {
         async listarJogadores(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
             const filtros = SchemaFiltrosJogador.parse(req.query);
-            const { includes } = QueryIncludesJogador.parse(req.query);
+            console.log('includes recebidos:', req.query.includes);
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const includesRelations = transformarIncludesEmRelations(includes);
             const { data, meta } = await service.listar(pagina, limite, filtros, includesRelations);
             return res.status(200).json(montarRespostaPaginada('Jogadores listados com sucesso', data, meta));

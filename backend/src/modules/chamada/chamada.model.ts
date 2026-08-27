@@ -31,6 +31,7 @@ export class Chamada {
     @ManyToOne(() => Time, (time) => time.chamadas, { nullable: false })
     @JoinColumn({ name: "time_id" })
     time!: Time;
+    
 
     @OneToMany(() => Frequencia, (freq) => freq.chamada)
     frequencias!: Frequencia[];

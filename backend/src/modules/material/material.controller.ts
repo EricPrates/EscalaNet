@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { IMaterialService } from "./material.interfaces";
-import { QueryIncludesMaterial, SchemaAtualizarMaterial, SchemaBuscarPorIdMaterial, SchemaFiltrosMaterial, SchemaBaseMaterial } from "./material.schemas";
+import { SchemaAtualizarMaterial, SchemaBuscarPorIdMaterial, SchemaFiltrosMaterial, SchemaBaseMaterial } from "./material.schemas";
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
 
 export function fazerMaterialNucleoController(service: IMaterialService) {
@@ -10,14 +10,14 @@ export function fazerMaterialNucleoController(service: IMaterialService) {
         async listarMateriais(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
             const filtros = SchemaFiltrosMaterial.parse(req.query);
-            const { includes } = QueryIncludesMaterial.parse(req.query);
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const includesRelations = transformarIncludesEmRelations(includes);
             const { data, meta } = await service.listar(pagina, limite, filtros, includesRelations);
             return res.status(200).json(montarRespostaPaginada('Materiais listados com sucesso', data, meta));
         },
 
         async obterMaterialPorId(req: Request, res: Response) {
-            const { includes } = QueryIncludesMaterial.parse(req.query);
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const includesRelations = transformarIncludesEmRelations(includes);
             const { id } = SchemaBuscarPorIdMaterial.parse(req.params);
             const material = await service.obterPorId(id, includesRelations);

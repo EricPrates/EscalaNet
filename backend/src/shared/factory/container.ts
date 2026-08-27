@@ -1,4 +1,4 @@
-import { AppDataSource } from "../../data-source";
+import { AppDataSource } from "../../../data-source";
 
 // Usuario
 import { fazerUsuarioRepo } from "../../modules/usuario/usuario.repo";

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
 import { SchemaRefCategoria, SchemaRefUsuario, SchemaRefChamada, SchemaRefEvento, SchemaRefTime } from '../../shared/utils/ref.schemas';
-import { FindOptionsWhere, ILike } from 'typeorm';
+import { Between, FindOptionsWhere, ILike } from 'typeorm';
 import { Jogo } from './Jogo.model';
 import { criarIncludesSchema } from '../../shared/utils/query.schema';
 
@@ -38,25 +38,30 @@ export const SchemaJogoResposta = z.object({
 export const SchemaFiltrosJogo = z.object({
     id: z.coerce.number().int().positive('ID do jogo deve ser um número inteiro positivo').optional(),
     nome: z.string('Nome do jogo é obrigatório').optional(),
-    timeAId: z.number().int().positive({ message: "ID do time A deve ser um número inteiro positivo e é obrigatório" }).optional(),
-    timeBId: z.number().int().positive({ message: "ID do time B deve ser um número inteiro positivo e é obrigatório" }).optional(),
+    timeA: z.number().int().positive({ message: "ID do time A deve ser um número inteiro positivo e é obrigatório" }).optional(),
+    timeB: z.number().int().positive({ message: "ID do time B deve ser um número inteiro positivo e é obrigatório" }).optional(),
     arbitroId: z.number().int().positive({ message: "ID do árbitro deve ser um número inteiro positivo" }).nullable().optional(),
-    categoriaId: z.number().int().positive({ message: "ID da categoria deve ser um número inteiro positivo" }).nullable().optional(),
+    categoria: z.number().int().positive({ message: "ID da categoria deve ser um número inteiro positivo" }).nullable().optional(),
     golsTimeA: z.coerce.number().int().nonnegative('Gols do time A deve ser um número inteiro não negativo').optional(),
     golsTimeB: z.coerce.number().int().nonnegative('Gols do time B deve ser um número inteiro não negativo').optional(),
     data: z.coerce.date('Data do jogo deve ser uma data válida').optional(),
+    dataInicial: z.coerce.date('Data inicial deve ser uma data válida').optional(),
+    dataFinal: z.coerce.date('Data final deve ser uma data válida').optional(),
 }).transform(filtros => {
     const where: FindOptionsWhere<Jogo> = {};
 
     if (filtros.id) where.id = filtros.id;
     if (filtros.nome) where.nome = ILike(`%${filtros.nome}%`);
-    if (filtros.timeAId) where.timeA = { id: filtros.timeAId };
-    if (filtros.timeBId) where.timeB = { id: filtros.timeBId };
+    if (filtros.timeA) where.timeA = { id: filtros.timeA };
+    if (filtros.timeB) where.timeB = { id: filtros.timeB };
     if (filtros.arbitroId) where.arbitro = { id: filtros.arbitroId };
-    if (filtros.categoriaId) where.categoria = { id: filtros.categoriaId };
+    if (filtros.categoria) where.categoria = { id: filtros.categoria };
     if (filtros.golsTimeA !== undefined) where.golsTimeA = filtros.golsTimeA;
     if (filtros.golsTimeB !== undefined) where.golsTimeB = filtros.golsTimeB;
     if (filtros.data) where.data = filtros.data;
+    if(filtros.dataInicial && filtros.dataFinal) {
+        where.data = Between(filtros.dataInicial, filtros.dataFinal);
+    }
     return where;
 });
 

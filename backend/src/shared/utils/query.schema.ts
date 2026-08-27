@@ -26,6 +26,7 @@ export function criarIncludesSchema(relacoesPermitidas: readonly string[]) {
 }
 
 export function transformarIncludesEmRelations(includes: string[]): FindOptionsRelations<any> {
+    console.log('Includes recebidos para transformação em relations:', includes);
     return includes.reduce((acc, rel) => ({ ...acc, [rel]: true }), {});
 }
 

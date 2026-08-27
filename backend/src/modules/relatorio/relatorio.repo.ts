@@ -9,7 +9,7 @@ import {
 export function fazerRelatorioRepo(dataSource: DataSource) {
     return {
         async frequencia(filtros: FiltrosRelatorioFrequenciaDTO): Promise<RelatorioFrequenciaDTO> {
-            // Monta a query base de chamadas
+           
             let chamadaQuery = dataSource
                 .createQueryBuilder()
                 .select('ch.id', 'chamadaId')

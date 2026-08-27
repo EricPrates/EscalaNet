@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { IFrequenciaService } from "./frequencia.interfaces";
-import { QueryIncludesFrequencia, SchemaAtualizarFrequencia, SchemaBaseFrequencia, SchemaFiltroFrequencia, SchemaFrequenciaId } from './frequencia.schemas';
+import { SchemaAtualizarFrequencia, SchemaBaseFrequencia, SchemaFiltroFrequencia, SchemaFrequenciaId } from './frequencia.schemas';
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
 
 
@@ -11,7 +11,7 @@ export function fazerFrequenciaController(service: IFrequenciaService) {
         async listarFrequencias(req: Request, res: Response) {
             
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
-            const { includes } = QueryIncludesFrequencia.parse(req.query);
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const filtros = SchemaFiltroFrequencia.parse(req.query);
             const includesRelations = transformarIncludesEmRelations(includes);
             const { data, meta } = await service.listar(pagina, limite, filtros, includesRelations);
@@ -19,7 +19,7 @@ export function fazerFrequenciaController(service: IFrequenciaService) {
         },
 
         async obterFrequenciaPorId(req: Request, res: Response) {
-            const { includes } = QueryIncludesFrequencia.parse(req.query);
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const includesRelations = transformarIncludesEmRelations(includes);
             const { id } = SchemaFrequenciaId.parse(req.params);
             const frequencia = await service.obterPorId(id, includesRelations);

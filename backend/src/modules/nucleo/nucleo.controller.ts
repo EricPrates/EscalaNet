@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
-import { SchemaBaseNucleo, SchemaAtualizarNucleo, SchemaFiltrosNucleo, QueryIncludesNucleo, SchemaIdNucleo } from "./nucleo.schemas";
+import { SchemaBaseNucleo, SchemaAtualizarNucleo, SchemaFiltrosNucleo, SchemaIdNucleo } from "./nucleo.schemas";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { INucleoService } from "./nucleo.interfaces";
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
@@ -12,15 +12,17 @@ export function fazerNucleoController(service: INucleoService) {
         async listarNucleos(req: Request, res: Response) {
             const {limite, pagina} = SchemaPaginacaoQuery.parse(req.query);
             const filtros = SchemaFiltrosNucleo.parse(req.query);
-            const {includes} = QueryIncludesNucleo.parse(req.query);
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const includesRelations = transformarIncludesEmRelations(includes);
             const { data, meta } = await service.listar(pagina, limite, filtros, includesRelations);
             return res.status(200).json(montarRespostaPaginada('Núcleos listados com sucesso', data, meta));
         },
      
         async obterNucleoPorId(req: Request, res: Response) {
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
+            const includesRelations = transformarIncludesEmRelations(includes);
             const  id  = SchemaIdNucleo.parse(req.params);
-            const nucleo = await service.obterPorId(id);
+            const nucleo = await service.obterPorId(id, includesRelations);
             return res.status(200).json(montarRespostaSucesso('Núcleo obtido com sucesso', nucleo));
         },
 

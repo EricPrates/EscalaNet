@@ -25,6 +25,7 @@ export class Frequencia {
     nucleo!: Nucleo;
     
     @ManyToOne(() => Chamada, (chamada) => chamada.frequencias)
+    @JoinColumn({ name: "chamada_id" })
     chamada!: Chamada;
 
 }

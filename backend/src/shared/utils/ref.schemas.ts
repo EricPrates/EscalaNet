@@ -21,8 +21,8 @@ export const SchemaRefCompeticao = z.object({
     nome: z.string(),
 });
 export const SchemaRefNucleo = z.object({
-    id: z.number().int().positive(),
-    nome: z.string(),
+    id: z.number().int().positive().optional(),
+    nome: z.string().optional(),
 });
 
 export const SchemaRefCategoria = z.object({

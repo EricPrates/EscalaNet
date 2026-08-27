@@ -4,6 +4,7 @@ import { Treino } from "../treino/Treino.model";
 import { Jogo } from "../jogo/Jogo.model";
 import { EventosJogo } from "../eventos_jogo/EventosJogo.model";
 import { Postagem } from "../postagem/postagem.model";
+import { Eventos } from "../eventos/Eventos.model";
 
 
 
@@ -12,6 +13,9 @@ export class Usuario {
     @PrimaryGeneratedColumn()
     id!: number;
 
+    @OneToOne(() => Nucleo, (nucleo) => nucleo.responsavelNucleo, { nullable: true })
+    responsavelNucleo?: Nucleo;
+    
     @Index()
     @Column({ type: "varchar", length: 255, nullable: false })
     nome!: string;
@@ -49,8 +53,14 @@ export class Usuario {
     jogos?: Jogo[];
 
     @OneToMany(() => EventosJogo, (eventos) => eventos.usuario)
-    eventos?: EventosJogo[];
+    eventosJogo?: EventosJogo[];
     @OneToOne(() => Postagem, (postagem) => postagem.autor)
     postagem?: Postagem;
+
+    @ManyToMany(() => Eventos, (eventos) => eventos.usuarios)
+    eventos?: Eventos[];
+
+    @Column({ type: "varchar", length: 20, default: true })
+    telefone?: string;
 }
 

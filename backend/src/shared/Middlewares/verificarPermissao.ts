@@ -6,8 +6,11 @@ import { SchemaId } from '../utils/util.types';
 export const verificarPermissao = (...permissoesNecessarias: string[]) => {
 
     return (_req: Request, _res: Response, next: NextFunction) => {
-        const usuario = authStorage.getStore();
-        if (!usuario) {
+       const usuario = authStorage.getStore();
+        
+        if (!usuario?.id) {
+            console.log("entrei no error")
+            console.log(usuario)
             throw new AppError(401);
         }
         if (!permissoesNecessarias || permissoesNecessarias.length === 0) {

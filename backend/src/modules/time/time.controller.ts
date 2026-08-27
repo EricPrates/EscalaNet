@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { ITimeService } from "./time.interfaces";
-import { QueryIncludesTime, SchemaAtualizarTime,  SchemaBuscarPorIdTime, SchemaCriarTime, SchemaFiltrosTime } from './time.schemas';
+import { SchemaAtualizarTime,  SchemaBuscarPorIdTime, SchemaCriarTime, SchemaFiltrosTime } from './time.schemas';
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
 
 export function fazerTimeController(service: ITimeService) {
@@ -10,14 +10,14 @@ export function fazerTimeController(service: ITimeService) {
         async listarTimes(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
             const filtros = SchemaFiltrosTime.parse(req.query);
-            const { includes } = QueryIncludesTime.parse(req.query);
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const includesRelations = transformarIncludesEmRelations(includes);
             const { data, meta } = await service.listar(pagina, limite, filtros, includesRelations);
             return res.status(200).json(montarRespostaPaginada('Times listados com sucesso', data, meta));
         },
 
         async obterTimePorId(req: Request, res: Response) {
-            const { includes } = QueryIncludesTime.parse(req.query);
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const includesRelations = transformarIncludesEmRelations(includes);
             const { id } = SchemaBuscarPorIdTime.parse(req.params);
             const time = await service.obterPorId(id, includesRelations);

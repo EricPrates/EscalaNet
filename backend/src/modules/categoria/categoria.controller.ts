@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { ICategoriaService } from "./categoria.interfaces";
-import { SchemaFiltrosCategoria, SchemaCriarCategoria, SchemaBuscarPorIdCategoria, QueryIncludesCategoria, SchemaAtualizarCategoria } from './categoria.schemas';
+import { SchemaFiltrosCategoria, SchemaCriarCategoria, SchemaBuscarPorIdCategoria, SchemaAtualizarCategoria } from './categoria.schemas';
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
 
 export function fazerCategoriaController(service: ICategoriaService) {
@@ -10,7 +10,7 @@ export function fazerCategoriaController(service: ICategoriaService) {
         async listarCategorias(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
             const filtros = SchemaFiltrosCategoria.parse(req.query);
-            const { includes } = QueryIncludesCategoria.parse(req.query);
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const includesRelations = transformarIncludesEmRelations(includes);
             const { data, meta } = await service.listar(pagina, limite, filtros, includesRelations);
             return res.status(200).json(montarRespostaPaginada('Categorias listadas com sucesso', data, meta));
@@ -18,7 +18,7 @@ export function fazerCategoriaController(service: ICategoriaService) {
 
         async obterCategoriaPorId(req: Request, res: Response) {
             const { id } = SchemaBuscarPorIdCategoria.parse(req.params);
-            const { includes } = QueryIncludesCategoria.parse(req.query);
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const includesRelations = transformarIncludesEmRelations(includes);
             const categoria = await service.obterPorId(id, includesRelations);
             return res.status(200).json(montarRespostaSucesso('Categoria obtida com sucesso', categoria));

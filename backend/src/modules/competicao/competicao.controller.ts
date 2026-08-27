@@ -10,7 +10,7 @@ export function fazerCompeticaoController(service: ICompeticaoService) {
         async listarCompeticoes(req: Request, res: Response) {
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
             const filtros = SchemaFiltrosCompeticao.parse(req.query);
-            const { includes } = QueryIncludesCompeticao.parse(req.query);
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const includesRelations = transformarIncludesEmRelations(includes);
             const { data, meta } = await service.listar(pagina, limite, filtros, includesRelations);
             return res.status(200).json(montarRespostaPaginada('Competições listadas com sucesso', data, meta));

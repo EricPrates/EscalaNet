@@ -28,7 +28,7 @@ export const SchemaJogadorId = z.object({
 
 export const SchemaFrequenciaResposta = z.object({
     id: z.coerce.number().int().positive(),
-    presente: z.boolean(),
+    presente: z.boolean().optional(),
     jogador: SchemaRefJogador,
     treino: SchemaRefTreino.optional(),
     jogo: SchemaRefJogo.nullable().optional(),
@@ -36,11 +36,13 @@ export const SchemaFrequenciaResposta = z.object({
 });
 
 export const SchemaFiltroFrequencia = z.object({
-    chamadaId: z.number().int().positive('ID da chamada deve ser um número inteiro positivo').optional(),
-    presente: z.boolean('Presente deve ser um valor booleano').optional(),
-    jogadorId: z.number().int().positive('ID do jogador deve ser um número inteiro positivo').optional(),
+    dataInicio: z.coerce.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+    dataFim: z.coerce.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+    chamadaId: z.coerce.number().int().positive('ID da chamada deve ser um número inteiro positivo').optional(),
+    presente: z.coerce.boolean('Presente deve ser um valor booleano').optional(),
+    jogadorId: z.coerce.number().int().positive('ID do jogador deve ser um número inteiro positivo').optional(),
     justificativa: z.string('Justificativa deve ser uma string').optional(),
-    nucleoId: z.number().int().positive('ID do núcleo deve ser um número inteiro positivo').optional(),
+    nucleoId: z.coerce.number().int().positive('ID do núcleo deve ser um número inteiro positivo').optional(),
 }).transform(filtros => {
     const where: FindOptionsWhere<Frequencia> = {};
     

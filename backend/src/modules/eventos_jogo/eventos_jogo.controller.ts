@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { IEventoJogoService } from "./eventos_jogo.interfaces";
-import { QueryIncludesEventosJogo, SchemaAtualizarEventoJogo, SchemaBaseEventoJogo, SchemaBuscarPorIdEventoJogo, SchemaFiltroEventoJogo } from "./eventos_jogo.schemas";
+import { SchemaAtualizarEventoJogo, SchemaBaseEventoJogo, SchemaBuscarPorIdEventoJogo, SchemaFiltroEventoJogo } from "./eventos_jogo.schemas";
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
 
 
@@ -11,7 +11,7 @@ export function fazerEventoJogoController(service: IEventoJogoService) {
     return {
         async listarEventos(req: Request, res: Response) {
             const where = SchemaFiltroEventoJogo.parse(req.query);
-            const { includes } = QueryIncludesEventosJogo.parse(req.query);
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const queryIncludes = transformarIncludesEmRelations(includes);
             const { pagina, limite } = SchemaPaginacaoQuery.parse(req.query);
             const { data, meta } = await service.listar(pagina, limite, where, queryIncludes);
@@ -20,7 +20,7 @@ export function fazerEventoJogoController(service: IEventoJogoService) {
 
 
         async obterEventoPorId(req: Request, res: Response) {
-            const { includes } = QueryIncludesEventosJogo.parse(req.query);
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const includesRelations = transformarIncludesEmRelations(includes);
             const { id } = SchemaBuscarPorIdEventoJogo.parse(req.params);
             const evento = await service.obterPorId(id, includesRelations);

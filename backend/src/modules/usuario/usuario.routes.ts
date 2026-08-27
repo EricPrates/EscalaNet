@@ -4,7 +4,7 @@ import { verificarPermissao } from '../../shared/Middlewares/verificarPermissao'
 
 const router = express.Router();
 
-router.get('/', verificarPermissao('admin', 'professor'), usuarioController.listarUsuarios);
+router.get('/', verificarPermissao('admin'), usuarioController.listarUsuarios);
 router.get('/:id', verificarPermissao('admin', 'professor'), usuarioController.obterUsuarioPorId);
 router.post('/', verificarPermissao('admin'), usuarioController.criarUsuario);
 router.put('/:id', verificarPermissao('admin'), usuarioController.atualizarUsuario);

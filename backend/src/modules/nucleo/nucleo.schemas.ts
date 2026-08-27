@@ -28,6 +28,7 @@ export const SchemaFiltrosNucleo = z.object({
     endereco: z.string('Endereço do núcleo é uma string').optional(),
     updateAt: z.coerce.date('Data de atualização deve ser uma data válida').optional(),
     createdAt: z.coerce.date('Data de criação deve ser uma data válida').optional(),
+    telefone: z.string('Telefone do núcleo é uma string').optional().nullable(),
 }).transform(filtros => {
     const where: FindOptionsWhere<Nucleo> = {};
     filtros.id !== undefined && (where.id = filtros.id);
@@ -39,6 +40,8 @@ export const SchemaFiltrosNucleo = z.object({
         where.createdAt = filtros.createdAt;
         where.updatedAt = filtros.updateAt;
     }
+    if (filtros.telefone) where.telefone = ILike(`%${filtros.telefone}%`);
+   
     return where;
 });
 
@@ -53,6 +56,7 @@ export const SchemaNucleoResposta = SchemaBaseNucleo.extend({
     id: z.coerce.number().int().positive(),
     eventos:z.array(z.object(SchemaRefEvento)).optional(),
     nome: z.string(),
+    telefone: z.string().optional(),
     endereco: z.string().optional(),
     jogadores: z.array(z.object(SchemaRefJogador)).optional(),
     frequencias: z.array(z.object(SchemaRefFrequencia)).optional(),
@@ -60,7 +64,8 @@ export const SchemaNucleoResposta = SchemaBaseNucleo.extend({
     times: z.array(z.object(SchemaRefTime)).optional(),
     treinos: z.array(z.object(SchemaRefTreino)).optional(),
     usuariosVinculados:z.array(z.object(SchemaRefUsuario)).optional(),
-    materiais: z.array(z.object(SchemaRefMaterial)).optional()
+    materiais: z.array(z.object(SchemaRefMaterial)).optional(),
+    responsavelNucleo: z.object(SchemaRefUsuario).optional().nullable(),
 });
 
 export const RELACOES_NUCLEO = ['materiais', 'times', 'treinos'] as const;

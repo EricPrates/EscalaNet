@@ -13,6 +13,8 @@ export class Material {
     @JoinColumn({ name: "nucleo_id" })
     nucleo!: Nucleo; 
 
+    @Column({ type: "varchar", length: 255, nullable: false })
+    nome!: string;
 
     @Column({ type: "int", nullable: false })
     quantidade!: number; 
