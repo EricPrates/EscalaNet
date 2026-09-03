@@ -19,6 +19,7 @@ export class Nucleo {
 
     @Column({ type: "varchar", length: 20, nullable: true })
     telefone?: string;
+    
     @OneToOne(() => Usuario, (usuario) => usuario.responsavelNucleo, { nullable: true })
     responsavelNucleo?: Usuario;
 

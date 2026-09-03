@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { montarRespostaPaginada, montarRespostaSucesso } from "../../shared/utils/construtorResposta";
 import { SchemaPaginacaoQuery } from "../../shared/utils/listas.schema";
 import { IJogadorService } from "./jogador.interfaces";
-import { QueryIncludesJogador,  SchemaAtualizarJogador, SchemaBuscarPorIdJogador, SchemaCriarJogador, SchemaFiltrosJogador } from "./jogador.schemas";
+import {   SchemaAtualizarJogador, SchemaBuscarPorIdJogador, SchemaCriarJogador, SchemaFiltrosJogador } from "./jogador.schemas";
 import { getContext } from "../../shared/utils/authStorage";
 import { AppError } from "../../shared/utils/AppError";
 import { transformarIncludesEmRelations } from "../../shared/utils/query.schema";
@@ -25,7 +25,7 @@ export function fazerJogadorController(service: IJogadorService) {
             const nucleoId = getContext()!.nucleoVinculadoId;
             if (!nucleoId) throw new AppError(400, 'Núcleo não vinculado');
             const filtros = SchemaFiltrosJogador.parse( { nucleoId } );
-            const { includes } = QueryIncludesJogador.parse(req.query);
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const includesRelations = transformarIncludesEmRelations(includes);
 
             const { data, meta } = await service.listar(pagina, limite, filtros, includesRelations);
@@ -34,7 +34,7 @@ export function fazerJogadorController(service: IJogadorService) {
 
         async obterJogadorPorId(req: Request, res: Response) {
             const {id} =SchemaBuscarPorIdJogador.parse(req.params);
-            const { includes } = QueryIncludesJogador.parse(req.query);
+            const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const includesRelations = transformarIncludesEmRelations(includes);
         
             const jogador = await service.obterPorId(Number(id), includesRelations);

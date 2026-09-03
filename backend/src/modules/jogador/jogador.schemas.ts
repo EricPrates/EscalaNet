@@ -14,7 +14,7 @@ export const SchemaCriarJogador = z.object({
     dataNascimento: z.coerce.date({ error: "Data de nascimento inválida" }),
     ativo: z.boolean().default(true),
     telefone: z.string().max(20).optional(),
-    timeId: z.coerce.number().int().positive({ message: "ID do time deve ser um número inteiro positivo" }).optional(),
+    timeId: z.coerce.number().int().positive({ message: "ID do time deve ser um número inteiro positivo" }).optional().nullable(),
     nucleoId: z.coerce.number().int().positive({ message: "ID do núcleo deve ser um número inteiro positivo" }).optional(),
     matricula: z.string(),
 }).transform(({ timeId, nucleoId, ...resto }) => ({
@@ -31,15 +31,17 @@ export const SchemaJogadorResumido = z.object({
     nome: z.string(),
     dataNascimento: z.coerce.date(),
     ativo: z.boolean(),
-    telefone: z.string().nullable().optional(),
+    telefone: z.string().optional(),
     matricula: z.string().optional(),
+    cpf: z.string().optional(),
 });
 export const SchemaJogadorDetalhado = SchemaJogadorResumido.extend({
     createdAt: z.coerce.date().optional(),
     updatedAt: z.coerce.date().optional(),
     eventos: z.array(SchemaRefEvento).optional(),
-    time: SchemaRefTime.optional(),
+    time: SchemaRefTime.optional().nullable(),
     nucleo : SchemaRefNucleo.optional(),
+    responsavel: z.string().optional(),
 
 });
 
@@ -72,6 +74,7 @@ export const SchemaFiltrosJogador = z.object({
     responsavel: z.string().optional(),
     cpf: z.string().optional(),
     matricula: z.string().optional(),
+    
 }).transform(filtros => {
     const where: FindOptionsWhere<Jogador> = {};
     

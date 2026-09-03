@@ -60,6 +60,7 @@ export class UsuarioEntityFactory {
             postagem: undefined,
             createdAt: new Date(),
             updatedAt: new Date(),
+            telefone: '(11) 99999-9999',
         };
         return { ...base, ...params };
     }
@@ -254,6 +255,7 @@ export class MaterialEntityFactory {
     static create(params?: Partial<Material>): Material {
         const base: Material = {
             id: 1,
+            nome: 'Material A',
             nucleo: NucleoEntityFactory.create({ id: 1 }),
             quantidade: 10,
             dataRecebimento: new Date(),

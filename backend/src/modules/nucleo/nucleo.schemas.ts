@@ -48,6 +48,7 @@ export const SchemaFiltrosNucleo = z.object({
 export const SchemaBaseNucleo = z.object({
     nome: z.string().min(1, "O nome do núcleo é obrigatório"),
     endereco: z.string().max(1000, "O endereço deve conter no máximo 1000 caracteres").optional(),
+    telefone: z.string().max(20, "O telefone deve ter no máximo 20 caracteres").optional(),
 });
    
 
@@ -56,7 +57,7 @@ export const SchemaNucleoResposta = SchemaBaseNucleo.extend({
     id: z.coerce.number().int().positive(),
     eventos:z.array(z.object(SchemaRefEvento)).optional(),
     nome: z.string(),
-    telefone: z.string().optional(),
+    telefone: z.string().optional().nullable(),
     endereco: z.string().optional(),
     jogadores: z.array(z.object(SchemaRefJogador)).optional(),
     frequencias: z.array(z.object(SchemaRefFrequencia)).optional(),

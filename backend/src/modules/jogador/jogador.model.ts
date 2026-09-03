@@ -36,7 +36,7 @@ export class Jogador {
     @Index()
     @ManyToOne(() => Time, (time) => time.jogadores)
     @JoinColumn({ name: "time_id" })
-    time!: Time;
+    time?: Time;
 
     @ManyToMany(() => Treino, (treino) => treino.jogadores)
     treinos!: Treino[];
@@ -47,9 +47,8 @@ export class Jogador {
     @Column({ type: "boolean", default: true })
     ativo!: boolean;
 
-    @Index()
     @Column({ type: "varchar", length: 20, nullable: true })
-    telefone?: string;
+    telefone!: string;
     
     @OneToMany(() => EventosJogo, (eventos) => eventos.jogadorEnvolvido)
     eventos!: EventosJogo[];

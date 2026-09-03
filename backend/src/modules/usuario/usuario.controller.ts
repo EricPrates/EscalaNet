@@ -31,7 +31,6 @@ export function fazerUsuarioController(service: IUsuarioService) {
 
         async criarUsuario(req: Request, res: Response) {
             const data = SchemaBaseUsuario.parse(req.body);
-            console.log('Data recebida no controller:', data);
             const usuario = await service.criar(data);
             return res.status(201).json(montarRespostaSucesso('Usuário criado com sucesso', usuario));
         },

@@ -32,12 +32,12 @@ export function fazerJogadorRepo(dataSource: DataSource): IJogadorRepository {
             }) || null;
         },
 
-        async criar(data: CriarJogadorDTO) {
+        async criar(data: CriarJogadorDTO): Promise<Jogador> {
             const jogador = repo.create(data);
             return repo.save(jogador);
         },
 
-        async atualizar(id: number, data: Partial<CriarJogadorDTO>) {
+        async atualizar(id: number, data: Partial<CriarJogadorDTO>): Promise<Jogador | null> {
             const jogador = await repo.findOne({ where: { id } });
             if (!jogador) return null;
             repo.merge(jogador, data);

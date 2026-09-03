@@ -1,4 +1,4 @@
-import { DataSource, FindOptionsRelations, FindOptionsWhere } from "typeorm";
+import { DataSource, DeepPartial, FindOptionsRelations, FindOptionsWhere } from "typeorm";
 import { IUsuarioRepository } from "./usuario.interfaces";
 import { Usuario } from "./Usuario.model";
 import { CriarUsuarioDTO } from './usuario.schemas';
@@ -39,13 +39,14 @@ export function fazerUsuarioRepo(dataSource: DataSource): IUsuarioRepository {
             }) || null;
         },
 
-        async criar(data: CriarUsuarioDTO) {
-            const usuario = repo.create(data);
+        async criar(data: CriarUsuarioDTO): Promise<Usuario> {
+            const usuario = repo.create(data as DeepPartial<Usuario>);
             return repo.save(usuario);
         },
 
 
-        async atualizar(id: number, data: Partial<CriarUsuarioDTO>) {
+
+        async atualizar(id: number, data: CriarUsuarioDTO): Promise<Usuario | null> {
             const usuario = await repo.findOne({ where: { id } });
             if (!usuario) return null;
             repo.merge(usuario, data);

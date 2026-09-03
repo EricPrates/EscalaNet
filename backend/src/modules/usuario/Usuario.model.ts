@@ -60,7 +60,7 @@ export class Usuario {
     @ManyToMany(() => Eventos, (eventos) => eventos.usuarios)
     eventos?: Eventos[];
 
-    @Column({ type: "varchar", length: 20, default: true })
-    telefone?: string;
+    @Column({ type: "varchar", length: 20, nullable: true })
+    telefone!: string;
 }
 

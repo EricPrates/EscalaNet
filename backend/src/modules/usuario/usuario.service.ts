@@ -72,6 +72,8 @@ export const fazerUsuarioService = (usuarioRepo: IUsuarioRepository): IUsuarioSe
                 senha: hashSenha,
                 permissao: data.permissao,
                 nucleoVinculado: { id: data.nucleoVinculado.id },
+                telefone: data.telefone,
+                responsavelNucleo: data.responsavelNucleo ? { id: data.responsavelNucleo.id } : undefined,
             };
             const usuario = await usuarioRepo.criar(usuarioData);
             if (!usuario) throw new AppError(500, 'Erro ao criar usuário');

@@ -15,11 +15,13 @@ export const SchemaBaseUsuario = z.object({
     senha: z.string().min(6, "A senha deve conter no mínimo 6 caracteres"),
     nucleoVinculadoId: z.number().int().positive("ID do núcleo deve ser um número inteiro positivo").nullable().optional(),
     responsavelNucleoId: z.number().int().positive("ID do responsável pelo núcleo deve ser um número inteiro positivo").nullable().optional(),
-    telefone: z.string().max(11, "O telefone deve ter no máximo 11 caracteres").optional().nullable(),
-}).transform(({ nucleoVinculadoId, ...resto }) => ({
+    telefone: z.string().max(11, "O telefone deve ter no máximo 11 caracteres").optional(),
+}).transform(({ nucleoVinculadoId, responsavelNucleoId, ...resto }) => ({
     ...resto,
     nucleoVinculado: nucleoVinculadoId ? { id: nucleoVinculadoId } : undefined,
-}));
+    responsavelNucleo: responsavelNucleoId ? { id: responsavelNucleoId } : undefined,
+})); 
+
     
 export const SchemaLoginUsuario = z.object({
     email: z.email("Email inválido"),
@@ -37,6 +39,7 @@ export const SchemaUsuarioResumido = z.object({
     nucleoVinculado: z.object({
         id: z.number().int().positive(),
     }).nullable().optional(),
+    telefone: z.string().max(11, "O telefone deve ter no máximo 11 caracteres").optional(),
 });
 
 export const SchemaUsuarioDetalhado = SchemaUsuarioResumido.extend({
@@ -56,7 +59,7 @@ export const SchemaAtualizarUsuario = z.object({
     }).optional(),
     senha: z.string().min(6, "A senha deve conter no mínimo 6 caracteres").optional(),
     nucleoVinculadoId: z.number().int().positive("ID do núcleo deve ser um número inteiro positivo").nullable().optional(),
-    telefone: z.string().max(11, "O telefone deve ter no máximo 11 caracteres").optional().nullable(),
+    telefone: z.string().max(11, "O telefone deve ter no máximo 11 caracteres").optional(),
 }).transform(({ nucleoVinculadoId, ...resto }) => ({
     ...resto,
     nucleoVinculado: nucleoVinculadoId ? { id: nucleoVinculadoId } : undefined,
@@ -71,7 +74,7 @@ export const SchemaFiltrosUsuario = z.object({
     email: z.email().optional(),
     permissao: z.enum(['admin', 'professor', 'arbitro', 'auxiliar']).optional(),
     nucleoVinculadoId: z.coerce.number().int().positive().optional(),
-    telefone: z.string().max(11, "O telefone deve ter no máximo 11 caracteres").optional().nullable(),
+    telefone: z.string().max(11, "O telefone deve ter no máximo 11 caracteres").optional(),
 }).transform(filtros => {
     const where: FindOptionsWhere<Usuario> = {};
     if (filtros.id) where.id = filtros.id;
