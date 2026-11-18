@@ -1,7 +1,7 @@
 import { IUsuarioRepository, IUsuarioService } from "./usuario.interfaces";
 import { AppError } from "../../shared/utils/AppError";
 import bcrypt from 'bcrypt';
-import { RespostaUsuarioDTO, CriarUsuarioDTO, AtualizarUsuarioDTO, SchemaUsuarioResumido, SchemaUsuarioDetalhado } from './usuario.schemas';
+import { RespostaUsuarioDTO, CriarUsuarioDTO, AtualizarUsuarioDTO, SchemaUsuarioResumido } from './usuario.schemas';
 import { SchemaRespostaPaginada } from "../../shared/utils/listas.schema";
 import { authStorage } from "../../shared/utils/authStorage";
 import { FindOptionsRelations, FindOptionsWhere } from "typeorm";
@@ -30,7 +30,7 @@ export const fazerUsuarioService = (usuarioRepo: IUsuarioRepository): IUsuarioSe
             }
             const { data, total } = await usuarioRepo.listar(pagina, limite, finalWhere, relations);
             const totalPaginas = Math.ceil(total / limite);
-            return SchemaRespostaPaginada(SchemaUsuarioDetalhado).parse({
+            return SchemaRespostaPaginada(SchemaUsuarioResumido).parse({
                 data: data,
                 meta: { pagina, limite, total, totalPaginas },
             });

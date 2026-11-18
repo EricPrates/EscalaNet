@@ -1,4 +1,4 @@
-import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Jogo } from "../jogo/Jogo.model";
 import { Time } from "../time/time.model";
 
@@ -25,4 +25,13 @@ export class Competicao {
 
     @Column({ type: "boolean", nullable: true, default: false })
     duplaVolta?: boolean;
+    
+    @Column({type: "varchar", length: 255, nullable: true, default: 'Em Andamento' })
+    status?: 'Encerrada' | 'Em Andamento' | 'Cancelada';
+
+    @CreateDateColumn({ name: "created_at" })
+    createdAt!: Date;
+
+    @UpdateDateColumn({ name: "updated_at" })
+    updatedAt!: Date;
 }

@@ -5,6 +5,7 @@ import { FindOptionsWhere, ILike } from 'typeorm';
 import { Nucleo } from './Nucleo.model';
 import { criarIncludesSchema } from '../../shared/utils/query.schema';
 import { SchemaRefChamada, SchemaRefEvento, SchemaRefFrequencia, SchemaRefJogador, SchemaRefMaterial, SchemaRefTime, SchemaRefTreino, SchemaRefUsuario } from '../../shared/utils/ref.schemas';
+import { SchemaAuditFields } from '../../shared/utils/audit.schema';
 
 
 
@@ -45,7 +46,7 @@ export const SchemaFiltrosNucleo = z.object({
     return where;
 });
 
-export const SchemaBaseNucleo = z.object({
+export const SchemaBaseNucleo = z.strictObject({
     nome: z.string().min(1, "O nome do núcleo é obrigatório"),
     endereco: z.string().max(1000, "O endereço deve conter no máximo 1000 caracteres").optional(),
     telefone: z.string().max(20, "O telefone deve ter no máximo 20 caracteres").optional(),
@@ -56,6 +57,7 @@ export const SchemaIdNucleo = z.number().int().positive('ID do núcleo deve ser 
 export const SchemaNucleoResposta = SchemaBaseNucleo.extend({
     id: z.coerce.number().int().positive(),
     eventos:z.array(z.object(SchemaRefEvento)).optional(),
+     ...SchemaAuditFields, 
     nome: z.string(),
     telefone: z.string().optional().nullable(),
     endereco: z.string().optional(),

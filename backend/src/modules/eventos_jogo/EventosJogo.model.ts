@@ -17,8 +17,8 @@ export class EventosJogo {
     @Column({ type: "varchar", length: 1000, nullable: true })
     descricao!: string | null;
 
-    @Column({ type: "int", nullable: false })
-    minuto!: number;
+    @Column({ type: "varchar", length: 6, nullable: false })
+    momento!: string;
 
     @Index()
     @ManyToOne(() => Jogo, (jogo) => jogo.eventos)

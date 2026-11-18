@@ -156,7 +156,7 @@ export class JogoEntityFactory {
             categoria: CategoriaEntityFactory.create({ id: 1 }),
             golsTimeA: 0,
             golsTimeB: 0,
-            finalizado: false,
+            status: 'AGENDADO',
             competicao: undefined,
             chave: 'R1-G1',
             eventos: [],
@@ -283,6 +283,8 @@ export class CompeticaoEntityFactory {
             duplaVolta: false,
             jogos: [],
             times: [],
+            createdAt: new Date(),
+            updatedAt: new Date(),
         };
         return { ...base, ...params };
     }

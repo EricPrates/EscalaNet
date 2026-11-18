@@ -12,6 +12,7 @@ export function fazerTimeController(service: ITimeService) {
             const filtros = SchemaFiltrosTime.parse(req.query);
             const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const includesRelations = transformarIncludesEmRelations(includes);
+          
             const { data, meta } = await service.listar(pagina, limite, filtros, includesRelations);
             return res.status(200).json(montarRespostaPaginada('Times listados com sucesso', data, meta));
         },

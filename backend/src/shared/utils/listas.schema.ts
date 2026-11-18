@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const SchemaPaginacaoQuery = z.object({
     pagina: z.coerce.number().int().positive().default(1),
-    limite: z.coerce.number().int().positive().max(100).default(10),
+    limite: z.coerce.number().int().positive().max(500).default(100),
 });
 
 export const SchemaRespostaPaginada = <T extends z.ZodType>(itemSchema: T) => z.object({

@@ -13,7 +13,7 @@ export function fazerMaterialNucleoService(materialRepo: IMaterialRepository): I
             const usuario = authStorage.getStore();
             let finalWhere: FindOptionsWhere<Material> = where ? { ...where } : {};
 
-            // Professor só vê materiais do próprio núcleo
+           
             if (usuario?.permissao === 'professor') {
                 if (!usuario.nucleoVinculadoId) throw new AppError(403, 'Professor sem núcleo vinculado');
                 finalWhere = { ...finalWhere, nucleo: { id: usuario.nucleoVinculadoId } };

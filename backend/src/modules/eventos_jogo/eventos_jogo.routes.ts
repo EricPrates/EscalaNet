@@ -13,5 +13,5 @@ router.delete('/:id', verificarPermissao('admin'), eventoJogoController.deletarE
 
 
 export default (app: express.Application) => {
-  app.use('/eventos', router);
+  app.use('/sumulas', router);
 };

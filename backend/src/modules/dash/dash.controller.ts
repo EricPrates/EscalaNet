@@ -121,12 +121,7 @@ export function fazerDash(dataSource: DataSource) {
             return res.status(200).json(montarRespostaSucesso('Contagem de jogadores obtida com sucesso', total));
         },
         async contagemdeNucleos(_req: Request, res: Response) {
-            const usuario = authStorage.getStore();
-
-
-            if (usuario?.permissao !== "admin") {
-                throw new AppError(403, 'Acesso negado: apenas administradores podem acessar este relatório');
-            }
+            
             const qb = dataSource.getRepository(Nucleo).createQueryBuilder('n');
             const total = await qb.getCount();
             return res.status(200).json(montarRespostaSucesso('Contagem de núcleos obtida com sucesso', total));

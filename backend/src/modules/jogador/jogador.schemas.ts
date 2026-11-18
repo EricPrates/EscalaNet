@@ -1,9 +1,11 @@
 import { z } from 'zod';
 import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
-import { SchemaRefEvento,  SchemaRefNucleo,  SchemaRefTime } from '../../shared/utils/ref.schemas';
-import { criarIncludesSchema } from '../../shared/utils/query.schema';
-import { FindOptionsWhere, ILike } from 'typeorm';
+import { SchemaRefCategoria, SchemaRefEvento,  SchemaRefNucleo,  SchemaRefTime } from '../../shared/utils/ref.schemas';
 import { Jogador } from './jogador.model';
+import { sexo } from './jogador.model';
+import { SchemaAuditFields } from '../../shared/utils/audit.schema';
+
+import { FindOptionsWhere, ILike } from 'typeorm';
 
 
 
@@ -17,10 +19,15 @@ export const SchemaCriarJogador = z.object({
     timeId: z.coerce.number().int().positive({ message: "ID do time deve ser um número inteiro positivo" }).optional().nullable(),
     nucleoId: z.coerce.number().int().positive({ message: "ID do núcleo deve ser um número inteiro positivo" }).optional(),
     matricula: z.string(),
-}).transform(({ timeId, nucleoId, ...resto }) => ({
+    sexo: z.enum(sexo, {
+        error: "Sexo inválido. Use 'M' para masculino ou 'F' para feminino"
+    }).optional().nullable(),
+    categoriasIds: z.array(z.coerce.number().int().positive({ message: "ID da categoria deve ser um número inteiro positivo" })).optional(),
+}).transform(({ timeId, nucleoId, categoriasIds, ...resto }) => ({
     ...resto,
     time: timeId ? { id: timeId } : undefined,
     nucleo: nucleoId? { id: nucleoId } : undefined,
+    categorias: categoriasIds ? categoriasIds.map(id => ({ id })) : undefined,
 }));
 
 export const SchemaBaseJogador = SchemaCriarJogador;
@@ -34,16 +41,19 @@ export const SchemaJogadorResumido = z.object({
     telefone: z.string().optional(),
     matricula: z.string().optional(),
     cpf: z.string().optional(),
+    sexo: z.string().optional().nullable(),
+      ...SchemaAuditFields, 
+      responsavel: z.string().optional(),
 });
 export const SchemaJogadorDetalhado = SchemaJogadorResumido.extend({
-    createdAt: z.coerce.date().optional(),
-    updatedAt: z.coerce.date().optional(),
     eventos: z.array(SchemaRefEvento).optional(),
     time: SchemaRefTime.optional().nullable(),
     nucleo : SchemaRefNucleo.optional(),
-    responsavel: z.string().optional(),
-
-});
+    categorias: z.array(SchemaRefCategoria).optional(),
+    treinos: z.array(z.any()).optional(),      
+    frequencias: z.array(z.any()).optional(), 
+    
+})
 
 export const SchemaBuscarPorIdJogador = z.object({
     id: z.coerce.number().int().positive("ID do jogador deve ser um número inteiro positivo"),
@@ -51,19 +61,28 @@ export const SchemaBuscarPorIdJogador = z.object({
 
 export type FiltrosJogadorDTO = z.infer<typeof SchemaFiltrosJogador>;
 export const SchemaAtualizarJogador = z.object({
-       nome: z.string().min(1, "O nome do jogador é obrigatório").optional(),
+    nome: z.string().min(1, "O nome do jogador é obrigatório").optional(),
     dataNascimento: z.coerce.date({ error: "Informe uma data de nascimento válida" }).optional(),
     ativo: z.boolean({ error: "O campo 'ativo' deve ser verdadeiro ou falso" }).optional(),
     telefone: z.string().max(20, "O telefone deve ter no máximo 20 caracteres").optional(),
+    matricula: z.string().optional(),
     time: z.object({
         id: z.coerce.number().int().positive("ID do time deve ser um número inteiro positivo"),
     }).optional(),
-    matricula: z.string().optional(),
+    
+    cpf: z.string().optional(),
+    responsavel: z.string().optional(),
+    nucleo: z.object({
+        id: z.coerce.number().int().positive("ID do núcleo deve ser um número inteiro positivo"),
+    }).optional(),
+    sexo: z.enum(sexo, {
+        error: "Sexo inválido. Use 'M' para masculino ou 'F' para feminino"
+    }).optional().nullable(),
 });
 export const SchemaJogadoresPaginados = SchemaRespostaPaginada(SchemaJogadorResumido);
 
 export const SchemaFiltrosJogador = z.object({
-    id:z.coerce.number().int().positive().optional(),
+    id: z.coerce.number().int().positive().optional(),
     nome: z.string().optional(),
     timeId: z.coerce.number().int().positive().optional(),
     treinadorId: z.coerce.number().int().positive().optional(),
@@ -74,28 +93,32 @@ export const SchemaFiltrosJogador = z.object({
     responsavel: z.string().optional(),
     cpf: z.string().optional(),
     matricula: z.string().optional(),
-    
+    sexo: z.enum(sexo).optional(),
 }).transform(filtros => {
     const where: FindOptionsWhere<Jogador> = {};
-    
     if (filtros.id) where.id = filtros.id;
     if (filtros.nome) where.nome = ILike(`%${filtros.nome}%`);
-    if (filtros.timeId) where.time = { id: filtros.timeId };
-    if (filtros.treinadorId) where.time = { treinador: { id: filtros.treinadorId } };
     if (filtros.ativo !== undefined) where.ativo = filtros.ativo;
     if (filtros.dataNascimento) where.dataNascimento = filtros.dataNascimento;
-    if (filtros.nucleoId) where.time = { nucleo: { id: filtros.nucleoId } };
-    if (filtros.categoriaId) where.time = { categoria: { id: filtros.categoriaId } };
     if (filtros.responsavel) where.responsavel = ILike(`%${filtros.responsavel}%`);
     if (filtros.cpf) where.cpf = ILike(`%${filtros.cpf}%`);
     if (filtros.matricula) where.matricula = ILike(`%${filtros.matricula}%`);
-    return where;
-});
+    if (filtros.sexo) where.sexo = filtros.sexo;
 
-export const RELACOES_JOGADOR = [ 'time, nucleo'] as const;
-export const QueryIncludesJogador = criarIncludesSchema(RELACOES_JOGADOR);
+    if (filtros.timeId) where.time = { id: filtros.timeId };
+    if (filtros.treinadorId) where.time = { treinador: { id: filtros.treinadorId } };
+    if (filtros.nucleoId) where.time = { nucleo: { id: filtros.nucleoId } };
+    if (filtros.categoriaId) where.time = { categorias: { id: filtros.categoriaId } };
+
+    return where; 
+
+});     
+
 
 export type CriarJogadorDTO = z.infer<typeof SchemaBaseJogador>;
 export type RespostaResumidaJogadorDTO = z.infer<typeof SchemaJogadorResumido>;
 export type AtualizarJogadorDTO = z.infer<typeof SchemaAtualizarJogador>;
 export type RespostaJogadorDetalhadoDTO = z.infer<typeof SchemaJogadorDetalhado>;
+
+
+

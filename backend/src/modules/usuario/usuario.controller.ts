@@ -12,10 +12,10 @@ import { transformarIncludesEmRelations } from "../../shared/utils/query.schema"
 export function fazerUsuarioController(service: IUsuarioService) {
     return {
         async listarUsuarios(req: Request, res: Response) {
-            console.log("Cheguei aqui ")
             const { limite, pagina } = SchemaPaginacaoQuery.parse(req.query);
             const { includes } = req.query.includes ? { includes: (req.query.includes as string).split(',') } : { includes: [] };
             const filtros = SchemaFiltrosUsuario.parse(req.query);
+           // Adicione este log para depuração
             const includesRelations = transformarIncludesEmRelations(includes);
             const { data, meta } = await service.listar(pagina, limite, filtros, includesRelations);
             return res.status(200).json(montarRespostaPaginada('Usuários listados com sucesso', data, meta));

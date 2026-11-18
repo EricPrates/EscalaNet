@@ -27,6 +27,7 @@ export function fazerJogoService(jogoRepo: IJogoRepository, timeRepo: ITimeRepos
 
             const { data, total } = await jogoRepo.listar(pagina, limite, finalWhere, relations);
             const totalPaginas = Math.ceil(total / limite);
+            console.log('Dados de listagem de jogos obtidos:', { data });
             return SchemaRespostaPaginada(SchemaJogoResposta).parse({
                 data,
                 meta: { pagina, limite, total, totalPaginas }

@@ -42,6 +42,7 @@ export function fazerCategoriaRepo(dataSource: DataSource): ICategoriaRepository
 
         async deletar(id: number) {
             const result = await repo.delete({ id });
+            console.log('Deletado:', result.affected);
             return (result.affected ?? 0) > 0;
         },
         

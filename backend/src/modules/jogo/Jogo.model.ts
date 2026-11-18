@@ -5,6 +5,7 @@ import { Categoria } from '../categoria/Categoria.model';
 import { Time } from '../time/time.model';
 import { Competicao } from '../competicao/Competicao.model';
 import { Chamada } from '../chamada/chamada.model';
+import { Nucleo } from '../nucleo/Nucleo.model';
 
 @Entity({ name: "jogos" })
 export class Jogo {
@@ -37,6 +38,11 @@ export class Jogo {
     @OneToMany(() => EventosJogo, (eventosJogo) => eventosJogo.jogo)
     eventos!: EventosJogo[];
 
+
+    @ManyToOne(() => Nucleo, (nucleo) => nucleo.jogos)
+    @JoinColumn({ name: "nucleo_id" })
+    nucleo?: Nucleo | null;
+    
     @Index()
     @ManyToOne(() => Categoria, (categoria) => categoria.jogos)
     @JoinColumn({ name: "categoria_id" })
@@ -50,8 +56,8 @@ export class Jogo {
     @Column({ type: "int", nullable: true, default:0 })
     golsTimeB!: number;
 
-    @Column({ type: "boolean", default: false })
-    finalizado!: boolean;
+    @Column({ type: "enum", enum: ['AGENDADO', 'EM_ANDAMENTO', 'FINALIZADO', 'CANCELADO'], default: 'AGENDADO' })
+    status!: JogoStatus;
 
     @OneToMany(() => Chamada, (chamada) => chamada.jogo)
     chamadas!: Chamada[];
@@ -61,7 +67,13 @@ export class Jogo {
     competicao?: Competicao | null;
 
     @Column({ type: "varchar", length: 50, nullable: true })
-    chave?: string; // campo para armazenar a posição no chaveamento, ex: "R1-G1" (Rodada 1, Jogo 1)
+    chave?: string; 
 
-    
+    @Column({ type: "varchar", length: 255, nullable: true })
+    horarioInicio?: string;
+
+    @Column({type: "varchar", length: 255, nullable: true})
+    horarioFim?: string
 }
+
+type JogoStatus = 'AGENDADO' | 'EM_ANDAMENTO' | 'FINALIZADO' | 'CANCELADO';

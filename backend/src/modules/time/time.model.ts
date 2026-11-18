@@ -1,4 +1,4 @@
-import { Column, ManyToOne, ManyToMany, OneToMany, PrimaryGeneratedColumn, Entity, Index, JoinColumn } from 'typeorm';
+import { Column, ManyToOne, ManyToMany, OneToMany, PrimaryGeneratedColumn, Entity, Index, JoinColumn, JoinTable } from 'typeorm';
 import { Nucleo } from "../nucleo/Nucleo.model";
 import { Jogador } from "../jogador/jogador.model";
 import { Categoria } from '../categoria/Categoria.model';
@@ -7,6 +7,7 @@ import { Jogo } from '../jogo/Jogo.model';
 import { EventosJogo } from '../eventos_jogo/EventosJogo.model';
 import { Competicao } from '../competicao/Competicao.model';
 import { Chamada } from '../chamada/chamada.model';
+
 
 @Entity({ name: "times" })
 export class Time {
@@ -21,10 +22,13 @@ export class Time {
     @JoinColumn({ name: "nucleo_id" })
     nucleo!: Nucleo;
 
-    @Index()
-    @ManyToOne(() => Categoria, { nullable: false })
-    @JoinColumn({ name: "categoria_id" })
-    categoria!: Categoria; 
+    @ManyToMany(() => Categoria, (categoria) => categoria.times)
+    @JoinTable({
+        name: "time_categorias",
+        joinColumn: { name: "time_id", referencedColumnName: "id" },
+        inverseJoinColumn: { name: "categoria_id", referencedColumnName: "id" },
+    })
+    categorias!: Categoria[];
 
     @Index()
     @ManyToOne(() => Usuario, { nullable: false })
@@ -48,4 +52,5 @@ export class Time {
 
     @OneToMany(() => Chamada, (chamada) => chamada.time)
     chamadas!: Chamada[];
+
 }

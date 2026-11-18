@@ -20,6 +20,8 @@ export function fazerTimeService(timeRepo: ITimeRepository): ITimeService {
                 };
             }
             const { data, total } = await timeRepo.listar(pagina, limite, finalWhere, relations);
+            console.log('RELATIONS:', relations);
+            console.log('RAW data[0]:', JSON.stringify(data[0], null, 2));
             return SchemaRespostaPaginada(SchemaTimeResposta).parse({
                 data: data,
                 meta: montarPaginacao(pagina, limite, total),

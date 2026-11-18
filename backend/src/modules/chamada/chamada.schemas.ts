@@ -4,6 +4,7 @@ import { criarIncludesSchema } from '../../shared/utils/query.schema';
 import { Between, FindOptionsWhere } from 'typeorm';
 import { Chamada } from './chamada.model';
 import { SchemaRefJogo, SchemaRefNucleo, SchemaRefTime, SchemaRefTreino } from '../../shared/utils/ref.schemas';
+import { SchemaAuditFields } from '../../shared/utils/audit.schema';
 
 
 
@@ -32,6 +33,7 @@ export const SchemaRepoChamada = z.object({
 
 export const SchemaBaseChamada = z.object({
     id: z.coerce.number().int().positive(),
+    ...SchemaAuditFields, 
     data: z.coerce.date({ message: "Data deve ser uma data válida" }),
     treino: z.object(SchemaRefTreino).optional(),
     jogo: z.object(SchemaRefJogo).optional(),

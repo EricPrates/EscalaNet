@@ -23,7 +23,7 @@ export function fazerJogoRepo(dataSource: DataSource): IJogoRepository {
         async contar(where?: FindOptionsWhere<Jogo>): Promise<number> {
             return await repo.count({ where });
         },
-
+        
         async obterPorId(id: number, relations?: FindOptionsRelations<Jogo>, select?: FindOptionsSelect<Jogo>) {
             return await repo.findOne({
                 where: { id },

@@ -14,7 +14,7 @@ export const SchemaBaseEventoJogo = z.object({
         error: 'Tipo de evento inválido. Use: gol, falta, cartao_amarelo, cartao_vermelho, escanteio ou substituicao',
     }),
     descricao: z.string().max(1000, 'Descrição deve ter no máximo 1000 caracteres').nullable().optional(),
-    minuto: z.number().int().nonnegative('Minuto deve ser um número inteiro não negativo'),
+    momento: z.string().max(6, 'Momento deve ter no máximo 6 caracteres').optional(),
     jogoId: z.number().int().positive('ID do jogo deve ser um número inteiro positivo'),
     usuarioId: z.number().int().positive('ID do usuário deve ser um número inteiro positivo'),
     nucleoId: z.number().int().positive('ID do núcleo deve ser um número inteiro positivo').optional(),
@@ -36,7 +36,7 @@ export const SchemaEventoJogoRespostaDetalhada = z.object({
     id: z.coerce.number().int().positive('ID deve ser um número inteiro positivo'),
     tipo: z.enum(TipoEvento),
     descricao: z.string().max(1000).nullable(),
-    minuto: z.number().int().nonnegative(),
+    momento: z.string().max(6).optional(),
     jogo: SchemaRefJogo.optional(),
     usuario: SchemaRefUsuario.optional(),
     nucleo: SchemaRefNucleo.optional(),
@@ -45,7 +45,7 @@ export const SchemaEventoJogoRespostaDetalhada = z.object({
 
 export const SchemaFiltroEventoJogo = z.object({
     tipo: z.enum(TipoEvento).optional(),
-    minuto: z.coerce.number().int().nonnegative().optional(),
+    momento: z.string().max(6).optional(),
     jogoId: z.coerce.number().int().positive().optional(),
     usuarioId: z.coerce.number().int().positive().optional(),
     nucleoId: z.coerce.number().int().positive().optional(),
@@ -56,7 +56,7 @@ export const SchemaFiltroEventoJogo = z.object({
     const where: FindOptionsWhere<EventosJogo> = {};
 
     if (filtros.tipo) where.tipo = filtros.tipo;
-    if (filtros.minuto !== undefined) where.minuto = filtros.minuto;
+    if (filtros.momento) where.momento = filtros.momento;
     if (filtros.jogoId) where.jogo = { id: filtros.jogoId };
     if (filtros.usuarioId) where.usuario = { id: filtros.usuarioId };
     if (filtros.jogadorEnvolvidoId) where.jogadorEnvolvido = { id: filtros.jogadorEnvolvidoId };

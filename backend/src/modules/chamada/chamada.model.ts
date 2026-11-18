@@ -19,7 +19,9 @@ export class Chamada {
     @Column({ type: 'date' })
     data!: Date;
 
-
+    @Column({ type: 'varchar', length: 255, nullable: false })
+    horario!: string;
+    
     @ManyToOne(() => Treino, { nullable: true })
     @JoinColumn({ name: "treino_id" })
     treino?: Treino;

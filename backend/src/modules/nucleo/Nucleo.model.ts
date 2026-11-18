@@ -9,6 +9,7 @@ import { Frequencia } from '../frequencia/frequencia.model';
 import { Jogador } from '../jogador/jogador.model';
 import { Material } from '../material/material.model';
 import { Eventos } from '../eventos/Eventos.model';
+import { Jogo } from '../jogo/Jogo.model';
 
 
 
@@ -19,7 +20,10 @@ export class Nucleo {
 
     @Column({ type: "varchar", length: 20, nullable: true })
     telefone?: string;
-    
+
+    @OneToMany(() => Jogo, (jogo) => jogo.nucleo)
+    jogos?: Jogo | null;
+
     @OneToOne(() => Usuario, (usuario) => usuario.responsavelNucleo, { nullable: true })
     responsavelNucleo?: Usuario;
 

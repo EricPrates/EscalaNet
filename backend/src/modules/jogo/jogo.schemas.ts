@@ -1,9 +1,10 @@
 import { z } from 'zod';
 import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
-import { SchemaRefCategoria, SchemaRefUsuario, SchemaRefChamada, SchemaRefEvento, SchemaRefTime } from '../../shared/utils/ref.schemas';
+import { SchemaRefCategoria, SchemaRefUsuario, SchemaRefChamada, SchemaRefEvento, SchemaRefTime, SchemaRefNucleo } from '../../shared/utils/ref.schemas';
 import { Between, FindOptionsWhere, ILike } from 'typeorm';
 import { Jogo } from './Jogo.model';
 import { criarIncludesSchema } from '../../shared/utils/query.schema';
+
 
 export const SchemaBaseJogo = z.object({
     nome: z.string().min(1, "O nome do jogo é obrigatório"),
@@ -12,13 +13,19 @@ export const SchemaBaseJogo = z.object({
     timeBId: z.number().int().positive({ message: "ID do time B deve ser um número inteiro positivo e é obrigatório" }),
     arbitroId: z.number().int().positive({ message: "ID do árbitro deve ser um número inteiro positivo" }).nullable().optional(),
     categoriaId: z.number().int().positive({ message: "ID da categoria deve ser um número inteiro positivo" }).nullable().optional(),
-
-}).transform(({ timeAId, timeBId, arbitroId, categoriaId, ...resto }) => ({
+    nucleoId: z.number().int().positive({ message: "ID do núcleo deve ser um número inteiro positivo" }).nullable(),
+    golsTimeA: z.coerce.number().int().nonnegative('Gols do time A deve ser um número inteiro não negativo').optional(),
+    golsTimeB: z.coerce.number().int().nonnegative('Gols do time B deve ser um número inteiro não negativo').optional(),
+    status: z.enum(['AGENDADO', 'EM_ANDAMENTO', 'FINALIZADO', 'CANCELADO']).optional(),
+    horarioInicio: z.string().optional(),
+    horarioFim: z.string().optional(),
+}).transform(({ timeAId, timeBId, arbitroId, categoriaId, nucleoId, ...resto }) => ({
     ...resto,
     timeA: { id: timeAId },
     timeB: { id: timeBId },
     arbitro: arbitroId ? { id: arbitroId } : undefined,
     categoria: categoriaId ? { id: categoriaId } : undefined,
+    nucleo: nucleoId ? { id: nucleoId } : undefined,
 }));
 
 export const SchemaJogoResposta = z.object({
@@ -31,9 +38,12 @@ export const SchemaJogoResposta = z.object({
     categoria: SchemaRefCategoria.nullable().optional(),
     golsTimeA: z.number(),
     golsTimeB: z.number(),
-    finalizado: z.boolean().optional(),
+    status: z.enum(['AGENDADO', 'EM_ANDAMENTO', 'FINALIZADO', 'CANCELADO']).optional(),
     chamadas: z.array(SchemaRefChamada).optional(),
     eventos: z.array(SchemaRefEvento).optional(),
+    nucleo: SchemaRefNucleo.nullable().optional(),
+    horarioInicio: z.string().optional().nullable(),
+    horarioFim: z.string().optional().nullable(),
 });
 export const SchemaFiltrosJogo = z.object({
     id: z.coerce.number().int().positive('ID do jogo deve ser um número inteiro positivo').optional(),
@@ -47,6 +57,10 @@ export const SchemaFiltrosJogo = z.object({
     data: z.coerce.date('Data do jogo deve ser uma data válida').optional(),
     dataInicial: z.coerce.date('Data inicial deve ser uma data válida').optional(),
     dataFinal: z.coerce.date('Data final deve ser uma data válida').optional(),
+    nucleoId: z.number().int().positive('ID do núcleo deve ser um número inteiro positivo').optional(),
+    status: z.enum(['AGENDADO', 'EM_ANDAMENTO', 'FINALIZADO', 'CANCELADO']).optional(),
+    horarioInicio: z.string().optional(),
+    horarioFim: z.string().optional(),
 }).transform(filtros => {
     const where: FindOptionsWhere<Jogo> = {};
 
@@ -62,10 +76,12 @@ export const SchemaFiltrosJogo = z.object({
     if(filtros.dataInicial && filtros.dataFinal) {
         where.data = Between(filtros.dataInicial, filtros.dataFinal);
     }
+    if (filtros.nucleoId) where.nucleo = { id: filtros.nucleoId };
+    if (filtros.status) where.status = filtros.status;
     return where;
 });
 
-export const RELACOES_JOGO = ['timeA', 'timeB', 'arbitro', 'categoria', 'competicao'] as const;
+export const RELACOES_JOGO = ['timeA', 'timeB', 'arbitro', 'categoria', 'competicao', 'nucleo'] as const;
 export const QueryIncludesJogo = criarIncludesSchema(RELACOES_JOGO);
 
 export const SchemaAtualizarJogo = z.object({
@@ -75,12 +91,20 @@ export const SchemaAtualizarJogo = z.object({
     timeBId: z.number().int().positive({ message: "ID do time B deve ser um número inteiro positivo e é obrigatório" }).optional(),
     arbitroId: z.number().int().positive({ message: "ID do árbitro deve ser um número inteiro positivo" }).nullable().optional(),
     categoriaId: z.number().int().positive({ message: "ID da categoria deve ser um número inteiro positivo" }).nullable().optional(),
-}).transform(({ timeAId, timeBId, arbitroId, categoriaId, ...resto }) => ({
+    nucleoId: z.number().int().positive({ message: "ID do núcleo deve ser um número inteiro positivo" }).nullable().optional(),
+    golsTimeA: z.coerce.number().int().nonnegative('Gols do time A deve ser um número inteiro não negativo').optional(),
+    golsTimeB: z.coerce.number().int().nonnegative('Gols do time B deve ser um número inteiro não negativo').optional(),
+    status: z.enum(['AGENDADO', 'EM_ANDAMENTO', 'FINALIZADO', 'CANCELADO']).optional(),
+    horarioIcinico: z.string().optional(),
+    horarioFim: z.string().optional(),
+}).transform(({ timeAId, timeBId, arbitroId, categoriaId, nucleoId, ...resto }) => ({
     ...resto,
     timeA: timeAId ? { id: timeAId } : undefined,
     timeB: timeBId ? { id: timeBId } : undefined,
     arbitro: arbitroId ? { id: arbitroId } : undefined,
-    categoria: categoriaId ? { id: categoriaId } : undefined
+    categoria: categoriaId ? { id: categoriaId } : undefined,
+    nucleo: nucleoId ? { id: nucleoId } : undefined,
+
 }));
 export const SchemaJogosPaginados = SchemaRespostaPaginada(SchemaJogoResposta);
 

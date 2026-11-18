@@ -50,6 +50,7 @@ export function fazerJogadorController(service: IJogadorService) {
         async atualizarJogador(req: Request, res: Response) {
             const { id } = SchemaBuscarPorIdJogador.parse(req.params);
             const data = SchemaAtualizarJogador.parse(req.body);
+            console.log('Dados recebidos para atualização:', data);
             const jogador = await service.atualizar(id, data);
             return res.status(200).json(montarRespostaSucesso('Jogador atualizado com sucesso', jogador));
         },

@@ -1,4 +1,4 @@
-import { DataSource,  FindOptionsRelations, FindOptionsSelect, FindOptionsWhere } from "typeorm";
+import { DataSource, FindOptionsRelations, FindOptionsSelect, FindOptionsWhere } from "typeorm";
 import { Time } from "./time.model";
 import { CriarTimeDTO } from "./time.schemas";
 import { ITimeRepository } from "./time.interfaces";
@@ -31,8 +31,8 @@ export function fazerTimeRepo(dataSource: DataSource): ITimeRepository {
         },
 
         async criar(data: CriarTimeDTO) {
-            const time = repo.create(data);
-            return repo.save(time);
+            const jogador = repo.create(data);
+            return repo.save(jogador);
         },
 
         async atualizar(id: number, data: Partial<CriarTimeDTO>) {

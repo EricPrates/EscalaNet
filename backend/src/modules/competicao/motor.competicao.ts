@@ -127,7 +127,7 @@ export async function gerarJogosCompeticao(
                     timeB,
                     golsTimeA: 0,
                     golsTimeB: 0,
-                    finalizado: false,
+                    status: 'AGENDADO',
                     competicao,
                     categoria: undefined,
                     arbitro: undefined,
@@ -162,7 +162,7 @@ export async function gerarJogosCompeticao(
                     timeB: b,
                     golsTimeA: 0,
                     golsTimeB: 0,
-                    finalizado: false,
+                    status: 'AGENDADO',
                     competicao,
                     categoria: undefined,
                     arbitro: undefined,
@@ -258,7 +258,7 @@ export async function recalcularClassificacao(
 
     // Processa apenas jogos finalizados (evita contar 0x0 de jogos não realizados)
     for (const jogo of jogos) {
-        if (!jogo.finalizado) continue;
+        if (jogo.status !== 'FINALIZADO') continue;
 
         const golsA = jogo.golsTimeA ?? 0;
         const golsB = jogo.golsTimeB ?? 0;
@@ -399,7 +399,7 @@ export async function avancarChaveamento(
 
     // Jogos finalizados com seus vencedores (mapeia chave -> timeId)
     const jogosFinalizados = await jogoRepo.find({
-        where: { competicao: { id: competicaoId }, finalizado: true },
+        where: { competicao: { id: competicaoId }, status: 'FINALIZADO' },
         relations: { timeA: true, timeB: true }
     });
     const vencedores = new Map<string, number>();

@@ -5,6 +5,8 @@ export const TipoEvento = [
     'cartao_vermelho',
     'escanteio',
     'substituicao',
+    'impedimento',
+    'outro',
 ] as const;
 
 export type TipoEventoType = typeof TipoEvento[number];

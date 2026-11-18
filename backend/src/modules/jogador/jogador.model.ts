@@ -4,7 +4,15 @@ import { Frequencia } from "../frequencia/frequencia.model";
 import { EventosJogo } from "../eventos_jogo/EventosJogo.model";
 import { Time } from "../time/time.model";
 import { Nucleo } from "../nucleo/Nucleo.model";
+import { Categoria } from "../categoria/Categoria.model";
 
+
+export const sexo = [
+    'M',
+    'F'
+] as const;
+
+export type SexoType = typeof sexo[number];
 @Index(["time", "dataNascimento"])
 @Entity({ name: "jogadores" })
 export class Jogador {
@@ -55,5 +63,11 @@ export class Jogador {
 
     @Column({ type: "varchar", length: 50, nullable: false })
     matricula!: string;
+
+    @Column({ type: "varchar", length: 1, nullable: true })
+    sexo!: SexoType | null ;
+
+    @ManyToMany(() => Categoria, (categoria) => categoria.jogadores)
+    categorias?: Categoria[];
 
 }

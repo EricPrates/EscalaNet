@@ -36,16 +36,14 @@ export const SchemaFrequenciaResposta = z.object({
 });
 
 export const SchemaFiltroFrequencia = z.object({
-    dataInicio: z.coerce.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-    dataFim: z.coerce.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
     chamadaId: z.coerce.number().int().positive('ID da chamada deve ser um número inteiro positivo').optional(),
-    presente: z.coerce.boolean('Presente deve ser um valor booleano').optional(),
+   presente: z.stringbool().optional(),
     jogadorId: z.coerce.number().int().positive('ID do jogador deve ser um número inteiro positivo').optional(),
     justificativa: z.string('Justificativa deve ser uma string').optional(),
     nucleoId: z.coerce.number().int().positive('ID do núcleo deve ser um número inteiro positivo').optional(),
 }).transform(filtros => {
     const where: FindOptionsWhere<Frequencia> = {};
-    
+
     if (filtros.presente !== undefined) where.presente = filtros.presente;
     if (filtros.jogadorId) where.jogador = { id: filtros.jogadorId };
     if (filtros.chamadaId) where.chamada = { id: filtros.chamadaId };

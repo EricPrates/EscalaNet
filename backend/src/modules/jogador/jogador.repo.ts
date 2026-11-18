@@ -44,7 +44,20 @@ export function fazerJogadorRepo(dataSource: DataSource): IJogadorRepository {
             await repo.save(jogador);
             return await this.obterPorId(id);
         },
-
+        async obterPorCpf(cpf: string, relations?: FindOptionsRelations<Jogador>, select?: FindOptionsSelect<Jogador>) {
+            return await repo.findOne({
+                where: { cpf },
+                relations,
+                select,
+            }) || null;
+        },
+        async obterPorMatricula(matricula: string, relations?: FindOptionsRelations<Jogador>, select?: FindOptionsSelect<Jogador>) {
+            return await repo.findOne({
+                where: { matricula },
+                relations,
+                select,
+            }) || null;
+        },
         async deletar(id: number) {
             const result = await repo.delete({ id });
             return (result.affected ?? 0) > 0;

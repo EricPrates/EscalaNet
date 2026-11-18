@@ -13,6 +13,9 @@ export const montarRespostaSucesso = (message: string | 'Sucesso na requisição
     if (data !== undefined) {
         response.data = data;
     }
+    if (data === null) {
+        response.data = null;
+    }
     if (token !== undefined) {
         response.token = token;
     }
@@ -32,7 +35,7 @@ export const montarRespostaPaginada = <T>(
             totalPaginas: meta.totalPaginas,
             pagina: meta.pagina,
             limite: meta.limite,
-        
+
         }
     };
 };

@@ -45,14 +45,34 @@ export function fazerJogadorService(jogadorRepo: IJogadorRepository): IJogadorSe
             if (!jogador) throw new AppError(404, 'Jogador não encontrado');
             return SchemaJogadorDetalhado.parse(jogador);
         },
-
+        async obterPorCpf(cpf: string, relations?: FindOptionsRelations<Jogador>): Promise<RespostaResumidaJogadorDTO> {
+            const usuario = authStorage.getStore();
+            if (!cpf) throw new AppError(400, 'CPF é obrigatório');
+            const jogador = await jogadorRepo.obterPorCpf(cpf, { ...relations, nucleo: true });
+            if (!jogador) throw new AppError(404, 'Jogador não encontrado');
+            if (usuario && usuario?.permissao !== "admin") {
+                if (!usuario.nucleoVinculadoId) throw new AppError(403, 'Professor sem núcleo');
+                if (jogador.nucleo && jogador.nucleo.id !== usuario.nucleoVinculadoId) {
+                    throw new AppError(403, 'Acesso negado a frequência fora do núcleo vinculado');
+                }
+            }
+            return SchemaJogadorDetalhado.parse(jogador);
+        },
         async criar(data: CriarJogadorDTO): Promise<RespostaJogadorDetalhadoDTO> {
             const usuario = authStorage.getStore();
             if (usuario && usuario?.permissao !== 'admin') {
                 if (!usuario.nucleoVinculadoId) throw new AppError(403, 'Professor sem núcleo');
-                data.nucleo = { id: usuario.nucleoVinculadoId };
-            } else if (!data.nucleo?.id) {
+            }
+            if (!data.nucleo?.id) {
                 throw new AppError(400, 'Núcleo é obrigatório');
+            }
+            const cpfExistente = await jogadorRepo.obterPorCpf(data.cpf);
+            if (cpfExistente) {
+                throw new AppError(409, 'CPF já cadastrado');
+            }
+            const matriculaExistente = await jogadorRepo.obterPorMatricula(data.matricula);
+            if (matriculaExistente) {
+                throw new AppError(409, 'Matrícula já cadastrada');
             }
             const jogador = await jogadorRepo.criar(data);
             return SchemaJogadorDetalhado.parse(jogador);
@@ -61,11 +81,24 @@ export function fazerJogadorService(jogadorRepo: IJogadorRepository): IJogadorSe
         async atualizar(id: number, data: Partial<CriarJogadorDTO>): Promise<RespostaResumidaJogadorDTO> {
             const usuario = authStorage.getStore();
             const verificarJogador = await jogadorRepo.obterPorId(id, { nucleo: true });
+            console.log('verificarJogador:', verificarJogador?.cpf);
             if (!verificarJogador) throw new AppError(404, 'Jogador não encontrado');
             if (usuario && usuario?.permissao !== 'admin') {
                 if (!usuario.nucleoVinculadoId) throw new AppError(403, 'Professor sem núcleo');
                 if (verificarJogador.nucleo.id !== usuario.nucleoVinculadoId) {
                     throw new AppError(403, 'Acesso negado a jogador fora do núcleo vinculado');
+                }
+            }
+            if(verificarJogador.cpf !== data.cpf) {
+                const cpfExistente = await jogadorRepo.obterPorCpf(data.cpf!);
+                if (cpfExistente) {
+                    throw new AppError(409, 'CPF já cadastrado');
+                }
+            }
+            if(verificarJogador.matricula !== data.matricula) {
+                const matriculaExistente = await jogadorRepo.obterPorMatricula(data.matricula!);
+                if (matriculaExistente) {
+                    throw new AppError(409, 'Matrícula já cadastrada');
                 }
             }
             const jogador = await jogadorRepo.atualizar(id, data);

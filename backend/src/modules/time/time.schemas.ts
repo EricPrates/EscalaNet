@@ -3,26 +3,35 @@ import { SchemaRespostaPaginada } from '../../shared/utils/listas.schema';
 import { criarIncludesSchema } from '../../shared/utils/query.schema';
 import { FindOptionsWhere, ILike } from 'typeorm';
 import { Time } from './time.model';
-import { SchemaRefCategoria, SchemaRefNucleo, SchemaRefUsuario } from '../../shared/utils/ref.schemas';
+import { SchemaRefCategoria, SchemaRefChamada, SchemaRefCompeticao, SchemaRefEvento, SchemaRefJogo, SchemaRefNucleo, SchemaRefUsuario } from '../../shared/utils/ref.schemas';
 
 export const SchemaBaseTime = z.object({
     nome: z.string().min(1, 'O nome do time é obrigatório'),
-    nucleoId: z.coerce.number().int().positive("ID do núcleo deve ser um número inteiro positivo").optional(),
-    categoriaId: z.coerce.number().int().positive("ID da categoria deve ser um número inteiro positivo").optional(),
-    treinadorId: z.coerce.number().int().positive("ID do treinador deve ser um número inteiro positivo").optional(),
-}).transform(({ nucleoId, categoriaId, treinadorId, ...resto }) => ({
+    nucleoId: z.coerce.number().int().positive().optional(),
+    categoriasIds: z.array(z.coerce.number().int().positive()).optional(), 
+    treinadorId: z.coerce.number().int().positive().optional(),
+    jogadoresIds: z.array(z.coerce.number().int().positive()).optional(),
+}).transform(({ nucleoId, categoriasIds, treinadorId, jogadoresIds, ...resto }) => ({
     ...resto,
     nucleo: nucleoId ? { id: nucleoId } : undefined,
-    categoria: categoriaId ? { id: categoriaId } : undefined,
+    categorias: categoriasIds?.map(id => ({ id })),  
     treinador: treinadorId ? { id: treinadorId } : undefined,
+    jogadores: jogadoresIds?.map(id => ({ id })),
 }));
+
 
 export const SchemaTimeResposta = z.object({
     id: z.coerce.number().int().positive(),
-    nome: z.string(),
+    nome: z.string().optional(),
     nucleo: SchemaRefNucleo.optional(),
-    categoria: SchemaRefCategoria.optional(),
+    categorias: z.array(SchemaRefCategoria).optional(),
     treinador: SchemaRefUsuario.optional(),
+    jogadores: z.array(SchemaRefUsuario).optional(),
+    jogosComoTimeA: z.array(SchemaRefJogo).optional(),
+    jogosComoTimeB: z.array(SchemaRefJogo).optional(),
+    eventos: z.array(SchemaRefEvento).optional(),
+    competicoes: z.array(SchemaRefCompeticao).optional(),
+    chamadas: z.array(SchemaRefChamada).optional(),
     createdAt: z.coerce.date().optional(),
     updatedAt: z.coerce.date().optional(),
 });
@@ -34,11 +43,13 @@ export const SchemaAtualizarTime = z.object({
     nucleoId: z.coerce.number().int().positive("ID do núcleo deve ser um número inteiro positivo").optional(),
     categoriaId: z.coerce.number().int().positive("ID da categoria deve ser um número inteiro positivo").optional(),
     treinadorId: z.coerce.number().int().positive("ID do treinador deve ser um número inteiro positivo").optional(),
-}).transform(({ nucleoId, categoriaId, treinadorId, ...resto }) => ({
+    jogadoresIds: z.array(z.coerce.number().int().positive("ID do jogador deve ser um número inteiro positivo")).optional(),
+}).transform(({ nucleoId, categoriaId, treinadorId, jogadoresIds, ...resto }) => ({
     ...resto,
     nucleo: nucleoId ? { id: nucleoId } : undefined,
     categoria: categoriaId ? { id: categoriaId } : undefined,
     treinador: treinadorId ? { id: treinadorId } : undefined,
+    jogadores: jogadoresIds ? jogadoresIds.map(id => ({ id })) : undefined,
 }));
 
 export const SchemaBuscarPorIdTime = z.object({
@@ -56,12 +67,12 @@ export const SchemaFiltrosTime = z.object({
     if (filtros.id) where.id = filtros.id;
     if (filtros.nome) where.nome = ILike(`%${filtros.nome}%`);
     if (filtros.nucleoId) where.nucleo = { id: filtros.nucleoId };
-    if (filtros.categoriaId) where.categoria = { id: filtros.categoriaId };
+    if (filtros.categoriaId) where.categorias= { id: filtros.categoriaId };
     if (filtros.treinadorId) where.treinador = { id: filtros.treinadorId };
     return where;
 });
 
-export const RELACOES_TIME = ['nucleo','categoria','treinador','jogadores','jogosComoTimeA','jogosComoTimeB','eventos','competicoes','chamadas'] as const;
+export const RELACOES_TIME = ['nucleo','categorias','treinador','jogadores','jogosComoTimeA','jogosComoTimeB','eventos','competicoes','chamadas'] as const;
 export const QueryIncludesTime = criarIncludesSchema(RELACOES_TIME);
 export const SchemaTimesPaginados = SchemaRespostaPaginada(SchemaTimeResposta);
 

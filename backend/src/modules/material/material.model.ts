@@ -3,6 +3,11 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDa
 import { Nucleo } from "../nucleo/Nucleo.model";
 
 
+export enum MaterialStatus {
+     Bom = "Bom",
+    Manutencao = "Manutencao",
+     Descartado = "Descartado",
+}
 
 @Entity({ name: "materiais" })
 export class Material {
@@ -33,6 +38,9 @@ export class Material {
     
     @UpdateDateColumn({ name: "updated_at" })
     updatedAt!: Date;
+
+    @Column({ type: "enum", enum: MaterialStatus, default: MaterialStatus.Bom })
+    status!: MaterialStatus;
 
     
 }
